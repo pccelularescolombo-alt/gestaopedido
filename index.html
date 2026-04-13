@@ -580,6 +580,123 @@
             box-shadow: 0 6px 20px rgba(0, 204, 0, 0.4);
         }
 
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-box {
+            background: #1a1a1a;
+            border: 2px solid rgba(255, 140, 0, 0.5);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-box h3 {
+            color: #ff8c00;
+            margin-bottom: 20px;
+        }
+
+        .admin-order-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(30, 144, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .admin-order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-order-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-edit {
+            padding: 6px 14px;
+            background: rgba(30, 144, 255, 0.2);
+            border: 2px solid rgba(30, 144, 255, 0.5);
+            border-radius: 6px;
+            color: #1e90ff;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-edit:hover {
+            background: rgba(30, 144, 255, 0.4);
+        }
+
+        .btn-delete {
+            padding: 6px 14px;
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid rgba(255, 0, 0, 0.5);
+            border-radius: 6px;
+            color: #ff6666;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 0, 0, 0.4);
+        }
+
+        .edit-item-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .edit-item-row {
+                grid-template-columns: 1fr;
+            }
+            .admin-order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .admin-order-actions {
+                width: 100%;
+            }
+            .admin-order-actions button {
+                flex: 1;
+            }
+            .modal-box {
+                padding: 20px 15px;
+            }
+        }
+
         /* ========================================
            RESPONSIVIDADE - MOBILE FIRST
            ======================================== */
@@ -972,6 +1089,7 @@
             <div class="tabs">
                 <button class="tab active" onclick="showTab('newOrder')" id="tab-newOrder">Novo Pedido</button>
                 <button class="tab" onclick="showTab('checkOrder')" id="tab-checkOrder">Conferir Pedido</button>
+                <button class="tab hidden" onclick="showTab('products')" id="tab-products">Produtos</button>
                 <button class="tab" onclick="requestAdminAccess()" id="tab-admin">Admin</button>
             </div>
 
@@ -1022,7 +1140,20 @@
                 </div>
             </div>
 
-            <!-- Tab 3: Admin -->
+            <!-- Tab 3: Produtos (admin only) -->
+            <div id="content-products" class="tab-content">
+                <div class="card">
+                    <h2>📦 Gerenciar Produtos</h2>
+                    <div class="input-group">
+                        <input type="text" id="newProductName" class="input-field" placeholder="Nome do Produto">
+                        <button class="btn-primary" onclick="addProduct()">Adicionar Produto</button>
+                    </div>
+                    
+                    <div class="product-list" id="productsList"></div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Admin -->
             <div id="content-admin" class="tab-content">
                 <div class="card">
                     <h2>🏪 Configuração da Loja</h2>
@@ -1033,13 +1164,8 @@
                 </div>
 
                 <div class="card">
-                    <h2>📦 Gerenciar Produtos</h2>
-                    <div class="input-group">
-                        <input type="text" id="newProductName" class="input-field" placeholder="Nome do Produto">
-                        <button class="btn-primary" onclick="addProduct()">Adicionar Produto</button>
-                    </div>
-                    
-                    <div class="product-list" id="productsList"></div>
+                    <h2>📝 Gerenciar Pedidos Pendentes</h2>
+                    <div id="adminOrdersList"></div>
                 </div>
 
                 <div class="card">
@@ -1061,6 +1187,36 @@
                     <h2>📊 Estatísticas dos Últimos 5 Pedidos</h2>
                     <div class="chart-container" id="statsChart"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Order Modal -->
+    <div id="editOrderModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3>📝 Editar Pedido</h3>
+            <div style="margin-bottom: 15px;">
+                <label style="color: #1e90ff; font-weight: 600; display: block; margin-bottom: 8px;">Estoque</label>
+                <select id="editOrderEstoque" class="input-field" style="width: 100%;">
+                    <option value="Estoque Produtos">Estoque Produtos</option>
+                    <option value="Estoque Nicola">Estoque Nicola</option>
+                    <option value="Estoque Capa">Estoque Capa</option>
+                </select>
+            </div>
+            <div id="editOrderItems"></div>
+            <div style="margin-top: 15px;">
+                <div class="input-group">
+                    <input type="number" id="editNewQty" class="input-field" placeholder="Qtd" min="1">
+                    <select id="editNewProduct" class="input-field">
+                        <option value="">Selecione um produto</option>
+                    </select>
+                    <input type="text" id="editNewOthers" class="input-field" placeholder="Obs (opcional)">
+                </div>
+                <button class="btn-primary" onclick="addItemToEdit()" style="margin-top: 10px;">+ Novo Item</button>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-success" onclick="saveEditOrder()">Salvar Alterações</button>
+                <button class="btn-danger" onclick="closeEditModal()" style="padding: 12px 24px;">Cancelar</button>
             </div>
         </div>
     </div>
@@ -1117,9 +1273,11 @@
                 document.getElementById('mainApp').classList.remove('hidden');
                 document.getElementById('currentUserType').textContent = 'Administrador';
                 document.getElementById('btnLogout').classList.remove('hidden');
+                document.getElementById('tab-products').classList.remove('hidden');
                 
                 updateStats();
                 populateDateSelects();
+                loadAdminOrders();
                 showTab('admin');
             } else {
                 alert('Senha incorreta!');
@@ -1137,12 +1295,13 @@
             currentUser = 'user';
             document.getElementById('currentUserType').textContent = 'Usuário Padrão';
             document.getElementById('btnLogout').classList.add('hidden');
+            document.getElementById('tab-products').classList.add('hidden');
             showTab('newOrder');
         }
 
         // Tab navigation
         function showTab(tabName) {
-            if (tabName === 'admin' && currentUser !== 'admin') {
+            if ((tabName === 'admin' || tabName === 'products') && currentUser !== 'admin') {
                 requestAdminAccess();
                 return;
             }
@@ -1159,6 +1318,11 @@
             if (tabName === 'admin') {
                 updateStats();
                 populateDateSelects();
+                loadAdminOrders();
+            }
+            
+            if (tabName === 'products') {
+                loadProducts();
             }
             
             if (tabName === 'checkOrder') {
@@ -1962,6 +2126,204 @@
             navigator.clipboard.writeText(text).then(() => {
                 alert('Relatório copiado para a área de transferência!');
             });
+        }
+
+        // ========================================
+        // ADMIN: Gerenciar Pedidos Pendentes
+        // ========================================
+        
+        let editingOrderId = null;
+        let editingItems = [];
+
+        // Load admin orders list (only Pendente)
+        function loadAdminOrders() {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const container = document.getElementById('adminOrdersList');
+            
+            const pendingOrders = orders.filter(o => o.status === 'Pendente').reverse();
+            
+            if (pendingOrders.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum pedido pendente para gerenciar</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            pendingOrders.forEach(order => {
+                const estoqueTag = order.estoque ? `<span style="background: rgba(30, 144, 255, 0.2); color: #1e90ff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${order.estoque}</span>` : '';
+                
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    itemsHtml += `<div style="margin: 5px 0; color: rgba(255,255,255,0.8);">${item.quantity}x ${item.product}${item.others ? ' - ' + item.others : ''}</div>`;
+                });
+                
+                const div = document.createElement('div');
+                div.className = 'admin-order-card';
+                div.innerHTML = `
+                    <div class="admin-order-header">
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                            <span class="order-date">${order.date}</span>
+                            ${estoqueTag}
+                            <span class="status-badge status-pending">Pendente</span>
+                        </div>
+                        <div class="admin-order-actions">
+                            <button class="btn-edit" onclick="openEditOrder(${order.id})">Editar</button>
+                            <button class="btn-delete" onclick="deleteOrder(${order.id})">Apagar</button>
+                        </div>
+                    </div>
+                    ${itemsHtml}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Delete order
+        function deleteOrder(orderId) {
+            if (!confirm('Tem certeza que deseja apagar este pedido?')) return;
+            
+            let orders = JSON.parse(localStorage.getItem('orders'));
+            orders = orders.filter(o => o.id !== orderId);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            loadAdminOrders();
+            loadRecentOrders();
+            loadOrdersToCheck();
+            updateStats();
+            alert('Pedido apagado!');
+        }
+
+        // Open edit modal
+        function openEditOrder(orderId) {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order || order.status === 'Conferido') {
+                alert('Este pedido não pode ser editado!');
+                return;
+            }
+            
+            editingOrderId = orderId;
+            editingItems = order.items.map(item => ({...item}));
+            
+            // Set estoque
+            document.getElementById('editOrderEstoque').value = order.estoque || '';
+            
+            // Populate product select
+            const products = JSON.parse(localStorage.getItem('products'));
+            const editProductSelect = document.getElementById('editNewProduct');
+            editProductSelect.innerHTML = '<option value="">Selecione um produto</option>';
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product;
+                option.textContent = product;
+                editProductSelect.appendChild(option);
+            });
+            
+            renderEditItems();
+            document.getElementById('editOrderModal').classList.remove('hidden');
+        }
+
+        // Render items in edit modal
+        function renderEditItems() {
+            const container = document.getElementById('editOrderItems');
+            
+            if (editingItems.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding: 15px;">Nenhum item no pedido</div>';
+                return;
+            }
+            
+            const products = JSON.parse(localStorage.getItem('products'));
+            
+            container.innerHTML = '';
+            editingItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'edit-item-row';
+                
+                let productOptions = '';
+                products.forEach(p => {
+                    productOptions += `<option value="${p}" ${p === item.product ? 'selected' : ''}>${p}</option>`;
+                });
+                
+                div.innerHTML = `
+                    <input type="number" class="input-field" value="${item.quantity}" min="1" onchange="updateEditItem(${index}, 'quantity', this.value)">
+                    <select class="input-field" onchange="updateEditItem(${index}, 'product', this.value)">
+                        ${productOptions}
+                    </select>
+                    <input type="text" class="input-field" value="${item.others || ''}" placeholder="Obs" onchange="updateEditItem(${index}, 'others', this.value)">
+                    <button class="btn-danger btn-small" onclick="removeEditItem(${index})">X</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Update edit item
+        function updateEditItem(index, field, value) {
+            if (field === 'quantity') {
+                editingItems[index].quantity = parseInt(value);
+            } else {
+                editingItems[index][field] = value;
+            }
+        }
+
+        // Remove item from edit
+        function removeEditItem(index) {
+            editingItems.splice(index, 1);
+            renderEditItems();
+        }
+
+        // Add item to edit
+        function addItemToEdit() {
+            const qty = document.getElementById('editNewQty').value;
+            const product = document.getElementById('editNewProduct').value;
+            const others = document.getElementById('editNewOthers').value;
+            
+            if (!qty || !product) {
+                alert('Preencha quantidade e produto!');
+                return;
+            }
+            
+            editingItems.push({
+                quantity: parseInt(qty),
+                product: product,
+                others: others
+            });
+            
+            document.getElementById('editNewQty').value = '';
+            document.getElementById('editNewProduct').value = '';
+            document.getElementById('editNewOthers').value = '';
+            
+            renderEditItems();
+        }
+
+        // Save edited order
+        function saveEditOrder() {
+            if (editingItems.length === 0) {
+                alert('O pedido precisa ter pelo menos um item!');
+                return;
+            }
+            
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const orderIndex = orders.findIndex(o => o.id === editingOrderId);
+            
+            if (orderIndex === -1) return;
+            
+            orders[orderIndex].items = editingItems.map(item => ({...item}));
+            orders[orderIndex].estoque = document.getElementById('editOrderEstoque').value;
+            
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            closeEditModal();
+            loadAdminOrders();
+            loadRecentOrders();
+            loadOrdersToCheck();
+            updateStats();
+            alert('Pedido atualizado!');
+        }
+
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('editOrderModal').classList.add('hidden');
+            editingOrderId = null;
+            editingItems = [];
         }
 
         // Initialize app
