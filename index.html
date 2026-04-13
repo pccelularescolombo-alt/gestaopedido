@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Pedidos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 140, 0, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ff8c00;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1e90ff;
+            font-weight: 600;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(30, 144, 255, 0.3);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff8c00;
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6600 100%);
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px 0;
+            border-bottom: 3px solid #ff8c00;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header h1 {
+            color: #ff8c00;
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-type {
+            color: #1e90ff;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid rgba(255, 0, 0, 0.5);
+            border-radius: 6px;
+            color: #ff6666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 0, 0, 0.4);
+            border-color: #ff0000;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255, 140, 0, 0.3);
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            border-bottom: none;
+        }
+
+        .tab:hover {
+            background: rgba(255, 140, 0, 0.1);
+        }
+
+        .tab.active {
+            background: rgba(255, 140, 0, 0.2);
+            border-color: #ff8c00;
+            border-bottom: 2px solid #2d2d2d;
+            color: #ff8c00;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(30, 144, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #1e90ff;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        /* Form elements */
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-field {
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(30, 144, 255, 0.3);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #1e90ff 0%, #0066cc 100%);
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4);
+        }
+
+        .btn-success {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00cc00 0%, #009900 100%);
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 204, 0, 0.4);
+        }
+
+        .btn-danger {
+            padding: 8px 16px;
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid rgba(255, 0, 0, 0.5);
+            border-radius: 6px;
+            color: #ff6666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 0, 0, 0.4);
+        }
+
+        .btn-warning {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6600 100%);
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+        }
+
+        /* Tables */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table th {
+            background: rgba(255, 140, 0, 0.2);
+            color: #ff8c00;
+            font-weight: 700;
+        }
+
+        .table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Order items */
+        .order-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #1e90ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-item-info {
+            flex: 1;
+        }
+
+        /* Chart */
+        .chart-container {
+            margin-top: 20px;
+        }
+
+        .chart-bar {
+            margin-bottom: 15px;
+        }
+
+        .chart-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            color: #1e90ff;
+            font-weight: 600;
+        }
+
+        .chart-bar-bg {
+            background: rgba(0, 0, 0, 0.4);
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chart-bar-fill {
+            background: linear-gradient(90deg, #ff8c00 0%, #ff6600 100%);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: 700;
+            transition: width 0.5s ease;
+        }
+
+        /* Recent orders list */
+        .recent-orders {
+            margin-top: 30px;
+        }
+
+        .order-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 140, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .order-date {
+            color: #1e90ff;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            padding: 6px 12px;
+            background: rgba(255, 140, 0, 0.2);
+            border: 1px solid #ff8c00;
+            border-radius: 5px;
+            color: #ff8c00;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 140, 0, 0.4);
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(255, 140, 0, 0.2);
+            color: #ff8c00;
+        }
+
+        .status-checked {
+            background: rgba(0, 204, 0, 0.2);
+            color: #00cc00;
+        }
+
+        /* Check options */
+        .check-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .check-option {
+            padding: 8px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .check-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .check-option.selected {
+            border-color: #1e90ff;
+            background: rgba(30, 144, 255, 0.2);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Product list */
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .product-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid rgba(30, 144, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-name {
+            color: #1e90ff;
+            font-weight: 600;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Monthly Report */
+        .report-summary {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 140, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .report-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: rgba(30, 144, 255, 0.1);
+            border: 2px solid rgba(30, 144, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ff8c00;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #1e90ff;
+            text-transform: uppercase;
+        }
+
+        .report-list {
+            margin-top: 20px;
+        }
+
+        .report-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #1e90ff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .report-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #1e90ff;
+            font-weight: 600;
+        }
+
+        .report-item-content {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .btn-export {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #00cc00 0%, #009900 100%);
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 204, 0, 0.4);
+        }
+
+        /* ========================================
+           RESPONSIVIDADE - MOBILE FIRST
+           ======================================== */
+
+        /* Tablets e dispositivos médios (max-width: 768px) */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            /* Login */
+            .login-screen {
+                padding: 20px;
+            }
+
+            .login-box {
+                padding: 30px 20px;
+                max-width: 90%;
+            }
+
+            .login-box h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            /* Header */
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .user-info {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .btn-logout {
+                width: 100%;
+            }
+
+            /* Tabs */
+            .tabs {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .tab {
+                padding: 12px 20px;
+                width: 100%;
+                text-align: center;
+                font-size: 14px;
+            }
+
+            /* Cards */
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .card h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+
+            /* Input Groups */
+            .input-group {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            /* Buttons */
+            .btn-primary,
+            .btn-success,
+            .btn-warning,
+            .btn-export {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+                padding: 14px;
+            }
+
+            .btn-danger {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            /* Product List */
+            .product-list {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .product-item {
+                padding: 12px;
+            }
+
+            /* Table */
+            .table {
+                font-size: 12px;
+            }
+
+            .table th,
+            .table td {
+                padding: 8px 5px;
+            }
+
+            /* Order Items */
+            .order-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 12px;
+            }
+
+            .order-item-info {
+                width: 100%;
+            }
+
+            /* Check Options */
+            .check-options {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .check-option {
+                width: 100%;
+                text-align: center;
+            }
+
+            /* Chart */
+            .chart-label {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            /* Order Card */
+            .order-card {
+                padding: 12px;
+            }
+
+            .order-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .copy-btn {
+                width: 100%;
+            }
+
+            /* Report Stats */
+            .report-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .stat-box {
+                padding: 12px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+            }
+
+            /* Report Item */
+            .report-item {
+                padding: 12px;
+            }
+
+            .report-item-header {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
+
+            /* Recent Orders */
+            .recent-orders h2 {
+                font-size: 18px;
+            }
+        }
+
+        /* Mobile pequeno (max-width: 480px) */
+        @media screen and (max-width: 480px) {
+            body {
+                font-size: 14px;
+            }
+
+            .container {
+                padding: 5px;
+            }
+
+            .login-box {
+                padding: 20px 15px;
+                border-radius: 15px;
+            }
+
+            .login-box h1 {
+                font-size: 20px;
+            }
+
+            .form-group label {
+                font-size: 14px;
+            }
+
+            .form-group select,
+            .form-group input,
+            .input-field {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .user-type {
+                font-size: 14px;
+            }
+
+            .tab {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+
+            .card {
+                padding: 12px;
+                border-radius: 10px;
+            }
+
+            .card h2 {
+                font-size: 16px;
+            }
+
+            .btn,
+            .btn-primary,
+            .btn-success,
+            .btn-warning,
+            .btn-export {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .product-item {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .order-item {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .chart-bar-bg {
+                height: 25px;
+            }
+
+            .chart-label {
+                font-size: 13px;
+            }
+
+            .report-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            .stat-label {
+                font-size: 10px;
+            }
+
+            .report-item {
+                padding: 10px;
+            }
+
+            .report-item-content {
+                font-size: 13px;
+            }
+
+            .status-badge {
+                font-size: 11px;
+                padding: 3px 10px;
+            }
+
+            /* Hide scroll on small screens for better UX */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        /* Desktop grande (min-width: 1200px) */
+        @media screen and (min-width: 1200px) {
+            .container {
+                padding: 30px;
+            }
+
+            .card {
+                padding: 30px;
+            }
+
+            .input-group {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .product-list {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .report-stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Landscape mobile */
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+            .login-screen {
+                padding: 20px 0;
+            }
+
+            .login-box {
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .header {
+                padding: 15px 0;
+            }
+        }
+
+        /* Touch devices - Aumentar área de toque */
+        @media (hover: none) and (pointer: coarse) {
+            .btn,
+            .btn-primary,
+            .btn-success,
+            .btn-danger,
+            .btn-warning,
+            .btn-logout,
+            .copy-btn,
+            .check-option {
+                min-height: 44px;
+                min-width: 44px;
+            }
+
+            .tab {
+                min-height: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen (only for admin) -->
+    <div id="loginScreen" class="login-screen hidden">
+        <div class="login-box">
+            <h1>🔐 Acesso Admin</h1>
+            <div class="form-group">
+                <label>Senha do Administrador</label>
+                <input type="password" id="password" placeholder="Digite a senha do admin">
+            </div>
+            <button class="btn" onclick="loginAdmin()">Entrar como Admin</button>
+            <button class="btn-danger" onclick="cancelAdminLogin()" style="width: 100%; margin-top: 10px; padding: 12px;">Voltar</button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp">
+        <div class="header">
+            <div class="header-content">
+                <h1 id="storeNameDisplay">Sistema de Pedidos</h1>
+                <div class="user-info">
+                    <span class="user-type" id="currentUserType">Usuário Padrão</span>
+                    <button class="btn-logout hidden" id="btnLogout" onclick="logoutAdmin()">Sair do Admin</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('newOrder')" id="tab-newOrder">Novo Pedido</button>
+                <button class="tab" onclick="showTab('checkOrder')" id="tab-checkOrder">Conferir Pedido</button>
+                <button class="tab" onclick="requestAdminAccess()" id="tab-admin">Admin</button>
+            </div>
+
+            <!-- Tab 1: Novo Pedido -->
+            <div id="content-newOrder" class="tab-content active">
+                <div class="card">
+                    <h2>➕ Criar Novo Pedido</h2>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="color: #1e90ff; font-weight: 600; display: block; margin-bottom: 8px;">Estoque</label>
+                        <select id="orderEstoque" class="input-field" style="width: 100%;">
+                            <option value="">Selecione o estoque</option>
+                            <option value="Estoque Produtos">Estoque Produtos</option>
+                            <option value="Estoque Nicola">Estoque Nicola</option>
+                            <option value="Estoque Capa">Estoque Capa</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="number" id="itemQuantity" class="input-field" placeholder="Quantidade" min="1">
+                        <select id="itemProduct" class="input-field">
+                            <option value="">Selecione um produto</option>
+                        </select>
+                        <input type="text" id="itemOthers" class="input-field" placeholder="Observações (opcional)">
+                    </div>
+                    
+                    <button class="btn-primary" onclick="addItem()">Adicionar Item</button>
+                    
+                    <div id="currentOrderItems" style="margin-top: 20px;"></div>
+                    
+                    <div style="margin-top: 20px;">
+                        <button class="btn-success" onclick="saveOrder()">Salvar Pedido</button>
+                        <button class="btn-danger" onclick="clearCurrentOrder()">Limpar Pedido</button>
+                    </div>
+                </div>
+
+                <div class="recent-orders">
+                    <h2 style="color: #ff8c00; margin-bottom: 20px;">📋 Últimos 5 Pedidos</h2>
+                    <div id="recentOrdersList"></div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Conferir Pedido -->
+            <div id="content-checkOrder" class="tab-content">
+                <div class="card">
+                    <h2>✅ Conferir Pedidos</h2>
+                    <div id="ordersToCheck"></div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Admin -->
+            <div id="content-admin" class="tab-content">
+                <div class="card">
+                    <h2>🏪 Configuração da Loja</h2>
+                    <div class="input-group">
+                        <input type="text" id="storeNameInput" class="input-field" placeholder="Nome da Loja">
+                        <button class="btn-primary" onclick="saveStoreName()">Salvar Nome da Loja</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📦 Gerenciar Produtos</h2>
+                    <div class="input-group">
+                        <input type="text" id="newProductName" class="input-field" placeholder="Nome do Produto">
+                        <button class="btn-primary" onclick="addProduct()">Adicionar Produto</button>
+                    </div>
+                    
+                    <div class="product-list" id="productsList"></div>
+                </div>
+
+                <div class="card">
+                    <h2>📅 Relatórios Mensais</h2>
+                    <div class="input-group">
+                        <select id="reportMonth" class="input-field">
+                            <option value="">Selecione o mês</option>
+                        </select>
+                        <select id="reportYear" class="input-field">
+                            <option value="">Selecione o ano</option>
+                        </select>
+                        <button class="btn-primary" onclick="generateMonthlyReport()">Gerar Relatório</button>
+                    </div>
+                    
+                    <div id="monthlyReportContent" style="margin-top: 20px;"></div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 Estatísticas dos Últimos 5 Pedidos</h2>
+                    <div class="chart-container" id="statsChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize localStorage
+        function initializeStorage() {
+            // Admin password
+            if (!localStorage.getItem('adminPassword')) {
+                localStorage.setItem('adminPassword', '19021998');
+            }
+            
+            if (!localStorage.getItem('storeName')) {
+                localStorage.setItem('storeName', 'Loja');
+            }
+            
+            if (!localStorage.getItem('products')) {
+                localStorage.setItem('products', JSON.stringify([]));
+            }
+            
+            if (!localStorage.getItem('orders')) {
+                localStorage.setItem('orders', JSON.stringify([]));
+            }
+            
+            if (!localStorage.getItem('checks')) {
+                localStorage.setItem('checks', JSON.stringify([]));
+            }
+        }
+
+        // Current session
+        let currentUser = 'user';
+        let currentOrderItems = [];
+
+        // Request admin access - shows login screen
+        function requestAdminAccess() {
+            if (currentUser === 'admin') {
+                showTab('admin');
+                return;
+            }
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('password').value = '';
+            document.getElementById('password').focus();
+        }
+
+        // Login as admin
+        function loginAdmin() {
+            const password = document.getElementById('password').value;
+            const adminPassword = localStorage.getItem('adminPassword');
+            
+            if (password === adminPassword) {
+                currentUser = 'admin';
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                document.getElementById('currentUserType').textContent = 'Administrador';
+                document.getElementById('btnLogout').classList.remove('hidden');
+                
+                updateStats();
+                populateDateSelects();
+                showTab('admin');
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
+
+        // Cancel admin login
+        function cancelAdminLogin() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+        }
+
+        // Logout from admin
+        function logoutAdmin() {
+            currentUser = 'user';
+            document.getElementById('currentUserType').textContent = 'Usuário Padrão';
+            document.getElementById('btnLogout').classList.add('hidden');
+            showTab('newOrder');
+        }
+
+        // Tab navigation
+        function showTab(tabName) {
+            if (tabName === 'admin' && currentUser !== 'admin') {
+                requestAdminAccess();
+                return;
+            }
+            
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.getElementById('content-' + tabName).classList.add('active');
+            
+            if (tabName === 'admin') {
+                updateStats();
+                populateDateSelects();
+            }
+            
+            if (tabName === 'checkOrder') {
+                loadOrdersToCheck();
+            }
+        }
+
+        // Load store name
+        function loadStoreName() {
+            const storeName = localStorage.getItem('storeName');
+            document.getElementById('storeNameDisplay').textContent = storeName;
+            document.getElementById('storeNameInput').value = storeName;
+        }
+
+        // Save store name
+        function saveStoreName() {
+            const storeName = document.getElementById('storeNameInput').value.trim();
+            if (storeName) {
+                localStorage.setItem('storeName', storeName);
+                loadStoreName();
+                alert('Nome da loja salvo!');
+            }
+        }
+
+        // Load products
+        function loadProducts() {
+            const products = JSON.parse(localStorage.getItem('products'));
+            const productSelect = document.getElementById('itemProduct');
+            const productsList = document.getElementById('productsList');
+            
+            // Update select
+            productSelect.innerHTML = '<option value="">Selecione um produto</option>';
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product;
+                option.textContent = product;
+                productSelect.appendChild(option);
+            });
+            
+            // Update products list (admin)
+            if (productsList) {
+                if (products.length === 0) {
+                    productsList.innerHTML = '<div class="empty-state">Nenhum produto cadastrado</div>';
+                } else {
+                    productsList.innerHTML = '';
+                    products.forEach((product, index) => {
+                        const div = document.createElement('div');
+                        div.className = 'product-item';
+                        div.innerHTML = `
+                            <span class="product-name">${product}</span>
+                            <button class="btn-danger btn-small" onclick="removeProduct(${index})">Remover</button>
+                        `;
+                        productsList.appendChild(div);
+                    });
+                }
+            }
+        }
+
+        // Add product
+        function addProduct() {
+            const productName = document.getElementById('newProductName').value.trim();
+            if (productName) {
+                const products = JSON.parse(localStorage.getItem('products'));
+                if (!products.includes(productName)) {
+                    products.push(productName);
+                    localStorage.setItem('products', JSON.stringify(products));
+                    document.getElementById('newProductName').value = '';
+                    loadProducts();
+                    updateStats();
+                } else {
+                    alert('Produto já existe!');
+                }
+            }
+        }
+
+        // Remove product
+        function removeProduct(index) {
+            if (confirm('Deseja remover este produto?')) {
+                const products = JSON.parse(localStorage.getItem('products'));
+                products.splice(index, 1);
+                localStorage.setItem('products', JSON.stringify(products));
+                loadProducts();
+                updateStats();
+            }
+        }
+
+        // Add item to current order
+        function addItem() {
+            const quantity = document.getElementById('itemQuantity').value;
+            const product = document.getElementById('itemProduct').value;
+            const others = document.getElementById('itemOthers').value;
+            
+            if (!quantity || !product) {
+                alert('Preencha quantidade e produto!');
+                return;
+            }
+            
+            currentOrderItems.push({
+                quantity: parseInt(quantity),
+                product: product,
+                others: others
+            });
+            
+            document.getElementById('itemQuantity').value = '';
+            document.getElementById('itemProduct').value = '';
+            document.getElementById('itemOthers').value = '';
+            
+            displayCurrentOrder();
+        }
+
+        // Display current order
+        function displayCurrentOrder() {
+            const container = document.getElementById('currentOrderItems');
+            
+            if (currentOrderItems.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum item adicionado</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            currentOrderItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'order-item';
+                div.innerHTML = `
+                    <div class="order-item-info">
+                        <strong>${item.quantity}x ${item.product}</strong>
+                        ${item.others ? `<br><small style="color: #aaa;">${item.others}</small>` : ''}
+                    </div>
+                    <button class="btn-danger" onclick="removeItem(${index})">Remover</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Remove item from current order
+        function removeItem(index) {
+            currentOrderItems.splice(index, 1);
+            displayCurrentOrder();
+        }
+
+        // Clear current order
+        function clearCurrentOrder() {
+            if (currentOrderItems.length > 0 && confirm('Deseja limpar todos os itens?')) {
+                currentOrderItems = [];
+                displayCurrentOrder();
+            }
+        }
+
+        // Save order
+        function saveOrder() {
+            if (currentOrderItems.length === 0) {
+                alert('Adicione pelo menos um item ao pedido!');
+                return;
+            }
+            
+            const estoque = document.getElementById('orderEstoque').value;
+            if (!estoque) {
+                alert('Selecione o estoque!');
+                return;
+            }
+            
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const storeName = localStorage.getItem('storeName');
+            const now = new Date();
+            
+            const order = {
+                id: Date.now(),
+                storeName: storeName,
+                estoque: estoque,
+                date: now.toLocaleString('pt-BR'),
+                items: [...currentOrderItems],
+                status: 'Pendente'
+            };
+            
+            orders.push(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            currentOrderItems = [];
+            displayCurrentOrder();
+            loadRecentOrders();
+            
+            alert('Pedido salvo com sucesso!');
+        }
+
+        // Load recent orders
+        function loadRecentOrders() {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const recentOrders = orders.slice(-5).reverse();
+            const container = document.getElementById('recentOrdersList');
+            
+            if (recentOrders.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum pedido realizado</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            recentOrders.forEach(order => {
+                const div = document.createElement('div');
+                div.className = 'order-card';
+                
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    itemsHtml += `<div style="margin: 5px 0;">${item.quantity}x ${item.product}${item.others ? ' - ' + item.others : ''}</div>`;
+                });
+                
+                const estoqueTag = order.estoque ? `<span style="background: rgba(30, 144, 255, 0.2); color: #1e90ff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${order.estoque}</span>` : '';
+                
+                div.innerHTML = `
+                    <div class="order-header">
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                            <span class="order-date">${order.date}</span>
+                            ${estoqueTag}
+                        </div>
+                        <button class="copy-btn" onclick="copyOrderText(${order.id})">📋 Copiar</button>
+                    </div>
+                    ${itemsHtml}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Copy order as text
+        function copyOrderText(orderId) {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order) return;
+            
+            let text = `Pedido ${order.storeName} - ${order.estoque || 'Sem estoque'} Data: ${order.date}\n`;
+            order.items.forEach(item => {
+                text += `${item.quantity} ${item.product}${item.others ? ' ' + item.others : ''}\n`;
+            });
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Pedido copiado!');
+            });
+        }
+
+        // Load orders to check
+        function loadOrdersToCheck() {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const recentOrders = orders.slice(-5).reverse();
+            const container = document.getElementById('ordersToCheck');
+            
+            if (recentOrders.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum pedido para conferir</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            recentOrders.forEach(order => {
+                const div = document.createElement('div');
+                div.className = 'order-card';
+                div.style.marginBottom = '30px';
+                
+                const statusClass = order.status === 'Pendente' ? 'status-pending' : 'status-checked';
+                
+                const estoqueTag = order.estoque ? `<span style="background: rgba(30, 144, 255, 0.2); color: #1e90ff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${order.estoque}</span>` : '';
+                
+                let itemsHtml = '';
+                order.items.forEach((item, itemIndex) => {
+                    const checkData = order.checkData && order.checkData[itemIndex];
+                    const currentStatus = checkData ? checkData.status : '';
+                    const receivedQty = checkData ? checkData.receivedQuantity : '';
+                    
+                    itemsHtml += `
+                        <div class="order-item" id="check-item-${order.id}-${itemIndex}">
+                            <div style="flex: 1;">
+                                <strong>${item.quantity}x ${item.product}</strong>
+                                ${item.others ? `<br><small style="color: #aaa;">${item.others}</small>` : ''}
+                                <div class="check-options">
+                                    <div class="check-option ${currentStatus === 'Correto' ? 'selected' : ''}" onclick="setCheckStatus(${order.id}, ${itemIndex}, 'Correto')">✅ Correto</div>
+                                    <div class="check-option ${currentStatus === 'Faltando' ? 'selected' : ''}" onclick="setCheckStatus(${order.id}, ${itemIndex}, 'Faltando')">⚠️ Faltando</div>
+                                    <div class="check-option ${currentStatus === 'Não veio' ? 'selected' : ''}" onclick="setCheckStatus(${order.id}, ${itemIndex}, 'Não veio')">❌ Não veio</div>
+                                </div>
+                                <div id="faltando-input-${order.id}-${itemIndex}" class="${currentStatus === 'Faltando' ? '' : 'hidden'}" style="margin-top: 10px;">
+                                    <input type="number" class="input-field" placeholder="Quantidade recebida" value="${receivedQty}" onchange="setReceivedQuantity(${order.id}, ${itemIndex}, this.value)" min="0" max="${item.quantity - 1}">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                div.innerHTML = `
+                    <div class="order-header">
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                            <span class="order-date">${order.date}</span>
+                            ${estoqueTag}
+                            <span class="status-badge ${statusClass}">${order.status}</span>
+                        </div>
+                    </div>
+                    ${itemsHtml}
+                    <div style="margin-top: 20px;">
+                        <button class="btn-success" onclick="saveCheck(${order.id})">Salvar Conferência</button>
+                        <button class="btn-warning" onclick="copyCheckText(${order.id})">📋 Copiar Conferência</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Set check status
+        function setCheckStatus(orderId, itemIndex, status) {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order.checkData) {
+                order.checkData = [];
+            }
+            
+            if (!order.checkData[itemIndex]) {
+                order.checkData[itemIndex] = {};
+            }
+            
+            order.checkData[itemIndex].status = status;
+            
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            // Show/hide quantity input for "Faltando"
+            const faltandoInput = document.getElementById(`faltando-input-${orderId}-${itemIndex}`);
+            if (status === 'Faltando') {
+                faltandoInput.classList.remove('hidden');
+            } else {
+                faltandoInput.classList.add('hidden');
+            }
+            
+            loadOrdersToCheck();
+        }
+
+        // Set received quantity
+        function setReceivedQuantity(orderId, itemIndex, quantity) {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order.checkData) {
+                order.checkData = [];
+            }
+            
+            if (!order.checkData[itemIndex]) {
+                order.checkData[itemIndex] = {};
+            }
+            
+            order.checkData[itemIndex].receivedQuantity = parseInt(quantity);
+            localStorage.setItem('orders', JSON.stringify(orders));
+        }
+
+        // Save check
+        function saveCheck(orderId) {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order.checkData || order.checkData.length === 0) {
+                alert('Confira pelo menos um item!');
+                return;
+            }
+            
+            // Check if all items have status
+            let allChecked = true;
+            for (let i = 0; i < order.items.length; i++) {
+                if (!order.checkData[i] || !order.checkData[i].status) {
+                    allChecked = false;
+                    break;
+                }
+            }
+            
+            if (!allChecked) {
+                alert('Confira todos os itens antes de salvar!');
+                return;
+            }
+            
+            order.status = 'Conferido';
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            loadOrdersToCheck();
+            alert('Conferência salva!');
+        }
+
+        // Copy check as text
+        function copyCheckText(orderId) {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order || !order.checkData) {
+                alert('Confira o pedido antes de copiar!');
+                return;
+            }
+            
+            let text = `Conferido Pedido ${order.storeName} - ${order.estoque || 'Sem estoque'} Data: ${order.date}\n`;
+            order.items.forEach((item, index) => {
+                const checkData = order.checkData[index];
+                let statusText = checkData ? checkData.status : 'Não conferido';
+                
+                if (checkData && checkData.status === 'Faltando' && checkData.receivedQuantity !== undefined) {
+                    statusText += ` (Recebido: ${checkData.receivedQuantity})`;
+                }
+                
+                text += `${item.quantity} ${item.product} [Conferido: ${statusText}]\n`;
+            });
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Conferência copiada!');
+            });
+        }
+
+        // Update statistics
+        function updateStats() {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const recentOrders = orders.slice(-5);
+            const products = JSON.parse(localStorage.getItem('products'));
+            const container = document.getElementById('statsChart');
+            
+            if (recentOrders.length === 0 || products.length === 0) {
+                container.innerHTML = '<div class="empty-state">Sem dados suficientes para estatísticas</div>';
+                return;
+            }
+            
+            // Count products
+            const productCounts = {};
+            products.forEach(product => {
+                productCounts[product] = 0;
+            });
+            
+            recentOrders.forEach(order => {
+                order.items.forEach(item => {
+                    if (productCounts.hasOwnProperty(item.product)) {
+                        productCounts[item.product] += item.quantity;
+                    }
+                });
+            });
+            
+            // Calculate total
+            const total = Object.values(productCounts).reduce((sum, count) => sum + count, 0);
+            
+            if (total === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum produto pedido ainda</div>';
+                return;
+            }
+            
+            // Create bars
+            container.innerHTML = '';
+            
+            // Sort by count (descending)
+            const sortedProducts = Object.entries(productCounts).sort((a, b) => b[1] - a[1]);
+            
+            sortedProducts.forEach(([product, count]) => {
+                const percentage = ((count / total) * 100).toFixed(1);
+                
+                const barDiv = document.createElement('div');
+                barDiv.className = 'chart-bar';
+                barDiv.innerHTML = `
+                    <div class="chart-label">
+                        <span>${product}</span>
+                        <span>${count} un.</span>
+                    </div>
+                    <div class="chart-bar-bg">
+                        <div class="chart-bar-fill" style="width: ${percentage}%">
+                            ${percentage}%
+                        </div>
+                    </div>
+                `;
+                container.appendChild(barDiv);
+            });
+        }
+
+        // Populate month and year selects
+        function populateDateSelects() {
+            const monthSelect = document.getElementById('reportMonth');
+            const yearSelect = document.getElementById('reportYear');
+            
+            // Populate months
+            const months = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            
+            monthSelect.innerHTML = '<option value="">Selecione o mês</option>';
+            months.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = index + 1;
+                option.textContent = month;
+                monthSelect.appendChild(option);
+            });
+            
+            // Populate years
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const years = new Set();
+            
+            orders.forEach(order => {
+                const orderDate = new Date(order.date.split(', ')[0].split('/').reverse().join('-'));
+                years.add(orderDate.getFullYear());
+            });
+            
+            // Add current year if no orders yet
+            if (years.size === 0) {
+                years.add(new Date().getFullYear());
+            }
+            
+            yearSelect.innerHTML = '<option value="">Selecione o ano</option>';
+            Array.from(years).sort((a, b) => b - a).forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            });
+        }
+
+        // Generate monthly report
+        function generateMonthlyReport() {
+            const month = parseInt(document.getElementById('reportMonth').value);
+            const year = parseInt(document.getElementById('reportYear').value);
+            const container = document.getElementById('monthlyReportContent');
+            
+            if (!month || !year) {
+                alert('Selecione mês e ano!');
+                return;
+            }
+            
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const storeName = localStorage.getItem('storeName');
+            
+            // Filter orders by month and year
+            const monthlyOrders = orders.filter(order => {
+                const dateStr = order.date.split(', ')[0]; // Get date part
+                const dateParts = dateStr.split('/');
+                const orderMonth = parseInt(dateParts[1]);
+                const orderYear = parseInt(dateParts[2]);
+                
+                return orderMonth === month && orderYear === year;
+            });
+            
+            if (monthlyOrders.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum pedido encontrado para este período</div>';
+                return;
+            }
+            
+            // Calculate statistics
+            const totalOrders = monthlyOrders.length;
+            const productCounts = {};
+            const estoqueCounts = {};
+            let totalItems = 0;
+            let conferredOrders = 0;
+            let pendingOrders = 0;
+            
+            monthlyOrders.forEach(order => {
+                if (order.status === 'Conferido') {
+                    conferredOrders++;
+                } else {
+                    pendingOrders++;
+                }
+                
+                // Count by estoque
+                const est = order.estoque || 'Sem estoque';
+                if (!estoqueCounts[est]) estoqueCounts[est] = 0;
+                estoqueCounts[est]++;
+                
+                order.items.forEach(item => {
+                    totalItems += item.quantity;
+                    
+                    if (!productCounts[item.product]) {
+                        productCounts[item.product] = 0;
+                    }
+                    productCounts[item.product] += item.quantity;
+                });
+            });
+            
+            // Get month name
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            const monthName = monthNames[month - 1];
+            
+            // Generate HTML
+            let html = `
+                <div class="report-summary">
+                    <h3 style="color: #ff8c00; margin-bottom: 15px;">Relatório de ${monthName}/${year} - ${storeName}</h3>
+                    
+                    <div class="report-stats">
+                        <div class="stat-box">
+                            <div class="stat-value">${totalOrders}</div>
+                            <div class="stat-label">Total de Pedidos</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${totalItems}</div>
+                            <div class="stat-label">Total de Itens</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${conferredOrders}</div>
+                            <div class="stat-label">Conferidos</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${pendingOrders}</div>
+                            <div class="stat-label">Pendentes</div>
+                        </div>
+                    </div>
+                    
+            `;
+            
+            // Estoque breakdown
+            const estoqueEntries = Object.entries(estoqueCounts).sort((a, b) => b[1] - a[1]);
+            html += `
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: #1e90ff; margin-bottom: 10px;">🏭 Pedidos por Estoque</h4>
+                        <div class="report-stats">
+            `;
+            
+            estoqueEntries.forEach(([estoque, count]) => {
+                html += `
+                    <div class="stat-box">
+                        <div class="stat-value">${count}</div>
+                        <div class="stat-label">${estoque}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h4 style="color: #1e90ff; margin-bottom: 10px;">📦 Produtos Mais Pedidos</h4>
+                        <div class="chart-container">
+            `;
+            
+            // Sort products by quantity
+            const sortedProducts = Object.entries(productCounts).sort((a, b) => b[1] - a[1]);
+            const totalProducts = Object.values(productCounts).reduce((sum, count) => sum + count, 0);
+            
+            sortedProducts.forEach(([product, count]) => {
+                const percentage = ((count / totalProducts) * 100).toFixed(1);
+                html += `
+                    <div class="chart-bar">
+                        <div class="chart-label">
+                            <span>${product}</span>
+                            <span>${count} un. (${percentage}%)</span>
+                        </div>
+                        <div class="chart-bar-bg">
+                            <div class="chart-bar-fill" style="width: ${percentage}%">
+                                ${percentage}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                    </div>
+                    
+                    <button class="btn-export" onclick="exportMonthlyReport(${month}, ${year})">📥 Exportar Relatório</button>
+                </div>
+                
+                <h3 style="color: #1e90ff; margin: 20px 0;">📋 Lista de Pedidos do Mês</h3>
+                <div class="report-list">
+            `;
+            
+            // List all orders
+            monthlyOrders.forEach(order => {
+                const statusClass = order.status === 'Conferido' ? 'status-checked' : 'status-pending';
+                const estoqueTag = order.estoque ? `<span style="background: rgba(30, 144, 255, 0.2); color: #1e90ff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 8px;">${order.estoque}</span>` : '';
+                html += `
+                    <div class="report-item">
+                        <div class="report-item-header">
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                                <span>${order.date}</span>
+                                ${estoqueTag}
+                            </div>
+                            <span class="status-badge ${statusClass}">${order.status}</span>
+                        </div>
+                        <div class="report-item-content">
+                `;
+                
+                order.items.forEach(item => {
+                    html += `${item.quantity}x ${item.product}${item.others ? ' - ' + item.others : ''}<br>`;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        // Export monthly report
+        function exportMonthlyReport(month, year) {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const storeName = localStorage.getItem('storeName');
+            
+            // Filter orders
+            const monthlyOrders = orders.filter(order => {
+                const dateStr = order.date.split(', ')[0];
+                const dateParts = dateStr.split('/');
+                const orderMonth = parseInt(dateParts[1]);
+                const orderYear = parseInt(dateParts[2]);
+                
+                return orderMonth === month && orderYear === year;
+            });
+            
+            // Get month name
+            const monthNames = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            const monthName = monthNames[month - 1];
+            
+            // Generate text report
+            let text = `RELATÓRIO MENSAL - ${monthName.toUpperCase()}/${year}\n`;
+            text += `Loja: ${storeName}\n`;
+            text += `Data de Geração: ${new Date().toLocaleString('pt-BR')}\n`;
+            text += `${'='.repeat(60)}\n\n`;
+            
+            // Statistics
+            const totalOrders = monthlyOrders.length;
+            const productCounts = {};
+            let totalItems = 0;
+            let conferredOrders = 0;
+            let pendingOrders = 0;
+            
+            monthlyOrders.forEach(order => {
+                if (order.status === 'Conferido') {
+                    conferredOrders++;
+                } else {
+                    pendingOrders++;
+                }
+                
+                order.items.forEach(item => {
+                    totalItems += item.quantity;
+                    if (!productCounts[item.product]) {
+                        productCounts[item.product] = 0;
+                    }
+                    productCounts[item.product] += item.quantity;
+                });
+            });
+            
+            text += `RESUMO:\n`;
+            text += `- Total de Pedidos: ${totalOrders}\n`;
+            text += `- Total de Itens: ${totalItems}\n`;
+            text += `- Pedidos Conferidos: ${conferredOrders}\n`;
+            text += `- Pedidos Pendentes: ${pendingOrders}\n\n`;
+            
+            // Estoque breakdown
+            text += `PEDIDOS POR ESTOQUE:\n`;
+            const estoqueCountsExport = {};
+            monthlyOrders.forEach(order => {
+                const est = order.estoque || 'Sem estoque';
+                if (!estoqueCountsExport[est]) estoqueCountsExport[est] = 0;
+                estoqueCountsExport[est]++;
+            });
+            Object.entries(estoqueCountsExport).sort((a, b) => b[1] - a[1]).forEach(([estoque, count]) => {
+                text += `- ${estoque}: ${count} pedido(s)\n`;
+            });
+            text += `\n`;
+            
+            // Products
+            text += `PRODUTOS MAIS PEDIDOS:\n`;
+            const sortedProducts = Object.entries(productCounts).sort((a, b) => b[1] - a[1]);
+            const totalProducts = Object.values(productCounts).reduce((sum, count) => sum + count, 0);
+            
+            sortedProducts.forEach(([product, count]) => {
+                const percentage = ((count / totalProducts) * 100).toFixed(1);
+                text += `- ${product}: ${count} un. (${percentage}%)\n`;
+            });
+            
+            text += `\n${'='.repeat(60)}\n\n`;
+            text += `DETALHAMENTO DOS PEDIDOS:\n\n`;
+            
+            // List all orders
+            monthlyOrders.forEach((order, index) => {
+                text += `Pedido #${index + 1}\n`;
+                text += `Data: ${order.date}\n`;
+                text += `Estoque: ${order.estoque || 'Sem estoque'}\n`;
+                text += `Status: ${order.status}\n`;
+                text += `Itens:\n`;
+                
+                order.items.forEach(item => {
+                    text += `  - ${item.quantity}x ${item.product}${item.others ? ' (' + item.others + ')' : ''}\n`;
+                });
+                
+                if (order.checkData) {
+                    text += `Conferência:\n`;
+                    order.items.forEach((item, idx) => {
+                        const checkData = order.checkData[idx];
+                        if (checkData) {
+                            let statusText = checkData.status;
+                            if (checkData.status === 'Faltando' && checkData.receivedQuantity !== undefined) {
+                                statusText += ` (Recebido: ${checkData.receivedQuantity})`;
+                            }
+                            text += `  - ${item.product}: ${statusText}\n`;
+                        }
+                    });
+                }
+                
+                text += `\n`;
+            });
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Relatório copiado para a área de transferência!');
+            });
+        }
+
+        // Initialize app
+        initializeStorage();
+        
+        // Auto-load as standard user
+        loadStoreName();
+        loadProducts();
+        loadRecentOrders();
+        loadOrdersToCheck();
+    </script>
+</body>
+</html>
