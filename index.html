@@ -1177,7 +1177,7 @@
                 </div>
 
                 <div class="card">
-                    <h2>📝 Gerenciar Pedidos Pendentes</h2>
+                    <h2>📝 Gerenciar Pedidos</h2>
                     <div id="adminOrdersList"></div>
                 </div>
 
@@ -2209,21 +2209,24 @@
         let editingOrderId = null;
         let editingItems = [];
 
-        // Load admin orders list (only Pendente)
+        // Load admin orders list (Pendente + Conferido)
         function loadAdminOrders() {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const container = document.getElementById('adminOrdersList');
             
-            const pendingOrders = orders.filter(o => o.status === 'Pendente').reverse();
+            const allOrders = orders.slice().reverse();
             
-            if (pendingOrders.length === 0) {
-                container.innerHTML = '<div class="empty-state">Nenhum pedido pendente para gerenciar</div>';
+            if (allOrders.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum pedido para gerenciar</div>';
                 return;
             }
             
             container.innerHTML = '';
-            pendingOrders.forEach(order => {
+            allOrders.forEach(order => {
                 const estoqueTag = order.estoque ? `<span style="background: rgba(30, 144, 255, 0.2); color: #1e90ff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${order.estoque}</span>` : '';
+                
+                const statusClass = order.status === 'Pendente' ? 'status-pending' : 'status-checked';
+                const isPending = order.status === 'Pendente';
                 
                 let itemsHtml = '';
                 order.items.forEach(item => {
@@ -2237,10 +2240,10 @@
                         <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
                             <span class="order-date">${order.date}</span>
                             ${estoqueTag}
-                            <span class="status-badge status-pending">Pendente</span>
+                            <span class="status-badge ${statusClass}">${order.status}</span>
                         </div>
                         <div class="admin-order-actions">
-                            <button class="btn-edit" onclick="openEditOrder(${order.id})">Editar</button>
+                            ${isPending ? `<button class="btn-edit" onclick="openEditOrder(${order.id})">Editar</button>` : ''}
                             <button class="btn-delete" onclick="deleteOrder(${order.id})">Apagar</button>
                         </div>
                     </div>
