@@ -1136,7 +1136,20 @@
             <div id="content-checkOrder" class="tab-content">
                 <div class="card">
                     <h2>✅ Conferir Pedidos</h2>
-                    <div id="ordersToCheck"></div>
+                    <div id="ordersListToSelect"></div>
+                </div>
+                <div id="checkOrderDetail" class="hidden">
+                    <div class="card">
+                        <h2 id="checkOrderTitle" style="margin-bottom: 15px;"></h2>
+                        <div id="checkOrderItems"></div>
+                        <div style="margin-top: 20px;">
+                            <button class="btn-success" id="btnSaveCheck" onclick="saveCheck()">Salvar Conferência</button>
+                            <button class="btn-danger" onclick="closeCheckDetail()" style="padding: 12px 24px;">Voltar à Lista</button>
+                        </div>
+                        <div id="checkCopySection" class="hidden" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                            <button class="btn-warning" id="btnCopyCheck" onclick="copyCheckText()">📋 Copiar Conferência</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1186,6 +1199,19 @@
                 <div class="card">
                     <h2>📊 Estatísticas dos Últimos 5 Pedidos</h2>
                     <div class="chart-container" id="statsChart"></div>
+                </div>
+
+                <div class="card">
+                    <h2>💾 Exportar / Importar Dados</h2>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 15px; font-size: 14px;">Exporte todos os dados para usar em outro navegador ou faça backup.</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn-primary" onclick="exportAllData()">📥 Exportar Dados</button>
+                        <label class="btn-warning" style="cursor: pointer; display: inline-flex; align-items: center;">
+                            📤 Importar Dados
+                            <input type="file" id="importFileInput" accept=".json" onchange="importAllData(event)" style="display: none;">
+                        </label>
+                    </div>
+                    <div id="importExportStatus" style="margin-top: 15px;"></div>
                 </div>
             </div>
         </div>
@@ -1561,11 +1587,18 @@
             });
         }
 
-        // Load orders to check
+        // Load orders to check - shows list of orders to select
+        let selectedCheckOrderId = null;
+        
         function loadOrdersToCheck() {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const recentOrders = orders.slice(-5).reverse();
-            const container = document.getElementById('ordersToCheck');
+            const container = document.getElementById('ordersListToSelect');
+            
+            // Hide detail view
+            document.getElementById('checkOrderDetail').classList.add('hidden');
+            document.getElementById('ordersListToSelect').parentElement.classList.remove('hidden');
+            selectedCheckOrderId = null;
             
             if (recentOrders.length === 0) {
                 container.innerHTML = '<div class="empty-state">Nenhum pedido para conferir</div>';
@@ -1574,54 +1607,95 @@
             
             container.innerHTML = '';
             recentOrders.forEach(order => {
-                const div = document.createElement('div');
-                div.className = 'order-card';
-                div.style.marginBottom = '30px';
-                
                 const statusClass = order.status === 'Pendente' ? 'status-pending' : 'status-checked';
-                
                 const estoqueTag = order.estoque ? `<span style="background: rgba(30, 144, 255, 0.2); color: #1e90ff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${order.estoque}</span>` : '';
                 
-                let itemsHtml = '';
-                order.items.forEach((item, itemIndex) => {
-                    const checkData = order.checkData && order.checkData[itemIndex];
-                    const currentStatus = checkData ? checkData.status : '';
-                    const receivedQty = checkData ? checkData.receivedQuantity : '';
-                    
-                    itemsHtml += `
-                        <div class="order-item" id="check-item-${order.id}-${itemIndex}">
-                            <div style="flex: 1;">
-                                <strong>${item.quantity}x ${item.product}</strong>
-                                ${item.others ? `<br><small style="color: #aaa;">${item.others}</small>` : ''}
-                                <div class="check-options">
-                                    <div class="check-option ${currentStatus === 'Correto' ? 'selected' : ''}" onclick="setCheckStatus(${order.id}, ${itemIndex}, 'Correto')">✅ Correto</div>
-                                    <div class="check-option ${currentStatus === 'Faltando' ? 'selected' : ''}" onclick="setCheckStatus(${order.id}, ${itemIndex}, 'Faltando')">⚠️ Faltando</div>
-                                    <div class="check-option ${currentStatus === 'Não veio' ? 'selected' : ''}" onclick="setCheckStatus(${order.id}, ${itemIndex}, 'Não veio')">❌ Não veio</div>
-                                </div>
-                                <div id="faltando-input-${order.id}-${itemIndex}" class="${currentStatus === 'Faltando' ? '' : 'hidden'}" style="margin-top: 10px;">
-                                    <input type="number" class="input-field" placeholder="Quantidade recebida" value="${receivedQty}" onchange="setReceivedQuantity(${order.id}, ${itemIndex}, this.value)" min="0" max="${item.quantity - 1}">
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
+                const itemCount = order.items.reduce((sum, i) => sum + i.quantity, 0);
                 
+                const div = document.createElement('div');
+                div.className = 'admin-order-card';
+                div.style.cursor = 'pointer';
+                div.onclick = function() { openCheckOrder(order.id); };
                 div.innerHTML = `
-                    <div class="order-header">
+                    <div class="admin-order-header" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
                         <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
                             <span class="order-date">${order.date}</span>
                             ${estoqueTag}
                             <span class="status-badge ${statusClass}">${order.status}</span>
                         </div>
-                    </div>
-                    ${itemsHtml}
-                    <div style="margin-top: 20px;">
-                        <button class="btn-success" onclick="saveCheck(${order.id})">Salvar Conferência</button>
-                        <button class="btn-warning" onclick="copyCheckText(${order.id})">📋 Copiar Conferência</button>
+                        <span style="color: rgba(255,255,255,0.5); font-size: 13px;">${order.items.length} produto(s) | ${itemCount} un.</span>
                     </div>
                 `;
                 container.appendChild(div);
             });
+        }
+
+        // Open a specific order for checking
+        function openCheckOrder(orderId) {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            selectedCheckOrderId = orderId;
+            
+            // Hide list, show detail
+            document.getElementById('ordersListToSelect').parentElement.classList.add('hidden');
+            document.getElementById('checkOrderDetail').classList.remove('hidden');
+            
+            const estoqueText = order.estoque ? ` - ${order.estoque}` : '';
+            document.getElementById('checkOrderTitle').innerHTML = `📋 Pedido ${order.date}${estoqueText}`;
+            
+            const isChecked = order.status === 'Conferido';
+            
+            // Show/hide buttons
+            document.getElementById('btnSaveCheck').classList.toggle('hidden', isChecked);
+            document.getElementById('checkCopySection').classList.toggle('hidden', !isChecked);
+            
+            // Render items
+            const container = document.getElementById('checkOrderItems');
+            container.innerHTML = '';
+            
+            order.items.forEach((item, itemIndex) => {
+                const checkData = order.checkData && order.checkData[itemIndex];
+                const currentStatus = checkData ? checkData.status : '';
+                const receivedQty = checkData ? checkData.receivedQuantity : '';
+                
+                const div = document.createElement('div');
+                div.className = 'order-item';
+                div.style.flexDirection = 'column';
+                div.style.alignItems = 'stretch';
+                div.innerHTML = `
+                    <div>
+                        <strong>${item.quantity}x ${item.product}</strong>
+                        ${item.others ? `<br><small style="color: #aaa;">${item.others}</small>` : ''}
+                    </div>
+                    ${isChecked ? `
+                        <div style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                            <span style="color: ${currentStatus === 'Correto' ? '#00cc00' : currentStatus === 'Faltando' ? '#ff8c00' : '#ff4444'}; font-weight: 600;">
+                                ${currentStatus === 'Correto' ? '✅ Correto' : currentStatus === 'Faltando' ? '⚠️ Faltando (Recebido: ' + (receivedQty || 0) + ')' : '❌ Não veio'}
+                            </span>
+                        </div>
+                    ` : `
+                        <div class="check-options" style="margin-top: 10px;">
+                            <div class="check-option ${currentStatus === 'Correto' ? 'selected' : ''}" onclick="setCheckStatus(${order.id}, ${itemIndex}, 'Correto')">✅ Correto</div>
+                            <div class="check-option ${currentStatus === 'Faltando' ? 'selected' : ''}" onclick="setCheckStatus(${order.id}, ${itemIndex}, 'Faltando')">⚠️ Faltando</div>
+                            <div class="check-option ${currentStatus === 'Não veio' ? 'selected' : ''}" onclick="setCheckStatus(${order.id}, ${itemIndex}, 'Não veio')">❌ Não veio</div>
+                        </div>
+                        <div id="faltando-input-${order.id}-${itemIndex}" class="${currentStatus === 'Faltando' ? '' : 'hidden'}" style="margin-top: 10px;">
+                            <input type="number" class="input-field" placeholder="Quantidade recebida" value="${receivedQty}" onchange="setReceivedQuantity(${order.id}, ${itemIndex}, this.value)" min="0" max="${item.quantity - 1}">
+                        </div>
+                    `}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Close check detail, go back to list
+        function closeCheckDetail() {
+            selectedCheckOrderId = null;
+            document.getElementById('checkOrderDetail').classList.add('hidden');
+            document.getElementById('ordersListToSelect').parentElement.classList.remove('hidden');
+            loadOrdersToCheck();
         }
 
         // Set check status
@@ -1641,15 +1715,8 @@
             
             localStorage.setItem('orders', JSON.stringify(orders));
             
-            // Show/hide quantity input for "Faltando"
-            const faltandoInput = document.getElementById(`faltando-input-${orderId}-${itemIndex}`);
-            if (status === 'Faltando') {
-                faltandoInput.classList.remove('hidden');
-            } else {
-                faltandoInput.classList.add('hidden');
-            }
-            
-            loadOrdersToCheck();
+            // Re-render the detail view
+            openCheckOrder(orderId);
         }
 
         // Set received quantity
@@ -1670,7 +1737,10 @@
         }
 
         // Save check
-        function saveCheck(orderId) {
+        function saveCheck() {
+            const orderId = selectedCheckOrderId;
+            if (!orderId) return;
+            
             const orders = JSON.parse(localStorage.getItem('orders'));
             const order = orders.find(o => o.id === orderId);
             
@@ -1696,12 +1766,16 @@
             order.status = 'Conferido';
             localStorage.setItem('orders', JSON.stringify(orders));
             
-            loadOrdersToCheck();
+            // Re-render to show results and copy button
+            openCheckOrder(orderId);
             alert('Conferência salva!');
         }
 
         // Copy check as text
-        function copyCheckText(orderId) {
+        function copyCheckText() {
+            const orderId = selectedCheckOrderId;
+            if (!orderId) return;
+            
             const orders = JSON.parse(localStorage.getItem('orders'));
             const order = orders.find(o => o.id === orderId);
             
@@ -1719,7 +1793,7 @@
                     statusText += ` (Recebido: ${checkData.receivedQuantity})`;
                 }
                 
-                text += `${item.quantity} ${item.product} [Conferido: ${statusText}]\n`;
+                text += `${item.quantity} ${item.product}${item.others ? ' ' + item.others : ''} [${statusText}]\n`;
             });
             
             navigator.clipboard.writeText(text).then(() => {
@@ -2324,6 +2398,90 @@
             document.getElementById('editOrderModal').classList.add('hidden');
             editingOrderId = null;
             editingItems = [];
+        }
+
+        // ========================================
+        // EXPORT / IMPORT DATA
+        // ========================================
+        
+        function exportAllData() {
+            const data = {
+                adminPassword: localStorage.getItem('adminPassword'),
+                storeName: localStorage.getItem('storeName'),
+                products: JSON.parse(localStorage.getItem('products') || '[]'),
+                orders: JSON.parse(localStorage.getItem('orders') || '[]'),
+                checks: JSON.parse(localStorage.getItem('checks') || '[]'),
+                exportDate: new Date().toLocaleString('pt-BR'),
+                version: '1.0'
+            };
+            
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            const storeName = localStorage.getItem('storeName') || 'sistema';
+            const dateStr = new Date().toISOString().split('T')[0];
+            a.download = `backup_${storeName}_${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            const status = document.getElementById('importExportStatus');
+            status.innerHTML = '<span style="color: #00cc00; font-weight: 600;">✅ Dados exportados com sucesso!</span>';
+            setTimeout(() => { status.innerHTML = ''; }, 3000);
+        }
+        
+        function importAllData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validate
+                    if (!data.storeName || !data.products || !data.orders) {
+                        alert('Arquivo inválido! Verifique o formato do arquivo.');
+                        return;
+                    }
+                    
+                    if (!confirm(`Importar dados de "${data.storeName}"?\nExportado em: ${data.exportDate || 'Desconhecido'}\n\nProdutos: ${data.products.length}\nPedidos: ${data.orders.length}\n\nISTO IRÁ SUBSTITUIR TODOS OS DADOS ATUAIS!`)) {
+                        return;
+                    }
+                    
+                    // Import
+                    if (data.adminPassword) localStorage.setItem('adminPassword', data.adminPassword);
+                    localStorage.setItem('storeName', data.storeName);
+                    localStorage.setItem('products', JSON.stringify(data.products));
+                    localStorage.setItem('orders', JSON.stringify(data.orders));
+                    if (data.checks) localStorage.setItem('checks', JSON.stringify(data.checks));
+                    
+                    // Reload everything
+                    loadStoreName();
+                    loadProducts();
+                    loadRecentOrders();
+                    loadOrdersToCheck();
+                    if (currentUser === 'admin') {
+                        updateStats();
+                        populateDateSelects();
+                        loadAdminOrders();
+                    }
+                    
+                    const status = document.getElementById('importExportStatus');
+                    status.innerHTML = '<span style="color: #00cc00; font-weight: 600;">✅ Dados importados com sucesso! ' + data.products.length + ' produtos e ' + data.orders.length + ' pedidos carregados.</span>';
+                    setTimeout(() => { status.innerHTML = ''; }, 5000);
+                    
+                    alert('Dados importados com sucesso!');
+                } catch (err) {
+                    alert('Erro ao importar: arquivo inválido ou corrompido.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
         }
 
         // Initialize app
