@@ -1346,12 +1346,31 @@
                     <h2>📝 Gerenciar Pedidos</h2>
                     <div id="adminOrdersList"></div>
                 </div>
+                <div id="adminOrderDetail" class="hidden">
+                    <div class="card">
+                        <h2 id="adminOrderDetailTitle" style="margin-bottom: 15px;"></h2>
+                        <div id="adminOrderDetailItems"></div>
+                        <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn-edit" id="btnEditFromDetail" onclick="editFromDetail()">Editar</button>
+                            <button class="btn-delete" id="btnDeleteFromDetail" onclick="deleteFromDetail()">Apagar</button>
+                            <button class="btn-danger" onclick="closeAdminOrderDetail()" style="padding: 12px 24px;">Voltar à Lista</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Tab 5: Estatísticas (admin only) -->
             <div id="content-statistics" class="tab-content">
                 <div class="card">
                     <h2>📊 Estatísticas dos Últimos 5 Pedidos</h2>
+                    <div style="margin-bottom: 15px;">
+                        <select id="statsEstoque" class="input-field" style="width: 100%;" onchange="updateStats()">
+                            <option value="">Todos os Estoques</option>
+                            <option value="Estoque Produtos">Estoque Produtos</option>
+                            <option value="Estoque Nicola">Estoque Nicola</option>
+                            <option value="Estoque Capa">Estoque Capa</option>
+                        </select>
+                    </div>
                     <div class="chart-container" id="statsChart"></div>
                     <button class="toggle-products-btn" id="toggleNoOrdersBtn" onclick="toggleProductsWithoutOrders()">
                         Ver produtos sem pedidos
@@ -1869,47 +1888,10 @@
             currentOrderItems = [];
             document.getElementById('orderEstoque').value = '';
             displayCurrentOrder();
-            loadRecentOrders();
+
             clearAutoSave();
             
             alert('Pedido salvo com sucesso!');
-        }
-
-        // Load recent orders
-        function loadRecentOrders() {
-            const orders = JSON.parse(localStorage.getItem('orders'));
-            const recentOrders = orders.slice(-5).reverse();
-            const container = document.getElementById('recentOrdersList');
-            
-            if (recentOrders.length === 0) {
-                container.innerHTML = '<div class="empty-state">Nenhum pedido realizado</div>';
-                return;
-            }
-            
-            container.innerHTML = '';
-            recentOrders.forEach(order => {
-                const div = document.createElement('div');
-                div.className = 'order-card';
-                
-                let itemsHtml = '';
-                order.items.forEach(item => {
-                    itemsHtml += `<div style="margin: 5px 0;">${item.quantity}x ${item.product}${item.others ? ' - ' + item.others : ''}</div>`;
-                });
-                
-                const estoqueTag = order.estoque ? `<span style="background: rgba(30, 144, 255, 0.2); color: #1e90ff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${order.estoque}</span>` : '';
-                
-                div.innerHTML = `
-                    <div class="order-header">
-                        <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
-                            <span class="order-date">${order.date}</span>
-                            ${estoqueTag}
-                        </div>
-                        <button class="copy-btn" onclick="copyOrderText(${order.id})">📋 Copiar</button>
-                    </div>
-                    ${itemsHtml}
-                `;
-                container.appendChild(div);
-            });
         }
 
         // Copy order as text
@@ -2151,16 +2133,28 @@
             const recentOrders = orders.slice(-5);
             const products = JSON.parse(localStorage.getItem('products'));
             const container = document.getElementById('statsChart');
+            const selectedEstoque = document.getElementById('statsEstoque') ? document.getElementById('statsEstoque').value : '';
             
             if (recentOrders.length === 0) {
                 container.innerHTML = '<div class="empty-state">Sem dados suficientes para estatísticas</div>';
                 return;
             }
             
+            // Filter orders by estoque if selected
+            const filteredOrders = selectedEstoque 
+                ? recentOrders.filter(o => o.estoque === selectedEstoque) 
+                : recentOrders;
+            
+            if (filteredOrders.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum pedido encontrado para este estoque</div>';
+                updateProductsWithoutOrders({}, selectedEstoque);
+                return;
+            }
+            
             // Count products that were ordered
             const productCounts = {};
             
-            recentOrders.forEach(order => {
+            filteredOrders.forEach(order => {
                 order.items.forEach(item => {
                     if (!productCounts[item.product]) {
                         productCounts[item.product] = 0;
@@ -2174,42 +2168,41 @@
             
             if (total === 0) {
                 container.innerHTML = '<div class="empty-state">Nenhum produto pedido ainda</div>';
+                updateProductsWithoutOrders({}, selectedEstoque);
                 return;
             }
             
-            // Create bars only for products with orders
-            container.innerHTML = '';
-            
-            // Sort by count (descending)
+            // Create compact grid with cards
             const sortedProducts = Object.entries(productCounts).sort((a, b) => b[1] - a[1]);
+            
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px;">';
             
             sortedProducts.forEach(([product, count]) => {
                 const percentage = ((count / total) * 100).toFixed(1);
-                
-                const barDiv = document.createElement('div');
-                barDiv.className = 'chart-bar';
-                barDiv.innerHTML = `
-                    <div class="chart-label">
-                        <span>${product}</span>
-                        <span>${count} un.</span>
-                    </div>
-                    <div class="chart-bar-bg">
-                        <div class="chart-bar-fill" style="width: ${percentage}%">
-                            ${percentage}%
-                        </div>
+                html += `
+                    <div style="background: rgba(0,0,0,0.3); border: 2px solid rgba(30,144,255,0.3); border-radius: 10px; padding: 15px; text-align: center; transition: all 0.3s;">
+                        <div style="font-size: 22px; font-weight: 700; color: #ff8c00; text-shadow: 0 0 10px rgba(255,140,0,0.5);">${percentage}%</div>
+                        <div style="font-size: 13px; color: #1e90ff; margin-top: 5px; font-weight: 600;">${product}</div>
+                        <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 3px;">${count} un.</div>
                     </div>
                 `;
-                container.appendChild(barDiv);
             });
+            
+            html += '</div>';
+            container.innerHTML = html;
 
             // Update products without orders section
-            updateProductsWithoutOrders(productCounts);
+            updateProductsWithoutOrders(productCounts, selectedEstoque);
         }
 
         // Show/hide products without orders
-        function updateProductsWithoutOrders(productCounts) {
+        function updateProductsWithoutOrders(productCounts, selectedEstoque) {
             const products = JSON.parse(localStorage.getItem('products'));
-            const productsWithoutOrders = products.filter(p => !productCounts[p.name]);
+            // Filter products by estoque if selected
+            const filteredProducts = selectedEstoque 
+                ? products.filter(p => p.estoque === selectedEstoque) 
+                : products;
+            const productsWithoutOrders = filteredProducts.filter(p => !productCounts[p.name]);
             
             const container = document.getElementById('productsWithoutOrders');
             
@@ -2405,70 +2398,9 @@
                         </div>
                     </div>
                     
-                    <div style="margin-top: 20px;">
-                        <h4 style="color: #1e90ff; margin-bottom: 10px;">📦 Produtos Mais Pedidos</h4>
-                        <div class="chart-container">
-            `;
-            
-            // Sort products by quantity
-            const sortedProducts = Object.entries(productCounts).sort((a, b) => b[1] - a[1]);
-            const totalProducts = Object.values(productCounts).reduce((sum, count) => sum + count, 0);
-            
-            sortedProducts.forEach(([product, count]) => {
-                const percentage = ((count / totalProducts) * 100).toFixed(1);
-                html += `
-                    <div class="chart-bar">
-                        <div class="chart-label">
-                            <span>${product}</span>
-                            <span>${count} un. (${percentage}%)</span>
-                        </div>
-                        <div class="chart-bar-bg">
-                            <div class="chart-bar-fill" style="width: ${percentage}%">
-                                ${percentage}%
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += `
-                        </div>
-                    </div>
-                    
                     <button class="btn-export" onclick="exportMonthlyReport(${month}, ${year})">📥 Exportar Relatório</button>
                 </div>
-                
-                <h3 style="color: #1e90ff; margin: 20px 0;">📋 Lista de Pedidos do Mês</h3>
-                <div class="report-list">
             `;
-            
-            // List all orders
-            monthlyOrders.forEach(order => {
-                const statusClass = order.status === 'Conferido' ? 'status-checked' : 'status-pending';
-                const estoqueTag = order.estoque ? `<span style="background: rgba(30, 144, 255, 0.2); color: #1e90ff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 8px;">${order.estoque}</span>` : '';
-                html += `
-                    <div class="report-item">
-                        <div class="report-item-header">
-                            <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
-                                <span>${order.date}</span>
-                                ${estoqueTag}
-                            </div>
-                            <span class="status-badge ${statusClass}">${order.status}</span>
-                        </div>
-                        <div class="report-item-content">
-                `;
-                
-                order.items.forEach(item => {
-                    html += `${item.quantity}x ${item.product}${item.others ? ' - ' + item.others : ''}<br>`;
-                });
-                
-                html += `
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += '</div>';
             
             container.innerHTML = html;
         }
@@ -2495,12 +2427,6 @@
             ];
             const monthName = monthNames[month - 1];
             
-            // Generate text report
-            let text = `RELATÓRIO MENSAL - ${monthName.toUpperCase()}/${year}\n`;
-            text += `Loja: ${storeName}\n`;
-            text += `Data de Geração: ${new Date().toLocaleString('pt-BR')}\n`;
-            text += `${'='.repeat(60)}\n\n`;
-            
             // Statistics
             const totalOrders = monthlyOrders.length;
             const productCounts = {};
@@ -2524,6 +2450,12 @@
                 });
             });
             
+            // Generate text report
+            let text = `RELATÓRIO MENSAL - ${monthName.toUpperCase()}/${year}\n`;
+            text += `Loja: ${storeName}\n`;
+            text += `Data de Geração: ${new Date().toLocaleString('pt-BR')}\n`;
+            text += `${'='.repeat(40)}\n\n`;
+            
             text += `RESUMO:\n`;
             text += `- Total de Pedidos: ${totalOrders}\n`;
             text += `- Total de Itens: ${totalItems}\n`;
@@ -2543,46 +2475,14 @@
             });
             text += `\n`;
             
-            // Products
+            // Products - max 10
             text += `PRODUTOS MAIS PEDIDOS:\n`;
-            const sortedProducts = Object.entries(productCounts).sort((a, b) => b[1] - a[1]);
+            const sortedProducts = Object.entries(productCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
             const totalProducts = Object.values(productCounts).reduce((sum, count) => sum + count, 0);
             
             sortedProducts.forEach(([product, count]) => {
                 const percentage = ((count / totalProducts) * 100).toFixed(1);
                 text += `- ${product}: ${count} un. (${percentage}%)\n`;
-            });
-            
-            text += `\n${'='.repeat(60)}\n\n`;
-            text += `DETALHAMENTO DOS PEDIDOS:\n\n`;
-            
-            // List all orders
-            monthlyOrders.forEach((order, index) => {
-                text += `Pedido #${index + 1}\n`;
-                text += `Data: ${order.date}\n`;
-                text += `Estoque: ${order.estoque || 'Sem estoque'}\n`;
-                text += `Status: ${order.status}\n`;
-                text += `Itens:\n`;
-                
-                order.items.forEach(item => {
-                    text += `  - ${item.quantity}x ${item.product}${item.others ? ' (' + item.others + ')' : ''}\n`;
-                });
-                
-                if (order.checkData) {
-                    text += `Conferência:\n`;
-                    order.items.forEach((item, idx) => {
-                        const checkData = order.checkData[idx];
-                        if (checkData) {
-                            let statusText = checkData.status;
-                            if (checkData.status === 'Faltando' && checkData.receivedQuantity !== undefined) {
-                                statusText += ` (Recebido: ${checkData.receivedQuantity})`;
-                            }
-                            text += `  - ${item.product}: ${statusText}\n`;
-                        }
-                    });
-                }
-                
-                text += `\n`;
             });
             
             // Copy to clipboard
@@ -2598,10 +2498,17 @@
         let editingOrderId = null;
         let editingItems = [];
 
-        // Load admin orders list (Pendente + Conferido)
+        // Load admin orders list - compact list format
+        let selectedAdminOrderId = null;
+
         function loadAdminOrders() {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const container = document.getElementById('adminOrdersList');
+            
+            // Hide detail, show list
+            document.getElementById('adminOrderDetail').classList.add('hidden');
+            document.getElementById('adminOrdersList').parentElement.classList.remove('hidden');
+            selectedAdminOrderId = null;
             
             const allOrders = orders.slice().reverse();
             
@@ -2613,33 +2520,77 @@
             container.innerHTML = '';
             allOrders.forEach(order => {
                 const estoqueTag = order.estoque ? `<span style="background: rgba(30, 144, 255, 0.2); color: #1e90ff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${order.estoque}</span>` : '';
-                
                 const statusClass = order.status === 'Pendente' ? 'status-pending' : 'status-checked';
-                const isPending = order.status === 'Pendente';
-                
-                let itemsHtml = '';
-                order.items.forEach(item => {
-                    itemsHtml += `<div style="margin: 5px 0; color: rgba(255,255,255,0.8);">${item.quantity}x ${item.product}${item.others ? ' - ' + item.others : ''}</div>`;
-                });
+                const itemCount = order.items.reduce((sum, i) => sum + i.quantity, 0);
                 
                 const div = document.createElement('div');
                 div.className = 'admin-order-card';
+                div.style.cursor = 'pointer';
+                div.onclick = function() { openAdminOrderDetail(order.id); };
                 div.innerHTML = `
-                    <div class="admin-order-header">
+                    <div class="admin-order-header" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
                         <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
                             <span class="order-date">${order.date}</span>
                             ${estoqueTag}
                             <span class="status-badge ${statusClass}">${order.status}</span>
                         </div>
-                        <div class="admin-order-actions">
-                            ${isPending ? `<button class="btn-edit" onclick="openEditOrder(${order.id})">Editar</button>` : ''}
-                            <button class="btn-delete" onclick="deleteOrder(${order.id})">Apagar</button>
-                        </div>
+                        <span style="color: rgba(255,255,255,0.5); font-size: 13px;">${order.items.length} produto(s) | ${itemCount} un.</span>
                     </div>
-                    ${itemsHtml}
                 `;
                 container.appendChild(div);
             });
+        }
+
+        // Open order detail in management
+        function openAdminOrderDetail(orderId) {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            selectedAdminOrderId = orderId;
+            
+            // Hide list, show detail
+            document.getElementById('adminOrdersList').parentElement.classList.add('hidden');
+            document.getElementById('adminOrderDetail').classList.remove('hidden');
+            
+            const estoqueText = order.estoque ? ` - ${order.estoque}` : '';
+            const statusClass = order.status === 'Pendente' ? 'status-pending' : 'status-checked';
+            document.getElementById('adminOrderDetailTitle').innerHTML = `📋 Pedido ${order.date}${estoqueText} <span class="status-badge ${statusClass}">${order.status}</span>`;
+            
+            // Show/hide edit button
+            document.getElementById('btnEditFromDetail').classList.toggle('hidden', order.status === 'Conferido');
+            
+            const container = document.getElementById('adminOrderDetailItems');
+            container.innerHTML = '';
+            order.items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'order-item';
+                div.innerHTML = `
+                    <div class="order-item-info">
+                        <strong>${item.quantity}x ${item.product}</strong>
+                        ${item.others ? `<br><small style="color: #aaa;">${item.others}</small>` : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function closeAdminOrderDetail() {
+            selectedAdminOrderId = null;
+            document.getElementById('adminOrderDetail').classList.add('hidden');
+            document.getElementById('adminOrdersList').parentElement.classList.remove('hidden');
+            loadAdminOrders();
+        }
+
+        function editFromDetail() {
+            if (selectedAdminOrderId) openEditOrder(selectedAdminOrderId);
+        }
+
+        function deleteFromDetail() {
+            if (selectedAdminOrderId) {
+                deleteOrder(selectedAdminOrderId);
+                closeAdminOrderDetail();
+            }
         }
 
         // Delete order
@@ -2651,7 +2602,7 @@
             localStorage.setItem('orders', JSON.stringify(orders));
             
             loadAdminOrders();
-            loadRecentOrders();
+
             loadOrdersToCheck();
             updateStats();
             alert('Pedido apagado!');
@@ -2760,7 +2711,7 @@
             
             closeEditModal();
             loadAdminOrders();
-            loadRecentOrders();
+
             loadOrdersToCheck();
             updateStats();
             alert('Pedido atualizado!');
@@ -2836,7 +2787,7 @@
                     // Reload everything
                     loadStoreName();
                     loadProducts();
-                    loadRecentOrders();
+        
                     loadOrdersToCheck();
                     if (currentUser === 'admin') {
                         updateStats();
@@ -2862,7 +2813,6 @@
         
         // Auto-load as standard user
         loadStoreName();
-        loadRecentOrders();
         loadOrdersToCheck();
         restoreOrderDraft();
 
@@ -2882,4 +2832,3 @@
     </script>
 </body>
 </html>
-
