@@ -1363,13 +1363,14 @@
             <div id="content-statistics" class="tab-content">
                 <div class="card">
                     <h2>📊 Estatísticas dos Últimos 5 Pedidos</h2>
-                    <div style="margin-bottom: 15px;">
-                        <select id="statsEstoque" class="input-field" style="width: 100%;" onchange="updateStats()">
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
+                        <select id="statsEstoque" class="input-field" style="flex: 1; min-width: 200px;" onchange="updateStats()">
                             <option value="">Todos os Estoques</option>
                             <option value="Estoque Produtos">Estoque Produtos</option>
                             <option value="Estoque Nicola">Estoque Nicola</option>
                             <option value="Estoque Capa">Estoque Capa</option>
                         </select>
+                        <button class="btn-export" style="margin-top: 0;" onclick="exportStatsReport()">📥 Exportar Relatório</button>
                     </div>
                     <div class="chart-container" id="statsChart"></div>
                     <button class="toggle-products-btn" id="toggleNoOrdersBtn" onclick="toggleProductsWithoutOrders()">
@@ -2243,6 +2244,67 @@
             }
         }
 
+        // Export stats report for selected estoque
+        function exportStatsReport() {
+            const orders = JSON.parse(localStorage.getItem('orders'));
+            const recentOrders = orders.slice(-5);
+            const products = JSON.parse(localStorage.getItem('products'));
+            const selectedEstoque = document.getElementById('statsEstoque').value;
+            const storeName = localStorage.getItem('storeName');
+            
+            // Filter orders by estoque
+            const filteredOrders = selectedEstoque 
+                ? recentOrders.filter(o => o.estoque === selectedEstoque) 
+                : recentOrders;
+            
+            // Count products
+            const productCounts = {};
+            filteredOrders.forEach(order => {
+                order.items.forEach(item => {
+                    if (!productCounts[item.product]) productCounts[item.product] = 0;
+                    productCounts[item.product] += item.quantity;
+                });
+            });
+            
+            const total = Object.values(productCounts).reduce((sum, c) => sum + c, 0);
+            
+            // Filter products by estoque
+            const filteredProducts = selectedEstoque 
+                ? products.filter(p => p.estoque === selectedEstoque) 
+                : products;
+            const productsWithoutOrders = filteredProducts.filter(p => !productCounts[p.name]);
+            
+            // Build text
+            let text = `RELATÓRIO DE ESTOQUE - ${selectedEstoque || 'Todos os Estoques'}\n`;
+            text += `Loja: ${storeName}\n`;
+            text += `Últimos 5 Pedidos\n`;
+            text += `${'='.repeat(40)}\n\n`;
+            
+            text += `PRODUTOS QUE MAIS SAEM:\n`;
+            if (total > 0) {
+                const sorted = Object.entries(productCounts).sort((a, b) => b[1] - a[1]);
+                sorted.forEach(([product, count]) => {
+                    const percentage = ((count / total) * 100).toFixed(1);
+                    text += `- ${product} (${percentage}%)\n`;
+                });
+            } else {
+                text += `- Nenhum produto pedido\n`;
+            }
+            
+            text += `\nPRODUTOS SEM PEDIDOS:\n`;
+            if (productsWithoutOrders.length > 0) {
+                productsWithoutOrders.forEach(p => {
+                    text += `- ${p.name}\n`;
+                });
+            } else {
+                text += `- Todos os produtos tiveram pedidos\n`;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Relatório do estoque copiado!');
+            });
+        }
+
         // Populate month and year selects
         function populateDateSelects() {
             const monthSelect = document.getElementById('reportMonth');
@@ -2482,7 +2544,7 @@
             
             sortedProducts.forEach(([product, count]) => {
                 const percentage = ((count / totalProducts) * 100).toFixed(1);
-                text += `- ${product}: ${count} un. (${percentage}%)\n`;
+                text += `- ${product} (${percentage}%)\n`;
             });
             
             // Copy to clipboard
