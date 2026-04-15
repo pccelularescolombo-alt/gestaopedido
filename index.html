@@ -10,7 +10,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
@@ -19,7 +18,6 @@
             position: relative;
             overflow-x: hidden;
         }
-
         /* Animated background effect */
         body::before {
             content: '';
@@ -523,42 +521,43 @@
             flex: 1;
         }
 
-        /* Chart */
-        .chart-container {
-            margin-top: 20px;
+        /* Stats List */
+        .stats-list-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
         }
 
-        .chart-bar {
-            margin-bottom: 15px;
-        }
-
-        .chart-label {
+        .stats-list-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(30, 144, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px 15px;
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .stats-list-item:hover {
+            border-color: rgba(30, 144, 255, 0.6);
+            box-shadow: 0 4px 20px rgba(30, 144, 255, 0.2);
+        }
+
+        .stats-product-name {
             color: #1e90ff;
             font-weight: 600;
+            font-size: 14px;
+            flex: 1;
         }
 
-        .chart-bar-bg {
-            background: rgba(0, 0, 0, 0.4);
-            height: 30px;
-            border-radius: 15px;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(30, 144, 255, 0.3);
-        }
-
-        .chart-bar-fill {
-            background: linear-gradient(90deg, #ff8c00 0%, #ff6600 100%);
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
+        .stats-percentage {
+            color: #ff8c00;
             font-weight: 700;
-            transition: width 0.5s ease;
-            box-shadow: 0 0 15px rgba(255, 140, 0, 0.5);
+            font-size: 16px;
+            text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+            margin-left: 15px;
         }
 
         /* Recent orders list */
@@ -969,6 +968,43 @@
             border-color: rgba(255, 140, 0, 0.6);
         }
 
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pagination-btn {
+            padding: 8px 16px;
+            background: rgba(30, 144, 255, 0.2);
+            border: 2px solid rgba(30, 144, 255, 0.4);
+            border-radius: 8px;
+            color: #1e90ff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: rgba(30, 144, 255, 0.4);
+            box-shadow: 0 0 15px rgba(30, 144, 255, 0.3);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
         /* RESPONSIVE */
         @media screen and (max-width: 768px) {
             .container {
@@ -1099,12 +1135,6 @@
                 text-align: center;
             }
 
-            .chart-label {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-
             .order-card {
                 padding: 12px;
             }
@@ -1168,6 +1198,10 @@
 
             .modal-box {
                 padding: 20px 15px;
+            }
+
+            .stats-list-container {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -1256,14 +1290,14 @@
         </div>
 
         <div class="container">
-            <!-- Tabs - Reorganized -->
+            <!-- Tabs - Reorganized Order -->
             <div class="tabs">
                 <button class="tab active" onclick="showTab('newOrder')" id="tab-newOrder">Novo Pedido</button>
                 <button class="tab" onclick="showTab('checkOrder')" id="tab-checkOrder">Conferir Pedido</button>
-                <button class="tab hidden" onclick="showTab('products')" id="tab-products">Produtos</button>
                 <button class="tab hidden" onclick="showTab('orderManagement')" id="tab-orderManagement">Ger. Pedidos</button>
                 <button class="tab hidden" onclick="showTab('statistics')" id="tab-statistics">Estatísticas</button>
                 <button class="tab hidden" onclick="showTab('reports')" id="tab-reports">Relatórios</button>
+                <button class="tab hidden" onclick="showTab('products')" id="tab-products">Produtos</button>
                 <button class="tab hidden" onclick="showTab('settings')" id="tab-settings">Configurações</button>
             </div>
 
@@ -1304,6 +1338,14 @@
             <div id="content-checkOrder" class="tab-content">
                 <div class="card">
                     <h2>✅ Conferir Pedidos</h2>
+                    <div style="margin-bottom: 15px;">
+                        <select id="checkEstoqueFilter" class="input-field" onchange="loadOrdersToCheck()" style="max-width: 300px;">
+                            <option value="">Todos os Estoques</option>
+                            <option value="Estoque Produtos">Estoque Produtos</option>
+                            <option value="Estoque Nicola">Estoque Nicola</option>
+                            <option value="Estoque Capa">Estoque Capa</option>
+                        </select>
+                    </div>
                     <div id="ordersListToSelect"></div>
                 </div>
                 <div id="checkOrderDetail" class="hidden">
@@ -1321,7 +1363,66 @@
                 </div>
             </div>
 
-            <!-- Tab 3: Produtos (admin only) -->
+            <!-- Tab 3: Gerenciamento de Pedidos (admin only) -->
+            <div id="content-orderManagement" class="tab-content">
+                <div class="card">
+                    <h2>📝 Gerenciar Pedidos (Últimos 10 por Estoque)</h2>
+                    <div id="adminOrdersList"></div>
+                </div>
+                <div id="adminOrderDetail" class="hidden">
+                    <div class="card">
+                        <h2 id="adminOrderDetailTitle" style="margin-bottom: 15px;"></h2>
+                        <div id="adminOrderDetailItems"></div>
+                        <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn-edit" id="btnEditFromDetail" onclick="editFromDetail()">Editar</button>
+                            <button class="btn-delete" id="btnDeleteFromDetail" onclick="deleteFromDetail()">Apagar</button>
+                            <button class="btn-danger" onclick="closeAdminOrderDetail()" style="padding: 12px 24px;">Voltar à Lista</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Estatísticas (admin only) -->
+            <div id="content-statistics" class="tab-content">
+                <div class="card">
+                    <h2>📊 Estatísticas dos Últimos 10 Pedidos</h2>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
+                        <select id="statsEstoque" class="input-field" style="flex: 1; min-width: 200px;" onchange="updateStats()">
+                            <option value="">Todos os Estoques</option>
+                            <option value="Estoque Produtos">Estoque Produtos</option>
+                            <option value="Estoque Nicola">Estoque Nicola</option>
+                            <option value="Estoque Capa">Estoque Capa</option>
+                        </select>
+                        <button class="btn-export" style="margin-top: 0;" onclick="exportStatsReport()">📥 Exportar Relatório</button>
+                    </div>
+                    <div id="statsChart"></div>
+                    <div id="statsPagination" class="pagination-container hidden"></div>
+                    <button class="toggle-products-btn" id="toggleNoOrdersBtn" onclick="toggleProductsWithoutOrders()">
+                        Ver produtos sem pedidos
+                    </button>
+                    <div id="productsWithoutOrders" class="hidden" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- Tab 5: Relatórios Mensais (admin only) -->
+            <div id="content-reports" class="tab-content">
+                <div class="card">
+                    <h2>📅 Relatórios Mensais</h2>
+                    <div class="input-group">
+                        <select id="reportMonth" class="input-field">
+                            <option value="">Selecione o mês</option>
+                        </select>
+                        <select id="reportYear" class="input-field">
+                            <option value="">Selecione o ano</option>
+                        </select>
+                        <button class="btn-primary" onclick="generateMonthlyReport()">Gerar Relatório</button>
+                    </div>
+                    
+                    <div id="monthlyReportContent" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- Tab 6: Produtos (admin only) -->
             <div id="content-products" class="tab-content">
                 <div class="card">
                     <h2>📦 Gerenciar Produtos</h2>
@@ -1345,66 +1446,17 @@
                     </div>
                     <div id="importProductsStatus" style="margin-bottom: 10px;"></div>
                     
-                    <div id="productsList"></div>
-                    <div id="productsPagination" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px;"></div>
-                </div>
-            </div>
-
-            <!-- Tab 4: Gerenciamento de Pedidos (admin only) -->
-            <div id="content-orderManagement" class="tab-content">
-                <div class="card">
-                    <h2>📝 Gerenciar Pedidos</h2>
-                    <div id="adminOrdersList"></div>
-                </div>
-                <div id="adminOrderDetail" class="hidden">
-                    <div class="card">
-                        <h2 id="adminOrderDetailTitle" style="margin-bottom: 15px;"></h2>
-                        <div id="adminOrderDetailItems"></div>
-                        <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button class="btn-edit" id="btnEditFromDetail" onclick="editFromDetail()">Editar</button>
-                            <button class="btn-delete" id="btnDeleteFromDetail" onclick="deleteFromDetail()">Apagar</button>
-                            <button class="btn-danger" onclick="closeAdminOrderDetail()" style="padding: 12px 24px;">Voltar à Lista</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab 5: Estatísticas (admin only) -->
-            <div id="content-statistics" class="tab-content">
-                <div class="card">
-                    <h2>📊 Estatísticas dos Últimos 5 Pedidos</h2>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
-                        <select id="statsEstoque" class="input-field" style="flex: 1; min-width: 200px;" onchange="updateStats()">
-                            <option value="">Todos os Estoques</option>
+                    <div style="margin-bottom: 15px;">
+                        <select id="productsEstoqueFilter" class="input-field" onchange="loadProducts(1)" style="max-width: 300px;">
+                            <option value="">Selecione um estoque</option>
                             <option value="Estoque Produtos">Estoque Produtos</option>
                             <option value="Estoque Nicola">Estoque Nicola</option>
                             <option value="Estoque Capa">Estoque Capa</option>
                         </select>
-                        <button class="btn-export" style="margin-top: 0;" onclick="exportStatsReport()">📥 Exportar Relatório</button>
-                    </div>
-                    <div class="chart-container" id="statsChart"></div>
-                    <button class="toggle-products-btn" id="toggleNoOrdersBtn" onclick="toggleProductsWithoutOrders()">
-                        Ver produtos sem pedidos
-                    </button>
-                    <div id="productsWithoutOrders" class="hidden" style="margin-top: 20px;"></div>
-                </div>
-            </div>
-
-            <!-- Tab 6: Relatórios Mensais (admin only) -->
-            <div id="content-reports" class="tab-content">
-                <div class="card">
-                    <h2>📅 Relatórios Mensais</h2>
-                    <div class="input-group">
-                        <select id="reportMonth" class="input-field">
-                            <option value="">Selecione o mês</option>
-                        </select>
-                        <select id="reportYear" class="input-field">
-                            <option value="">Selecione o ano</option>
-                        </select>
-                        <button class="btn-primary" onclick="generateMonthlyReport()">Gerar Relatório</button>
                     </div>
                     
-                    <div id="monthlyReportContent" style="margin-top: 20px;"></div>
+                    <div id="productsList"></div>
+                    <div id="productsPagination" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px;"></div>
                 </div>
             </div>
 
@@ -1658,20 +1710,30 @@
             }
         }
 
-        // Load products - now with estoque
+        // Load products - now with estoque filter
         let productsCurrentPage = 1;
         const productsPerPage = 20;
 
         function loadProducts(page) {
             if (page) productsCurrentPage = page;
-            const products = JSON.parse(localStorage.getItem('products'));
+            
+            const selectedEstoque = document.getElementById('productsEstoqueFilter').value;
+            
+            if (!selectedEstoque) {
+                document.getElementById('productsList').innerHTML = '<div class="empty-state">Selecione um estoque para visualizar os produtos</div>';
+                document.getElementById('productsPagination').innerHTML = '';
+                return;
+            }
+            
+            const allProducts = JSON.parse(localStorage.getItem('products'));
+            const products = allProducts.filter(p => p.estoque === selectedEstoque);
             const productsList = document.getElementById('productsList');
             const pagination = document.getElementById('productsPagination');
             
             if (!productsList) return;
             
             if (products.length === 0) {
-                productsList.innerHTML = '<div class="empty-state">Nenhum produto cadastrado</div>';
+                productsList.innerHTML = '<div class="empty-state">Nenhum produto cadastrado neste estoque</div>';
                 pagination.innerHTML = '';
                 return;
             }
@@ -1686,7 +1748,7 @@
             // Render list
             let html = '';
             pageProducts.forEach((product, i) => {
-                const realIndex = start + i;
+                const realIndex = allProducts.findIndex(p => p.name === product.name && p.estoque === product.estoque);
                 html += `
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 6px; border-left: 3px solid #1e90ff;">
                         <div>
@@ -1959,7 +2021,26 @@
             }
         }
 
-        // Save order
+        // Limit orders per estoque (max 10 per estoque)
+        function limitOrdersPerEstoque(orders) {
+            const estoques = ['Estoque Produtos', 'Estoque Nicola', 'Estoque Capa'];
+            let limitedOrders = [];
+            
+            estoques.forEach(estoque => {
+                const estoqueOrders = orders.filter(o => o.estoque === estoque);
+                // Keep only the last 10 per estoque
+                const keep = estoqueOrders.slice(-10);
+                limitedOrders = limitedOrders.concat(keep);
+            });
+            
+            // Also keep orders without estoque
+            const noEstoque = orders.filter(o => !o.estoque);
+            limitedOrders = limitedOrders.concat(noEstoque.slice(-10));
+            
+            return limitedOrders;
+        }
+
+        // Save order with auto-limit
         function saveOrder() {
             if (currentOrderItems.length === 0) {
                 alert('Adicione pelo menos um item ao pedido!');
@@ -1972,7 +2053,7 @@
                 return;
             }
             
-            const orders = JSON.parse(localStorage.getItem('orders'));
+            let orders = JSON.parse(localStorage.getItem('orders'));
             const storeName = localStorage.getItem('storeName');
             const now = new Date();
             
@@ -1986,6 +2067,10 @@
             };
             
             orders.push(order);
+            
+            // Auto-limit: keep max 10 per estoque
+            orders = limitOrdersPerEstoque(orders);
+            
             localStorage.setItem('orders', JSON.stringify(orders));
             
             currentOrderItems = [];
@@ -2014,12 +2099,21 @@
             });
         }
 
-        // Load orders to check - shows list of orders to select
+        // Load orders to check - max 10 per estoque
         let selectedCheckOrderId = null;
         
         function loadOrdersToCheck() {
             const orders = JSON.parse(localStorage.getItem('orders'));
-            const recentOrders = orders.slice(-5).reverse();
+            const selectedEstoque = document.getElementById('checkEstoqueFilter').value;
+            
+            let filteredOrders = orders;
+            
+            if (selectedEstoque) {
+                filteredOrders = orders.filter(o => o.estoque === selectedEstoque);
+            }
+            
+            // Get last 10 from filtered orders
+            const recentOrders = filteredOrders.slice(-10).reverse();
             const container = document.getElementById('ordersListToSelect');
             
             // Hide detail view
@@ -2228,18 +2322,24 @@
             });
         }
 
-        // Update statistics - only products with orders
+        // Update statistics - last 10 orders with pagination (max 20 products)
         let showingProductsWithoutOrders = false;
+        let statsCurrentPage = 1;
+        const statsPerPage = 20;
 
-        function updateStats() {
+        function updateStats(page) {
+            if (page) statsCurrentPage = page;
+            
             const orders = JSON.parse(localStorage.getItem('orders'));
-            const recentOrders = orders.slice(-5);
+            const recentOrders = orders.slice(-10);
             const products = JSON.parse(localStorage.getItem('products'));
             const container = document.getElementById('statsChart');
+            const paginationContainer = document.getElementById('statsPagination');
             const selectedEstoque = document.getElementById('statsEstoque') ? document.getElementById('statsEstoque').value : '';
             
             if (recentOrders.length === 0) {
                 container.innerHTML = '<div class="empty-state">Sem dados suficientes para estatísticas</div>';
+                paginationContainer.classList.add('hidden');
                 return;
             }
             
@@ -2250,6 +2350,7 @@
             
             if (filteredOrders.length === 0) {
                 container.innerHTML = '<div class="empty-state">Nenhum pedido encontrado para este estoque</div>';
+                paginationContainer.classList.add('hidden');
                 updateProductsWithoutOrders({}, selectedEstoque);
                 return;
             }
@@ -2271,28 +2372,48 @@
             
             if (total === 0) {
                 container.innerHTML = '<div class="empty-state">Nenhum produto pedido ainda</div>';
+                paginationContainer.classList.add('hidden');
                 updateProductsWithoutOrders({}, selectedEstoque);
                 return;
             }
             
-            // Create compact grid with cards
+            // Sort products by count
             const sortedProducts = Object.entries(productCounts).sort((a, b) => b[1] - a[1]);
             
-            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px;">';
+            // Pagination
+            const totalPages = Math.ceil(sortedProducts.length / statsPerPage);
+            if (statsCurrentPage > totalPages) statsCurrentPage = totalPages;
+            const start = (statsCurrentPage - 1) * statsPerPage;
+            const end = start + statsPerPage;
+            const pageProducts = sortedProducts.slice(start, end);
             
-            sortedProducts.forEach(([product, count]) => {
+            // Create list in 2 columns
+            let html = '<div class="stats-list-container">';
+            
+            pageProducts.forEach(([product, count]) => {
                 const percentage = ((count / total) * 100).toFixed(1);
                 html += `
-                    <div style="background: rgba(0,0,0,0.3); border: 2px solid rgba(30,144,255,0.3); border-radius: 10px; padding: 15px; text-align: center; transition: all 0.3s;">
-                        <div style="font-size: 22px; font-weight: 700; color: #ff8c00; text-shadow: 0 0 10px rgba(255,140,0,0.5);">${percentage}%</div>
-                        <div style="font-size: 13px; color: #1e90ff; margin-top: 5px; font-weight: 600;">${product}</div>
-                        <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 3px;">${count} un.</div>
+                    <div class="stats-list-item">
+                        <div class="stats-product-name">${product}</div>
+                        <div class="stats-percentage">${percentage}%</div>
                     </div>
                 `;
             });
             
             html += '</div>';
             container.innerHTML = html;
+            
+            // Pagination controls
+            if (totalPages > 1) {
+                paginationContainer.classList.remove('hidden');
+                let pagHtml = '';
+                pagHtml += `<button class="pagination-btn" onclick="updateStats(${statsCurrentPage - 1})" ${statsCurrentPage === 1 ? 'disabled' : ''}>Anterior</button>`;
+                pagHtml += `<span class="pagination-info">Página ${statsCurrentPage} de ${totalPages}</span>`;
+                pagHtml += `<button class="pagination-btn" onclick="updateStats(${statsCurrentPage + 1})" ${statsCurrentPage === totalPages ? 'disabled' : ''}>Próxima</button>`;
+                paginationContainer.innerHTML = pagHtml;
+            } else {
+                paginationContainer.classList.add('hidden');
+            }
 
             // Update products without orders section
             updateProductsWithoutOrders(productCounts, selectedEstoque);
@@ -2349,7 +2470,7 @@
         // Export stats report for selected estoque
         function exportStatsReport() {
             const orders = JSON.parse(localStorage.getItem('orders'));
-            const recentOrders = orders.slice(-5);
+            const recentOrders = orders.slice(-10);
             const products = JSON.parse(localStorage.getItem('products'));
             const selectedEstoque = document.getElementById('statsEstoque').value;
             const storeName = localStorage.getItem('storeName');
@@ -2379,7 +2500,7 @@
             // Build text
             let text = `RELATÓRIO DE ESTOQUE - ${selectedEstoque || 'Todos os Estoques'}\n`;
             text += `Loja: ${storeName}\n`;
-            text += `Últimos 5 Pedidos\n`;
+            text += `Últimos 10 Pedidos\n`;
             text += `${'='.repeat(40)}\n\n`;
             
             text += `PRODUTOS QUE MAIS SAEM:\n`;
@@ -2662,7 +2783,7 @@
         let editingOrderId = null;
         let editingItems = [];
 
-        // Load admin orders list - compact list format
+        // Load admin orders list - compact list format (last 10 per estoque)
         let selectedAdminOrderId = null;
 
         function loadAdminOrders() {
@@ -2766,7 +2887,6 @@
             localStorage.setItem('orders', JSON.stringify(orders));
             
             loadAdminOrders();
-
             loadOrdersToCheck();
             updateStats();
             alert('Pedido apagado!');
@@ -2875,7 +2995,6 @@
             
             closeEditModal();
             loadAdminOrders();
-
             loadOrdersToCheck();
             updateStats();
             alert('Pedido atualizado!');
@@ -2951,7 +3070,6 @@
                     // Reload everything
                     loadStoreName();
                     loadProducts();
-        
                     loadOrdersToCheck();
                     if (currentUser === 'admin') {
                         updateStats();
