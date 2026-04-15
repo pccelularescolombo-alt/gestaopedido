@@ -1297,6 +1297,7 @@
                 <button class="tab hidden" onclick="showTab('orderManagement')" id="tab-orderManagement">Ger. Pedidos</button>
                 <button class="tab hidden" onclick="showTab('statistics')" id="tab-statistics">Estatísticas</button>
                 <button class="tab hidden" onclick="showTab('reports')" id="tab-reports">Relatórios</button>
+                <button class="tab hidden" onclick="showTab('fridayOrder')" id="tab-fridayOrder">Pedido Sexta</button>
                 <button class="tab hidden" onclick="showTab('products')" id="tab-products">Produtos</button>
                 <button class="tab hidden" onclick="showTab('settings')" id="tab-settings">Configurações</button>
             </div>
@@ -1422,7 +1423,34 @@
                 </div>
             </div>
 
-            <!-- Tab 6: Produtos (admin only) -->
+            <!-- Tab 6: Pedido Sexta Feira (admin only) -->
+            <div id="content-fridayOrder" class="tab-content">
+                <div class="card">
+                    <h2>📅 Pedido Sexta Feira</h2>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #1e90ff; margin-bottom: 12px; font-size: 18px;">🛒 Encomendas de Clientes</h3>
+                        <div class="order-form-row">
+                            <input type="text" id="fridayClientProduct" class="input-field" placeholder="Nome do produto encomendado" style="flex: 2;">
+                            <button class="btn-primary" onclick="addFridayClientProduct()" style="margin-right: 0;">Adicionar</button>
+                        </div>
+                        <div id="fridayClientList" style="margin-top: 15px;"></div>
+                    </div>
+
+                    <div style="border-top: 2px solid rgba(255, 140, 0, 0.3); padding-top: 20px; margin-top: 10px;">
+                        <h3 style="color: #ff8c00; margin-bottom: 12px; font-size: 18px;">❌ Produtos Solicitados e Não Tinha em Estoque</h3>
+                        <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 15px;">Carregado automaticamente dos pedidos conferidos com itens marcados como "Não veio"</p>
+                        <div id="fridayOutOfStockList"></div>
+                    </div>
+
+                    <div style="border-top: 2px solid rgba(30, 144, 255, 0.3); padding-top: 20px; margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn-warning" onclick="copyFridayReport()">📋 Copiar Relatório</button>
+                        <button class="btn-danger" onclick="clearFridayClientProducts()" style="padding: 12px 24px;">Limpar Encomendas</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 7: Produtos (admin only) -->
             <div id="content-products" class="tab-content">
                 <div class="card">
                     <h2>📦 Gerenciar Produtos</h2>
@@ -1546,6 +1574,11 @@
                     estoque: ''
                 }));
             }
+
+            // Friday order client products
+            if (!localStorage.getItem('fridayClientProducts')) {
+                localStorage.setItem('fridayClientProducts', JSON.stringify([]));
+            }
         }
 
         // Current session
@@ -1602,6 +1635,7 @@
                 document.getElementById('tab-orderManagement').classList.add('hidden');
                 document.getElementById('tab-statistics').classList.add('hidden');
                 document.getElementById('tab-reports').classList.add('hidden');
+                document.getElementById('tab-fridayOrder').classList.add('hidden');
                 document.getElementById('tab-settings').classList.add('hidden');
                 
                 showTab('newOrder');
@@ -1633,6 +1667,7 @@
                 document.getElementById('tab-orderManagement').classList.remove('hidden');
                 document.getElementById('tab-statistics').classList.remove('hidden');
                 document.getElementById('tab-reports').classList.remove('hidden');
+                document.getElementById('tab-fridayOrder').classList.remove('hidden');
                 document.getElementById('tab-settings').classList.remove('hidden');
                 
                 updateStats();
@@ -1652,7 +1687,7 @@
 
         // Tab navigation
         function showTab(tabName) {
-            if (['products', 'orderManagement', 'statistics', 'reports', 'settings'].includes(tabName) && currentUser !== 'admin') {
+            if (['products', 'orderManagement', 'statistics', 'reports', 'fridayOrder', 'settings'].includes(tabName) && currentUser !== 'admin') {
                 toggleAdmin();
                 return;
             }
@@ -1684,6 +1719,10 @@
 
             if (tabName === 'reports') {
                 populateDateSelects();
+            }
+
+            if (tabName === 'fridayOrder') {
+                loadFridayOrder();
             }
 
             if (tabName === 'settings') {
@@ -3008,6 +3047,143 @@
         }
 
         // ========================================
+        // PEDIDO SEXTA FEIRA
+        // ========================================
+
+        function loadFridayOrder() {
+            renderFridayClientList();
+            renderFridayOutOfStockList();
+        }
+
+        // Add client product
+        function addFridayClientProduct() {
+            const input = document.getElementById('fridayClientProduct');
+            const product = input.value.trim();
+            
+            if (!product) {
+                alert('Digite o nome do produto!');
+                return;
+            }
+            
+            const clientProducts = JSON.parse(localStorage.getItem('fridayClientProducts') || '[]');
+            clientProducts.push(product);
+            localStorage.setItem('fridayClientProducts', JSON.stringify(clientProducts));
+            
+            input.value = '';
+            renderFridayClientList();
+        }
+
+        // Remove client product
+        function removeFridayClientProduct(index) {
+            const clientProducts = JSON.parse(localStorage.getItem('fridayClientProducts') || '[]');
+            clientProducts.splice(index, 1);
+            localStorage.setItem('fridayClientProducts', JSON.stringify(clientProducts));
+            renderFridayClientList();
+        }
+
+        // Render client products list
+        function renderFridayClientList() {
+            const container = document.getElementById('fridayClientList');
+            const clientProducts = JSON.parse(localStorage.getItem('fridayClientProducts') || '[]');
+            
+            if (clientProducts.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding: 20px;">Nenhuma encomenda adicionada</div>';
+                return;
+            }
+            
+            let html = '';
+            clientProducts.forEach((product, index) => {
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 6px; border-left: 3px solid #1e90ff;">
+                        <span style="color: #ffffff;">${product}</span>
+                        <button class="btn-danger btn-small" onclick="removeFridayClientProduct(${index})">X</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Get out-of-stock products from checked orders (items marked as "Não veio")
+        function getOutOfStockProducts() {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const outOfStock = [];
+            
+            orders.forEach(order => {
+                if (order.status === 'Conferido' && order.checkData) {
+                    order.items.forEach((item, index) => {
+                        if (order.checkData[index] && order.checkData[index].status === 'Não veio') {
+                            // Avoid duplicates
+                            if (!outOfStock.includes(item.product)) {
+                                outOfStock.push(item.product);
+                            }
+                        }
+                    });
+                }
+            });
+            
+            return outOfStock;
+        }
+
+        // Render out-of-stock list
+        function renderFridayOutOfStockList() {
+            const container = document.getElementById('fridayOutOfStockList');
+            const outOfStock = getOutOfStockProducts();
+            
+            if (outOfStock.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding: 20px;">Nenhum produto marcado como "Não veio" nos pedidos conferidos</div>';
+                return;
+            }
+            
+            let html = '';
+            outOfStock.forEach(product => {
+                html += `
+                    <div style="display: flex; align-items: center; padding: 10px 15px; background: rgba(255,0,0,0.05); border-radius: 8px; margin-bottom: 6px; border-left: 3px solid #ff6666;">
+                        <span style="color: #ff6666; font-weight: 600;">❌ ${product}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Copy friday report
+        function copyFridayReport() {
+            const storeName = localStorage.getItem('storeName');
+            const clientProducts = JSON.parse(localStorage.getItem('fridayClientProducts') || '[]');
+            const outOfStock = getOutOfStockProducts();
+            
+            let text = `Pedido Sexta Feira Loja ${storeName}\n`;
+            
+            text += `Encomendas de Clientes:\n`;
+            if (clientProducts.length > 0) {
+                clientProducts.forEach(p => {
+                    text += `${p}\n`;
+                });
+            } else {
+                text += `Nenhuma encomenda\n`;
+            }
+            
+            text += `\nProdutos Solicitados e não tinha em estoque:\n`;
+            if (outOfStock.length > 0) {
+                outOfStock.forEach(p => {
+                    text += `${p}\n`;
+                });
+            } else {
+                text += `Nenhum produto em falta\n`;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Relatório Pedido Sexta Feira copiado!');
+            });
+        }
+
+        // Clear friday client products
+        function clearFridayClientProducts() {
+            if (!confirm('Deseja limpar todas as encomendas de clientes?')) return;
+            localStorage.setItem('fridayClientProducts', JSON.stringify([]));
+            renderFridayClientList();
+        }
+
+        // ========================================
         // EXPORT / IMPORT DATA
         // ========================================
         
@@ -3018,6 +3194,7 @@
                 products: JSON.parse(localStorage.getItem('products') || '[]'),
                 orders: JSON.parse(localStorage.getItem('orders') || '[]'),
                 checks: JSON.parse(localStorage.getItem('checks') || '[]'),
+                fridayClientProducts: JSON.parse(localStorage.getItem('fridayClientProducts') || '[]'),
                 exportDate: new Date().toLocaleString('pt-BR'),
                 version: '2.0'
             };
@@ -3066,6 +3243,7 @@
                     localStorage.setItem('products', JSON.stringify(data.products));
                     localStorage.setItem('orders', JSON.stringify(data.orders));
                     if (data.checks) localStorage.setItem('checks', JSON.stringify(data.checks));
+                    if (data.fridayClientProducts) localStorage.setItem('fridayClientProducts', JSON.stringify(data.fridayClientProducts));
                     
                     // Reload everything
                     loadStoreName();
