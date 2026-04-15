@@ -1335,8 +1335,18 @@
                         </select>
                         <button class="btn-primary" onclick="addProduct()">Adicionar Produto</button>
                     </div>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+                        <button class="btn-primary" onclick="exportProducts()" style="margin-right: 0;">📥 Exportar Produtos</button>
+                        <label class="btn-warning" style="cursor: pointer; display: inline-flex; align-items: center; margin: 0;">
+                            📤 Importar Produtos
+                            <input type="file" id="importProductsInput" accept=".json" onchange="importProducts(event)" style="display: none;">
+                        </label>
+                    </div>
+                    <div id="importProductsStatus" style="margin-bottom: 10px;"></div>
                     
-                    <div class="product-list" id="productsList"></div>
+                    <div id="productsList"></div>
+                    <div id="productsPagination" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px;"></div>
                 </div>
             </div>
 
@@ -1649,30 +1659,122 @@
         }
 
         // Load products - now with estoque
-        function loadProducts() {
+        let productsCurrentPage = 1;
+        const productsPerPage = 20;
+
+        function loadProducts(page) {
+            if (page) productsCurrentPage = page;
             const products = JSON.parse(localStorage.getItem('products'));
             const productsList = document.getElementById('productsList');
+            const pagination = document.getElementById('productsPagination');
             
-            // Update products list (admin)
-            if (productsList) {
-                if (products.length === 0) {
-                    productsList.innerHTML = '<div class="empty-state">Nenhum produto cadastrado</div>';
-                } else {
-                    productsList.innerHTML = '';
-                    products.forEach((product, index) => {
-                        const div = document.createElement('div');
-                        div.className = 'product-item';
-                        div.innerHTML = `
-                            <div>
-                                <span class="product-name">${product.name}</span>
-                                <div><span class="product-estoque">📦 ${product.estoque}</span></div>
-                            </div>
-                            <button class="btn-danger btn-small" onclick="removeProduct(${index})">Remover</button>
-                        `;
-                        productsList.appendChild(div);
-                    });
-                }
+            if (!productsList) return;
+            
+            if (products.length === 0) {
+                productsList.innerHTML = '<div class="empty-state">Nenhum produto cadastrado</div>';
+                pagination.innerHTML = '';
+                return;
             }
+            
+            // Pagination
+            const totalPages = Math.ceil(products.length / productsPerPage);
+            if (productsCurrentPage > totalPages) productsCurrentPage = totalPages;
+            const start = (productsCurrentPage - 1) * productsPerPage;
+            const end = start + productsPerPage;
+            const pageProducts = products.slice(start, end);
+            
+            // Render list
+            let html = '';
+            pageProducts.forEach((product, i) => {
+                const realIndex = start + i;
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 6px; border-left: 3px solid #1e90ff;">
+                        <div>
+                            <span style="color: #1e90ff; font-weight: 600;">${product.name}</span>
+                            <span style="color: #ff8c00; font-size: 11px; padding: 2px 8px; background: rgba(255,140,0,0.1); border-radius: 6px; margin-left: 10px;">${product.estoque}</span>
+                        </div>
+                        <button class="btn-danger btn-small" onclick="removeProduct(${realIndex})">Remover</button>
+                    </div>
+                `;
+            });
+            productsList.innerHTML = html;
+            
+            // Pagination controls
+            if (totalPages <= 1) {
+                pagination.innerHTML = `<span style="color: rgba(255,255,255,0.5); font-size: 13px;">${products.length} produto(s)</span>`;
+                return;
+            }
+            
+            let pagHtml = '';
+            pagHtml += `<button class="btn-small" style="padding: 8px 14px; background: rgba(30,144,255,0.2); border: 2px solid rgba(30,144,255,0.4); border-radius: 8px; color: #1e90ff; cursor: pointer;" onclick="loadProducts(${productsCurrentPage - 1})" ${productsCurrentPage === 1 ? 'disabled style="opacity:0.3; cursor:default; padding: 8px 14px; background: rgba(30,144,255,0.2); border: 2px solid rgba(30,144,255,0.4); border-radius: 8px; color: #1e90ff;"' : ''}>Anterior</button>`;
+            pagHtml += `<span style="color: rgba(255,255,255,0.7); font-size: 14px;">Página ${productsCurrentPage} de ${totalPages} (${products.length} produtos)</span>`;
+            pagHtml += `<button class="btn-small" style="padding: 8px 14px; background: rgba(30,144,255,0.2); border: 2px solid rgba(30,144,255,0.4); border-radius: 8px; color: #1e90ff; cursor: pointer;" onclick="loadProducts(${productsCurrentPage + 1})" ${productsCurrentPage === totalPages ? 'disabled style="opacity:0.3; cursor:default; padding: 8px 14px; background: rgba(30,144,255,0.2); border: 2px solid rgba(30,144,255,0.4); border-radius: 8px; color: #1e90ff;"' : ''}>Próxima</button>`;
+            pagination.innerHTML = pagHtml;
+        }
+
+        // Export products list
+        function exportProducts() {
+            const products = JSON.parse(localStorage.getItem('products') || '[]');
+            if (products.length === 0) {
+                alert('Nenhum produto para exportar!');
+                return;
+            }
+            const data = { products: products, exportDate: new Date().toLocaleString('pt-BR'), type: 'products' };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `produtos_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Import products list
+        function importProducts(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    let importList = [];
+                    
+                    if (data.products && Array.isArray(data.products)) {
+                        importList = data.products;
+                    } else if (Array.isArray(data)) {
+                        importList = data;
+                    } else {
+                        alert('Formato inválido!');
+                        return;
+                    }
+                    
+                    if (!confirm(`Importar ${importList.length} produto(s)?\nOs produtos serão ADICIONADOS à lista atual.`)) return;
+                    
+                    const current = JSON.parse(localStorage.getItem('products') || '[]');
+                    let added = 0;
+                    importList.forEach(p => {
+                        const name = p.name || p;
+                        const estoque = p.estoque || 'Estoque Produtos';
+                        if (name && !current.some(c => c.name === name && c.estoque === estoque)) {
+                            current.push({ name: name, estoque: estoque });
+                            added++;
+                        }
+                    });
+                    
+                    localStorage.setItem('products', JSON.stringify(current));
+                    loadProducts(1);
+                    
+                    const status = document.getElementById('importProductsStatus');
+                    status.innerHTML = `<span style="color: #00cc00; font-weight: 600;">✅ ${added} produto(s) importado(s)!</span>`;
+                    setTimeout(() => { status.innerHTML = ''; }, 4000);
+                } catch (err) {
+                    alert('Erro ao importar: arquivo inválido.');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
         }
 
         // Add product with estoque
