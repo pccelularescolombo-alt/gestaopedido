@@ -1005,8 +1005,137 @@
             font-size: 14px;
         }
 
+        /* Mobile Sidebar Menu */
+        .hamburger-btn {
+            display: none;
+            background: rgba(255, 140, 0, 0.2);
+            border: 2px solid rgba(255, 140, 0, 0.4);
+            border-radius: 10px;
+            color: #ff8c00;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 8px 12px;
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .hamburger-btn:hover {
+            background: rgba(255, 140, 0, 0.4);
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 998;
+        }
+
+        .sidebar-overlay.open {
+            display: block;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 270px;
+            height: 100%;
+            background: linear-gradient(180deg, #0a0a0a 0%, #111122 100%);
+            border-right: 2px solid rgba(255, 140, 0, 0.4);
+            z-index: 999;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 2px solid rgba(255, 140, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-header h2 {
+            color: #ff8c00;
+            font-size: 18px;
+            text-shadow: 0 0 15px rgba(255, 140, 0, 0.5);
+        }
+
+        .sidebar-close {
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid rgba(255, 0, 0, 0.4);
+            border-radius: 8px;
+            color: #ff6666;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 6px 10px;
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .sidebar-close:hover {
+            background: rgba(255, 0, 0, 0.4);
+        }
+
+        .sidebar-menu {
+            padding: 10px 0;
+        }
+
+        .sidebar-item {
+            display: block;
+            width: 100%;
+            padding: 16px 20px;
+            background: none;
+            border: none;
+            border-left: 4px solid transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255, 140, 0, 0.1);
+            color: #ff8c00;
+            border-left-color: rgba(255, 140, 0, 0.5);
+        }
+
+        .sidebar-item.active {
+            background: rgba(255, 140, 0, 0.15);
+            color: #ff8c00;
+            border-left-color: #ff8c00;
+            text-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: rgba(255, 140, 0, 0.2);
+            margin: 8px 20px;
+        }
+
         /* RESPONSIVE */
         @media screen and (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .tabs {
+                display: none !important;
+            }
+
             .container {
                 padding: 10px;
             }
@@ -1026,36 +1155,24 @@
             }
 
             .header-content {
-                flex-direction: column;
+                flex-direction: row;
                 gap: 15px;
-                text-align: center;
+                text-align: left;
+                align-items: center;
             }
 
             .header h1 {
-                font-size: 20px;
+                font-size: 18px;
+                flex: 1;
             }
 
             .user-info {
-                flex-direction: column;
+                flex-direction: row;
                 gap: 10px;
-                width: 100%;
             }
 
             .btn-logout {
                 width: 100%;
-            }
-
-            .tabs {
-                flex-direction: row;
-                flex-wrap: nowrap;
-                gap: 3px;
-            }
-
-            .tab {
-                padding: 12px 15px;
-                font-size: 12px;
-                flex: 1;
-                min-width: auto;
             }
 
             .card {
@@ -1213,11 +1330,6 @@
             .container {
                 padding: 5px;
             }
-
-            .tab {
-                padding: 10px 8px;
-                font-size: 11px;
-            }
         }
 
         @media screen and (min-width: 1200px) {
@@ -1282,10 +1394,32 @@
     <div id="mainApp">
         <div class="header">
             <div class="header-content">
+                <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()">☰</button>
                 <h1 id="storeNameDisplay">Sistema de Pedidos</h1>
                 <div class="user-info">
                     <span class="user-type" id="currentUserType" onclick="toggleAdmin()">Usuário Padrão</span>
                 </div>
+            </div>
+        </div>
+
+        <!-- Mobile Sidebar -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Menu</h2>
+                <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+            </div>
+            <div class="sidebar-menu" id="sidebarMenu">
+                <button class="sidebar-item active" onclick="showTabMobile('newOrder')">➕ Novo Pedido</button>
+                <button class="sidebar-item" onclick="showTabMobile('checkOrder')">✅ Conferir Pedido</button>
+                <div class="sidebar-divider"></div>
+                <button class="sidebar-item hidden" id="side-orderManagement" onclick="showTabMobile('orderManagement')">📝 Ger. Pedidos</button>
+                <button class="sidebar-item hidden" id="side-statistics" onclick="showTabMobile('statistics')">📊 Estatísticas</button>
+                <button class="sidebar-item hidden" id="side-reports" onclick="showTabMobile('reports')">📅 Relatórios</button>
+                <button class="sidebar-item hidden" id="side-fridayOrder" onclick="showTabMobile('fridayOrder')">📦 Pedido Sexta</button>
+                <div class="sidebar-divider"></div>
+                <button class="sidebar-item hidden" id="side-products" onclick="showTabMobile('products')">📦 Produtos</button>
+                <button class="sidebar-item hidden" id="side-settings" onclick="showTabMobile('settings')">⚙️ Configurações</button>
             </div>
         </div>
 
@@ -1621,6 +1755,64 @@
             }));
         }
 
+        // Mobile Sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('open');
+        }
+
+        function showTabMobile(tabName) {
+            closeSidebar();
+            showTab(tabName);
+            // Update sidebar active state
+            updateSidebarActive(tabName);
+        }
+
+        function updateSidebarActive(tabName) {
+            const items = document.querySelectorAll('.sidebar-item');
+            items.forEach(item => item.classList.remove('active'));
+            // Find the matching sidebar item
+            const tabMap = {
+                'newOrder': 0,
+                'checkOrder': 1,
+                'orderManagement': 2,
+                'statistics': 3,
+                'reports': 4,
+                'fridayOrder': 5,
+                'products': 6,
+                'settings': 7
+            };
+            // offset for dividers: items[0]=newOrder, [1]=checkOrder, [2]=orderMgmt, [3]=stats, [4]=reports, [5]=friday, [6]=products, [7]=settings
+            const sideItems = document.querySelectorAll('.sidebar-item');
+            const idx = tabMap[tabName];
+            if (idx !== undefined && sideItems[idx]) {
+                sideItems[idx].classList.add('active');
+            }
+        }
+
+        function showSidebarAdminItems() {
+            document.getElementById('side-products').classList.remove('hidden');
+            document.getElementById('side-orderManagement').classList.remove('hidden');
+            document.getElementById('side-statistics').classList.remove('hidden');
+            document.getElementById('side-reports').classList.remove('hidden');
+            document.getElementById('side-fridayOrder').classList.remove('hidden');
+            document.getElementById('side-settings').classList.remove('hidden');
+        }
+
+        function hideSidebarAdminItems() {
+            document.getElementById('side-products').classList.add('hidden');
+            document.getElementById('side-orderManagement').classList.add('hidden');
+            document.getElementById('side-statistics').classList.add('hidden');
+            document.getElementById('side-reports').classList.add('hidden');
+            document.getElementById('side-fridayOrder').classList.add('hidden');
+            document.getElementById('side-settings').classList.add('hidden');
+        }
+
         // Toggle admin access - click on user type button
         function toggleAdmin() {
             if (currentUser === 'admin') {
@@ -1637,8 +1829,10 @@
                 document.getElementById('tab-reports').classList.add('hidden');
                 document.getElementById('tab-fridayOrder').classList.add('hidden');
                 document.getElementById('tab-settings').classList.add('hidden');
+                hideSidebarAdminItems();
                 
                 showTab('newOrder');
+                updateSidebarActive('newOrder');
             } else {
                 // Show login screen
                 document.getElementById('loginScreen').classList.remove('hidden');
@@ -1669,11 +1863,13 @@
                 document.getElementById('tab-reports').classList.remove('hidden');
                 document.getElementById('tab-fridayOrder').classList.remove('hidden');
                 document.getElementById('tab-settings').classList.remove('hidden');
+                showSidebarAdminItems();
                 
                 updateStats();
                 populateDateSelects();
                 loadAdminOrders();
                 showTab('orderManagement');
+                updateSidebarActive('orderManagement');
             } else {
                 alert('Senha incorreta!');
             }
