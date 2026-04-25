@@ -18,7 +18,6 @@
             position: relative;
             overflow-x: hidden;
         }
-        /* Animated background effect */
         body::before {
             content: '';
             position: fixed;
@@ -40,7 +39,6 @@
             z-index: 1;
         }
 
-        /* Login Screen */
         .login-screen {
             display: flex;
             justify-content: center;
@@ -66,14 +64,8 @@
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .login-box h1 {
@@ -84,9 +76,7 @@
             text-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .form-group { margin-bottom: 20px; }
 
         .form-group label {
             display: block;
@@ -137,11 +127,8 @@
             box-shadow: 0 6px 25px rgba(255, 140, 0, 0.5);
         }
 
-        .btn:active {
-            transform: translateY(0);
-        }
+        .btn:active { transform: translateY(0); }
 
-        /* Header */
         .header {
             background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
@@ -167,11 +154,7 @@
             text-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
+        .user-info { display: flex; align-items: center; gap: 20px; }
 
         .user-type {
             color: #1e90ff;
@@ -205,7 +188,6 @@
             box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
         }
 
-        /* Tabs - Reorganized */
         .tabs {
             display: flex;
             gap: 5px;
@@ -244,9 +226,7 @@
             transition: left 0.5s;
         }
 
-        .tab:hover::before {
-            left: 100%;
-        }
+        .tab:hover::before { left: 100%; }
 
         .tab:hover {
             background: rgba(255, 140, 0, 0.1);
@@ -261,27 +241,14 @@
             box-shadow: 0 -2px 15px rgba(255, 140, 0, 0.3);
         }
 
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
+        .tab-content.active { display: block; }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Cards */
         .card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(15px);
@@ -307,7 +274,6 @@
             text-shadow: 0 0 15px rgba(30, 144, 255, 0.5);
         }
 
-        /* Form elements */
         .input-group {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -332,10 +298,7 @@
             background: rgba(0, 0, 0, 0.6);
         }
 
-        /* Product Search Filter */
-        .search-container {
-            position: relative;
-        }
+        .search-container { position: relative; }
 
         .search-input {
             width: 100%;
@@ -393,9 +356,7 @@
             color: #ff8c00;
         }
 
-        .search-dropdown-item:last-child {
-            border-bottom: none;
-        }
+        .search-dropdown-item:last-child { border-bottom: none; }
 
         .no-results {
             padding: 20px;
@@ -403,7 +364,6 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
-        /* Buttons */
         .btn-primary {
             padding: 12px 24px;
             background: linear-gradient(135deg, #1e90ff 0%, #0066cc 100%);
@@ -473,15 +433,13 @@
             box-shadow: 0 6px 25px rgba(255, 140, 0, 0.5);
         }
 
-        /* Tables */
         .table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
         }
 
-        .table th,
-        .table td {
+        .table th, .table td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -494,11 +452,8 @@
             text-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
         }
 
-        .table tr:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
+        .table tr:hover { background: rgba(255, 255, 255, 0.05); }
 
-        /* Order items */
         .order-item {
             background: rgba(0, 0, 0, 0.3);
             padding: 15px;
@@ -517,11 +472,8 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .order-item-info {
-            flex: 1;
-        }
+        .order-item-info { flex: 1; }
 
-        /* Stats List */
         .stats-list-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -560,10 +512,7 @@
             margin-left: 15px;
         }
 
-        /* Recent orders list */
-        .recent-orders {
-            margin-top: 30px;
-        }
+        .recent-orders { margin-top: 30px; }
 
         .order-card {
             background: rgba(0, 0, 0, 0.3);
@@ -587,10 +536,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .order-date {
-            color: #1e90ff;
-            font-weight: 600;
-        }
+        .order-date { color: #1e90ff; font-weight: 600; }
 
         .copy-btn {
             padding: 6px 12px;
@@ -608,7 +554,6 @@
             box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
         }
 
-        /* Status badges */
         .status-badge {
             display: inline-block;
             padding: 4px 12px;
@@ -629,7 +574,6 @@
             border: 1px solid rgba(0, 204, 0, 0.5);
         }
 
-        /* Check options */
         .check-options {
             display: flex;
             gap: 10px;
@@ -656,11 +600,8 @@
             box-shadow: 0 0 15px rgba(30, 144, 255, 0.3);
         }
 
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
 
-        /* Product list */
         .product-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -684,10 +625,7 @@
             box-shadow: 0 4px 20px rgba(30, 144, 255, 0.2);
         }
 
-        .product-name {
-            color: #1e90ff;
-            font-weight: 600;
-        }
+        .product-name { color: #1e90ff; font-weight: 600; }
 
         .product-estoque {
             color: #ff8c00;
@@ -698,10 +636,7 @@
             display: inline-block;
         }
 
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
+        .btn-small { padding: 6px 12px; font-size: 12px; }
 
         .empty-state {
             text-align: center;
@@ -709,7 +644,6 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
-        /* Monthly Report */
         .report-summary {
             background: rgba(0, 0, 0, 0.3);
             border: 2px solid rgba(255, 140, 0, 0.3);
@@ -753,9 +687,7 @@
             text-transform: uppercase;
         }
 
-        .report-list {
-            margin-top: 20px;
-        }
+        .report-list { margin-top: 20px; }
 
         .report-item {
             background: rgba(0, 0, 0, 0.3);
@@ -796,7 +728,6 @@
             box-shadow: 0 6px 25px rgba(0, 204, 0, 0.5);
         }
 
-        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -900,7 +831,6 @@
             border-radius: 8px;
         }
 
-        /* Auto-save indicator */
         .autosave-indicator {
             position: fixed;
             bottom: 20px;
@@ -918,11 +848,8 @@
             backdrop-filter: blur(10px);
         }
 
-        .autosave-indicator.show {
-            opacity: 1;
-        }
+        .autosave-indicator.show { opacity: 1; }
 
-        /* Order form row layout */
         .order-form-row {
             display: flex;
             gap: 10px;
@@ -938,9 +865,7 @@
             height: 44px;
         }
 
-        .order-form-row > .search-container .search-input {
-            height: 44px;
-        }
+        .order-form-row > .search-container .search-input { height: 44px; }
 
         .order-form-row .btn-primary {
             margin-right: 0;
@@ -949,7 +874,6 @@
             height: 44px;
         }
 
-        /* Toggle button for products without orders */
         .toggle-products-btn {
             padding: 10px 20px;
             background: rgba(255, 140, 0, 0.1);
@@ -968,7 +892,6 @@
             border-color: rgba(255, 140, 0, 0.6);
         }
 
-        /* Pagination */
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -1005,7 +928,6 @@
             font-size: 14px;
         }
 
-        /* Mobile Sidebar Menu */
         .hamburger-btn {
             display: none;
             background: rgba(255, 140, 0, 0.2);
@@ -1036,9 +958,7 @@
             z-index: 998;
         }
 
-        .sidebar-overlay.open {
-            display: block;
-        }
+        .sidebar-overlay.open { display: block; }
 
         .sidebar {
             position: fixed;
@@ -1054,9 +974,7 @@
             box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
         }
 
-        .sidebar.open {
-            left: 0;
-        }
+        .sidebar.open { left: 0; }
 
         .sidebar-header {
             padding: 20px;
@@ -1084,13 +1002,9 @@
             line-height: 1;
         }
 
-        .sidebar-close:hover {
-            background: rgba(255, 0, 0, 0.4);
-        }
+        .sidebar-close:hover { background: rgba(255, 0, 0, 0.4); }
 
-        .sidebar-menu {
-            padding: 10px 0;
-        }
+        .sidebar-menu { padding: 10px 0; }
 
         .sidebar-item {
             display: block;
@@ -1126,258 +1040,76 @@
             margin: 8px 20px;
         }
 
-        /* RESPONSIVE */
         @media screen and (max-width: 768px) {
-            .hamburger-btn {
-                display: block;
+            .hamburger-btn { display: block; }
+            .tabs { display: none !important; }
+            .container { padding: 10px; }
+            .login-screen { padding: 20px; }
+            .login-box { padding: 30px 20px; max-width: 90%; }
+            .login-box h1 { font-size: 24px; margin-bottom: 20px; }
+            .header-content { flex-direction: row; gap: 15px; text-align: left; align-items: center; }
+            .header h1 { font-size: 18px; flex: 1; }
+            .user-info { flex-direction: row; gap: 10px; }
+            .btn-logout { width: 100%; }
+            .card { padding: 15px; margin-bottom: 15px; }
+            .card h2 { font-size: 18px; margin-bottom: 15px; }
+            .input-group { grid-template-columns: 1fr; gap: 10px; }
+            .btn-primary, .btn-success, .btn-warning, .btn-export {
+                width: 100%; margin-right: 0; margin-bottom: 10px; padding: 14px;
             }
-
-            .tabs {
-                display: none !important;
-            }
-
-            .container {
-                padding: 10px;
-            }
-
-            .login-screen {
-                padding: 20px;
-            }
-
-            .login-box {
-                padding: 30px 20px;
-                max-width: 90%;
-            }
-
-            .login-box h1 {
-                font-size: 24px;
-                margin-bottom: 20px;
-            }
-
-            .header-content {
-                flex-direction: row;
-                gap: 15px;
-                text-align: left;
-                align-items: center;
-            }
-
-            .header h1 {
-                font-size: 18px;
-                flex: 1;
-            }
-
-            .user-info {
-                flex-direction: row;
-                gap: 10px;
-            }
-
-            .btn-logout {
-                width: 100%;
-            }
-
-            .card {
-                padding: 15px;
-                margin-bottom: 15px;
-            }
-
-            .card h2 {
-                font-size: 18px;
-                margin-bottom: 15px;
-            }
-
-            .input-group {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-
-            .btn-primary,
-            .btn-success,
-            .btn-warning,
-            .btn-export {
-                width: 100%;
-                margin-right: 0;
-                margin-bottom: 10px;
-                padding: 14px;
-            }
-
-            .btn-danger {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-
-            .order-form-row {
-                flex-direction: column;
-            }
-
-            .order-form-row .btn-primary {
-                width: 100%;
-            }
-
-            .product-list {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-
-            .product-item {
-                padding: 12px;
-            }
-
-            .table {
-                font-size: 12px;
-            }
-
-            .table th,
-            .table td {
-                padding: 8px 5px;
-            }
-
-            .order-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-                padding: 12px;
-            }
-
-            .order-item-info {
-                width: 100%;
-            }
-
-            .check-options {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .check-option {
-                width: 100%;
-                text-align: center;
-            }
-
-            .order-card {
-                padding: 12px;
-            }
-
-            .order-header {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .copy-btn {
-                width: 100%;
-            }
-
-            .report-stats {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-
-            .stat-box {
-                padding: 12px;
-            }
-
-            .stat-value {
-                font-size: 24px;
-            }
-
-            .stat-label {
-                font-size: 11px;
-            }
-
-            .report-item {
-                padding: 12px;
-            }
-
-            .report-item-header {
-                flex-direction: column;
-                gap: 8px;
-                align-items: flex-start;
-            }
-
-            .recent-orders h2 {
-                font-size: 18px;
-            }
-
-            .edit-item-row {
-                grid-template-columns: 1fr;
-            }
-
-            .admin-order-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .admin-order-actions {
-                width: 100%;
-            }
-
-            .admin-order-actions button {
-                flex: 1;
-            }
-
-            .modal-box {
-                padding: 20px 15px;
-            }
-
-            .stats-list-container {
-                grid-template-columns: 1fr;
-            }
+            .btn-danger { width: 100%; margin-bottom: 10px; }
+            .order-form-row { flex-direction: column; }
+            .order-form-row .btn-primary { width: 100%; }
+            .product-list { grid-template-columns: 1fr; gap: 10px; }
+            .product-item { padding: 12px; }
+            .table { font-size: 12px; }
+            .table th, .table td { padding: 8px 5px; }
+            .order-item { flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px; }
+            .order-item-info { width: 100%; }
+            .check-options { flex-direction: column; width: 100%; }
+            .check-option { width: 100%; text-align: center; }
+            .order-card { padding: 12px; }
+            .order-header { flex-direction: column; gap: 10px; }
+            .copy-btn { width: 100%; }
+            .report-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stat-box { padding: 12px; }
+            .stat-value { font-size: 24px; }
+            .stat-label { font-size: 11px; }
+            .report-item { padding: 12px; }
+            .report-item-header { flex-direction: column; gap: 8px; align-items: flex-start; }
+            .recent-orders h2 { font-size: 18px; }
+            .edit-item-row { grid-template-columns: 1fr; }
+            .admin-order-header { flex-direction: column; align-items: flex-start; }
+            .admin-order-actions { width: 100%; }
+            .admin-order-actions button { flex: 1; }
+            .modal-box { padding: 20px 15px; }
+            .stats-list-container { grid-template-columns: 1fr; }
         }
 
         @media screen and (max-width: 480px) {
-            body {
-                font-size: 14px;
-            }
-
-            .container {
-                padding: 5px;
-            }
+            body { font-size: 14px; }
+            .container { padding: 5px; }
         }
 
         @media screen and (min-width: 1200px) {
-            .container {
-                padding: 30px;
-            }
-
-            .card {
-                padding: 30px;
-            }
-
-            .input-group {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .product-list {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            }
-
-            .report-stats {
-                grid-template-columns: repeat(4, 1fr);
-            }
+            .container { padding: 30px; }
+            .card { padding: 30px; }
+            .input-group { grid-template-columns: repeat(3, 1fr); }
+            .product-list { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+            .report-stats { grid-template-columns: repeat(4, 1fr); }
         }
 
         @media (hover: none) and (pointer: coarse) {
-            .btn,
-            .btn-primary,
-            .btn-success,
-            .btn-danger,
-            .btn-warning,
-            .btn-logout,
-            .copy-btn,
-            .check-option {
-                min-height: 44px;
-                min-width: 44px;
+            .btn, .btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-logout, .copy-btn, .check-option {
+                min-height: 44px; min-width: 44px;
             }
-
-            .tab {
-                min-height: 48px;
-            }
+            .tab { min-height: 48px; }
         }
     </style>
 </head>
 <body>
-    <!-- Auto-save indicator -->
     <div id="autosaveIndicator" class="autosave-indicator">✓ Salvo automaticamente</div>
 
-    <!-- Login Screen (only for admin) -->
     <div id="loginScreen" class="login-screen hidden">
         <div class="login-box">
             <h1>🔐 Acesso Admin</h1>
@@ -1390,7 +1122,6 @@
         </div>
     </div>
 
-    <!-- Main App -->
     <div id="mainApp">
         <div class="header">
             <div class="header-content">
@@ -1402,7 +1133,6 @@
             </div>
         </div>
 
-        <!-- Mobile Sidebar -->
         <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -1412,31 +1142,30 @@
             <div class="sidebar-menu" id="sidebarMenu">
                 <button class="sidebar-item active" onclick="showTabMobile('newOrder')">➕ Novo Pedido</button>
                 <button class="sidebar-item" onclick="showTabMobile('checkOrder')">✅ Conferir Pedido</button>
+                <button class="sidebar-item" onclick="showTabMobile('fridayOrder')">📦 Pedido Sexta</button>
+                <button class="sidebar-item" onclick="showTabMobile('products')">📦 Produtos</button>
                 <div class="sidebar-divider"></div>
                 <button class="sidebar-item hidden" id="side-orderManagement" onclick="showTabMobile('orderManagement')">📝 Ger. Pedidos</button>
                 <button class="sidebar-item hidden" id="side-statistics" onclick="showTabMobile('statistics')">📊 Estatísticas</button>
                 <button class="sidebar-item hidden" id="side-reports" onclick="showTabMobile('reports')">📅 Relatórios</button>
-                <button class="sidebar-item hidden" id="side-fridayOrder" onclick="showTabMobile('fridayOrder')">📦 Pedido Sexta</button>
                 <div class="sidebar-divider"></div>
-                <button class="sidebar-item hidden" id="side-products" onclick="showTabMobile('products')">📦 Produtos</button>
                 <button class="sidebar-item hidden" id="side-settings" onclick="showTabMobile('settings')">⚙️ Configurações</button>
             </div>
         </div>
 
         <div class="container">
-            <!-- Tabs - Reorganized Order -->
             <div class="tabs">
                 <button class="tab active" onclick="showTab('newOrder')" id="tab-newOrder">Novo Pedido</button>
                 <button class="tab" onclick="showTab('checkOrder')" id="tab-checkOrder">Conferir Pedido</button>
+                <button class="tab" onclick="showTab('fridayOrder')" id="tab-fridayOrder">Pedido Sexta</button>
+                <button class="tab" onclick="showTab('products')" id="tab-products">Produtos</button>
                 <button class="tab hidden" onclick="showTab('orderManagement')" id="tab-orderManagement">Ger. Pedidos</button>
                 <button class="tab hidden" onclick="showTab('statistics')" id="tab-statistics">Estatísticas</button>
                 <button class="tab hidden" onclick="showTab('reports')" id="tab-reports">Relatórios</button>
-                <button class="tab hidden" onclick="showTab('fridayOrder')" id="tab-fridayOrder">Pedido Sexta</button>
-                <button class="tab hidden" onclick="showTab('products')" id="tab-products">Produtos</button>
                 <button class="tab hidden" onclick="showTab('settings')" id="tab-settings">Configurações</button>
             </div>
 
-            <!-- Tab 1: Novo Pedido -->
+            <!-- Tab: Novo Pedido -->
             <div id="content-newOrder" class="tab-content active">
                 <div class="card">
                     <h2>➕ Criar Novo Pedido</h2>
@@ -1462,14 +1191,20 @@
                     
                     <div id="currentOrderItems" style="margin-top: 20px;"></div>
                     
-                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
                         <button class="btn-success" onclick="saveOrder()">Salvar Pedido</button>
                         <button class="btn-danger" onclick="clearCurrentOrder()" style="padding: 12px 24px;">Limpar Itens</button>
+                    </div>
+
+                    <!-- Copy section shown after saving -->
+                    <div id="lastSavedOrderSection" class="hidden" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <p style="color: #00cc00; font-weight: 600; margin-bottom: 10px;">✅ Pedido salvo com sucesso!</p>
+                        <button class="btn-warning" id="btnCopyLastOrder" onclick="copyLastSavedOrder()">📋 Copiar Pedido Salvo</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab 2: Conferir Pedido -->
+            <!-- Tab: Conferir Pedido -->
             <div id="content-checkOrder" class="tab-content">
                 <div class="card">
                     <h2>✅ Conferir Pedidos</h2>
@@ -1487,8 +1222,9 @@
                     <div class="card">
                         <h2 id="checkOrderTitle" style="margin-bottom: 15px;"></h2>
                         <div id="checkOrderItems"></div>
-                        <div style="margin-top: 20px;">
+                        <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
                             <button class="btn-success" id="btnSaveCheck" onclick="saveCheck()">Salvar Conferência</button>
+                            <button class="btn-warning" id="btnCopyOriginalOrder" onclick="copyOriginalOrderFromCheck()">📋 Copiar Pedido</button>
                             <button class="btn-danger" onclick="closeCheckDetail()" style="padding: 12px 24px;">Voltar à Lista</button>
                         </div>
                         <div id="checkCopySection" class="hidden" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
@@ -1498,66 +1234,7 @@
                 </div>
             </div>
 
-            <!-- Tab 3: Gerenciamento de Pedidos (admin only) -->
-            <div id="content-orderManagement" class="tab-content">
-                <div class="card">
-                    <h2>📝 Gerenciar Pedidos (Últimos 10 por Estoque)</h2>
-                    <div id="adminOrdersList"></div>
-                </div>
-                <div id="adminOrderDetail" class="hidden">
-                    <div class="card">
-                        <h2 id="adminOrderDetailTitle" style="margin-bottom: 15px;"></h2>
-                        <div id="adminOrderDetailItems"></div>
-                        <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button class="btn-edit" id="btnEditFromDetail" onclick="editFromDetail()">Editar</button>
-                            <button class="btn-delete" id="btnDeleteFromDetail" onclick="deleteFromDetail()">Apagar</button>
-                            <button class="btn-danger" onclick="closeAdminOrderDetail()" style="padding: 12px 24px;">Voltar à Lista</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab 4: Estatísticas (admin only) -->
-            <div id="content-statistics" class="tab-content">
-                <div class="card">
-                    <h2>📊 Estatísticas dos Últimos 10 Pedidos</h2>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
-                        <select id="statsEstoque" class="input-field" style="flex: 1; min-width: 200px;" onchange="updateStats()">
-                            <option value="">Todos os Estoques</option>
-                            <option value="Estoque Produtos">Estoque Produtos</option>
-                            <option value="Estoque Nicola">Estoque Nicola</option>
-                            <option value="Estoque Capa">Estoque Capa</option>
-                        </select>
-                        <button class="btn-export" style="margin-top: 0;" onclick="exportStatsReport()">📥 Exportar Relatório</button>
-                    </div>
-                    <div id="statsChart"></div>
-                    <div id="statsPagination" class="pagination-container hidden"></div>
-                    <button class="toggle-products-btn" id="toggleNoOrdersBtn" onclick="toggleProductsWithoutOrders()">
-                        Ver produtos sem pedidos
-                    </button>
-                    <div id="productsWithoutOrders" class="hidden" style="margin-top: 20px;"></div>
-                </div>
-            </div>
-
-            <!-- Tab 5: Relatórios Mensais (admin only) -->
-            <div id="content-reports" class="tab-content">
-                <div class="card">
-                    <h2>📅 Relatórios Mensais</h2>
-                    <div class="input-group">
-                        <select id="reportMonth" class="input-field">
-                            <option value="">Selecione o mês</option>
-                        </select>
-                        <select id="reportYear" class="input-field">
-                            <option value="">Selecione o ano</option>
-                        </select>
-                        <button class="btn-primary" onclick="generateMonthlyReport()">Gerar Relatório</button>
-                    </div>
-                    
-                    <div id="monthlyReportContent" style="margin-top: 20px;"></div>
-                </div>
-            </div>
-
-            <!-- Tab 6: Pedido Sexta Feira (admin only) -->
+            <!-- Tab: Pedido Sexta Feira (visible to all) -->
             <div id="content-fridayOrder" class="tab-content">
                 <div class="card">
                     <h2>📅 Pedido Sexta Feira</h2>
@@ -1584,7 +1261,7 @@
                 </div>
             </div>
 
-            <!-- Tab 7: Produtos (admin only) -->
+            <!-- Tab: Produtos (visible to all) -->
             <div id="content-products" class="tab-content">
                 <div class="card">
                     <h2>📦 Gerenciar Produtos</h2>
@@ -1622,7 +1299,66 @@
                 </div>
             </div>
 
-            <!-- Tab 7: Configurações (admin only) -->
+            <!-- Tab: Gerenciamento de Pedidos (admin only) -->
+            <div id="content-orderManagement" class="tab-content">
+                <div class="card">
+                    <h2>📝 Gerenciar Pedidos (Últimos 10 por Estoque)</h2>
+                    <div id="adminOrdersList"></div>
+                </div>
+                <div id="adminOrderDetail" class="hidden">
+                    <div class="card">
+                        <h2 id="adminOrderDetailTitle" style="margin-bottom: 15px;"></h2>
+                        <div id="adminOrderDetailItems"></div>
+                        <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn-edit" id="btnEditFromDetail" onclick="editFromDetail()">Editar</button>
+                            <button class="btn-delete" id="btnDeleteFromDetail" onclick="deleteFromDetail()">Apagar</button>
+                            <button class="btn-danger" onclick="closeAdminOrderDetail()" style="padding: 12px 24px;">Voltar à Lista</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Estatísticas (admin only) -->
+            <div id="content-statistics" class="tab-content">
+                <div class="card">
+                    <h2>📊 Estatísticas dos Últimos 10 Pedidos</h2>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
+                        <select id="statsEstoque" class="input-field" style="flex: 1; min-width: 200px;" onchange="updateStats()">
+                            <option value="">Todos os Estoques</option>
+                            <option value="Estoque Produtos">Estoque Produtos</option>
+                            <option value="Estoque Nicola">Estoque Nicola</option>
+                            <option value="Estoque Capa">Estoque Capa</option>
+                        </select>
+                        <button class="btn-export" style="margin-top: 0;" onclick="exportStatsReport()">📥 Exportar Relatório</button>
+                    </div>
+                    <div id="statsChart"></div>
+                    <div id="statsPagination" class="pagination-container hidden"></div>
+                    <button class="toggle-products-btn" id="toggleNoOrdersBtn" onclick="toggleProductsWithoutOrders()">
+                        Ver produtos sem pedidos
+                    </button>
+                    <div id="productsWithoutOrders" class="hidden" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- Tab: Relatórios Mensais (admin only) -->
+            <div id="content-reports" class="tab-content">
+                <div class="card">
+                    <h2>📅 Relatórios Mensais</h2>
+                    <div class="input-group">
+                        <select id="reportMonth" class="input-field">
+                            <option value="">Selecione o mês</option>
+                        </select>
+                        <select id="reportYear" class="input-field">
+                            <option value="">Selecione o ano</option>
+                        </select>
+                        <button class="btn-primary" onclick="generateMonthlyReport()">Gerar Relatório</button>
+                    </div>
+                    
+                    <div id="monthlyReportContent" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- Tab: Configurações (admin only) -->
             <div id="content-settings" class="tab-content">
                 <div class="card">
                     <h2>🏪 Configuração da Loja</h2>
@@ -1648,7 +1384,6 @@
         </div>
     </div>
 
-    <!-- Edit Order Modal -->
     <div id="editOrderModal" class="modal-overlay hidden">
         <div class="modal-box">
             <h3>📝 Editar Pedido</h3>
@@ -1677,50 +1412,25 @@
     </div>
 
     <script>
-        // Initialize localStorage
         function initializeStorage() {
-            // Admin password
-            if (!localStorage.getItem('adminPassword')) {
-                localStorage.setItem('adminPassword', '19021998');
-            }
-            
-            if (!localStorage.getItem('storeName')) {
-                localStorage.setItem('storeName', 'Loja');
-            }
-            
-            // Products now stored with estoque: [{name: 'Product', estoque: 'Estoque Produtos'}]
-            if (!localStorage.getItem('products')) {
-                localStorage.setItem('products', JSON.stringify([]));
-            }
-            
-            if (!localStorage.getItem('orders')) {
-                localStorage.setItem('orders', JSON.stringify([]));
-            }
-            
-            if (!localStorage.getItem('checks')) {
-                localStorage.setItem('checks', JSON.stringify([]));
-            }
-
-            // Auto-save current order
+            if (!localStorage.getItem('adminPassword')) localStorage.setItem('adminPassword', '19021998');
+            if (!localStorage.getItem('storeName')) localStorage.setItem('storeName', 'Loja');
+            if (!localStorage.getItem('products')) localStorage.setItem('products', JSON.stringify([]));
+            if (!localStorage.getItem('orders')) localStorage.setItem('orders', JSON.stringify([]));
+            if (!localStorage.getItem('checks')) localStorage.setItem('checks', JSON.stringify([]));
             if (!localStorage.getItem('currentOrderDraft')) {
-                localStorage.setItem('currentOrderDraft', JSON.stringify({
-                    items: [],
-                    estoque: ''
-                }));
+                localStorage.setItem('currentOrderDraft', JSON.stringify({ items: [], estoque: '' }));
             }
-
-            // Friday order client products
             if (!localStorage.getItem('fridayClientProducts')) {
                 localStorage.setItem('fridayClientProducts', JSON.stringify([]));
             }
         }
 
-        // Current session
         let currentUser = 'user';
         let currentOrderItems = [];
         let selectedProduct = null;
+        let lastSavedOrderId = null;
 
-        // Auto-save functionality
         function autoSaveOrder() {
             const draft = {
                 items: currentOrderItems,
@@ -1728,16 +1438,11 @@
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem('currentOrderDraft', JSON.stringify(draft));
-            
-            // Show auto-save indicator
             const indicator = document.getElementById('autosaveIndicator');
             indicator.classList.add('show');
-            setTimeout(() => {
-                indicator.classList.remove('show');
-            }, 2000);
+            setTimeout(() => { indicator.classList.remove('show'); }, 2000);
         }
 
-        // Restore order from auto-save
         function restoreOrderDraft() {
             const draft = JSON.parse(localStorage.getItem('currentOrderDraft') || '{"items":[],"estoque":""}');
             if (draft.items && draft.items.length > 0) {
@@ -1747,15 +1452,10 @@
             }
         }
 
-        // Clear auto-save after order is saved
         function clearAutoSave() {
-            localStorage.setItem('currentOrderDraft', JSON.stringify({
-                items: [],
-                estoque: ''
-            }));
+            localStorage.setItem('currentOrderDraft', JSON.stringify({ items: [], estoque: '' }));
         }
 
-        // Mobile Sidebar
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('open');
@@ -1769,25 +1469,22 @@
         function showTabMobile(tabName) {
             closeSidebar();
             showTab(tabName);
-            // Update sidebar active state
             updateSidebarActive(tabName);
         }
 
         function updateSidebarActive(tabName) {
             const items = document.querySelectorAll('.sidebar-item');
             items.forEach(item => item.classList.remove('active'));
-            // Find the matching sidebar item
             const tabMap = {
                 'newOrder': 0,
                 'checkOrder': 1,
-                'orderManagement': 2,
-                'statistics': 3,
-                'reports': 4,
-                'fridayOrder': 5,
-                'products': 6,
+                'fridayOrder': 2,
+                'products': 3,
+                'orderManagement': 4,
+                'statistics': 5,
+                'reports': 6,
                 'settings': 7
             };
-            // offset for dividers: items[0]=newOrder, [1]=checkOrder, [2]=orderMgmt, [3]=stats, [4]=reports, [5]=friday, [6]=products, [7]=settings
             const sideItems = document.querySelectorAll('.sidebar-item');
             const idx = tabMap[tabName];
             if (idx !== undefined && sideItems[idx]) {
@@ -1796,45 +1493,35 @@
         }
 
         function showSidebarAdminItems() {
-            document.getElementById('side-products').classList.remove('hidden');
             document.getElementById('side-orderManagement').classList.remove('hidden');
             document.getElementById('side-statistics').classList.remove('hidden');
             document.getElementById('side-reports').classList.remove('hidden');
-            document.getElementById('side-fridayOrder').classList.remove('hidden');
             document.getElementById('side-settings').classList.remove('hidden');
         }
 
         function hideSidebarAdminItems() {
-            document.getElementById('side-products').classList.add('hidden');
             document.getElementById('side-orderManagement').classList.add('hidden');
             document.getElementById('side-statistics').classList.add('hidden');
             document.getElementById('side-reports').classList.add('hidden');
-            document.getElementById('side-fridayOrder').classList.add('hidden');
             document.getElementById('side-settings').classList.add('hidden');
         }
 
-        // Toggle admin access - click on user type button
         function toggleAdmin() {
             if (currentUser === 'admin') {
-                // Logout admin
                 currentUser = 'user';
                 const userBtn = document.getElementById('currentUserType');
                 userBtn.textContent = 'Usuário Padrão';
                 userBtn.classList.remove('admin');
                 
-                // Hide admin tabs
-                document.getElementById('tab-products').classList.add('hidden');
                 document.getElementById('tab-orderManagement').classList.add('hidden');
                 document.getElementById('tab-statistics').classList.add('hidden');
                 document.getElementById('tab-reports').classList.add('hidden');
-                document.getElementById('tab-fridayOrder').classList.add('hidden');
                 document.getElementById('tab-settings').classList.add('hidden');
                 hideSidebarAdminItems();
                 
                 showTab('newOrder');
                 updateSidebarActive('newOrder');
             } else {
-                // Show login screen
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('hidden');
                 document.getElementById('password').value = '';
@@ -1842,7 +1529,6 @@
             }
         }
 
-        // Login as admin
         function loginAdmin() {
             const password = document.getElementById('password').value;
             const adminPassword = localStorage.getItem('adminPassword');
@@ -1856,12 +1542,9 @@
                 userBtn.textContent = 'Administrador';
                 userBtn.classList.add('admin');
                 
-                // Show admin tabs
-                document.getElementById('tab-products').classList.remove('hidden');
                 document.getElementById('tab-orderManagement').classList.remove('hidden');
                 document.getElementById('tab-statistics').classList.remove('hidden');
                 document.getElementById('tab-reports').classList.remove('hidden');
-                document.getElementById('tab-fridayOrder').classList.remove('hidden');
                 document.getElementById('tab-settings').classList.remove('hidden');
                 showSidebarAdminItems();
                 
@@ -1875,15 +1558,13 @@
             }
         }
 
-        // Cancel admin login
         function cancelAdminLogin() {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
         }
 
-        // Tab navigation
         function showTab(tabName) {
-            if (['products', 'orderManagement', 'statistics', 'reports', 'fridayOrder', 'settings'].includes(tabName) && currentUser !== 'admin') {
+            if (['orderManagement', 'statistics', 'reports', 'settings'].includes(tabName) && currentUser !== 'admin') {
                 toggleAdmin();
                 return;
             }
@@ -1897,36 +1578,15 @@
             document.getElementById('tab-' + tabName).classList.add('active');
             document.getElementById('content-' + tabName).classList.add('active');
             
-            if (tabName === 'orderManagement') {
-                loadAdminOrders();
-            }
-            
-            if (tabName === 'products') {
-                loadProducts();
-            }
-            
-            if (tabName === 'checkOrder') {
-                loadOrdersToCheck();
-            }
-
-            if (tabName === 'statistics') {
-                updateStats();
-            }
-
-            if (tabName === 'reports') {
-                populateDateSelects();
-            }
-
-            if (tabName === 'fridayOrder') {
-                loadFridayOrder();
-            }
-
-            if (tabName === 'settings') {
-                loadStoreName();
-            }
+            if (tabName === 'orderManagement') loadAdminOrders();
+            if (tabName === 'products') loadProducts();
+            if (tabName === 'checkOrder') loadOrdersToCheck();
+            if (tabName === 'statistics') updateStats();
+            if (tabName === 'reports') populateDateSelects();
+            if (tabName === 'fridayOrder') loadFridayOrder();
+            if (tabName === 'settings') loadStoreName();
         }
 
-        // Load store name
         function loadStoreName() {
             const storeName = localStorage.getItem('storeName');
             document.getElementById('storeNameDisplay').textContent = storeName;
@@ -1935,7 +1595,6 @@
             }
         }
 
-        // Save store name
         function saveStoreName() {
             const storeName = document.getElementById('storeNameInput').value.trim();
             if (storeName) {
@@ -1945,13 +1604,11 @@
             }
         }
 
-        // Load products - now with estoque filter
         let productsCurrentPage = 1;
         const productsPerPage = 20;
 
         function loadProducts(page) {
             if (page) productsCurrentPage = page;
-            
             const selectedEstoque = document.getElementById('productsEstoqueFilter').value;
             
             if (!selectedEstoque) {
@@ -1973,16 +1630,14 @@
                 return;
             }
             
-            // Pagination
             const totalPages = Math.ceil(products.length / productsPerPage);
             if (productsCurrentPage > totalPages) productsCurrentPage = totalPages;
             const start = (productsCurrentPage - 1) * productsPerPage;
             const end = start + productsPerPage;
             const pageProducts = products.slice(start, end);
             
-            // Render list
             let html = '';
-            pageProducts.forEach((product, i) => {
+            pageProducts.forEach((product) => {
                 const realIndex = allProducts.findIndex(p => p.name === product.name && p.estoque === product.estoque);
                 html += `
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 6px; border-left: 3px solid #1e90ff;">
@@ -1996,7 +1651,6 @@
             });
             productsList.innerHTML = html;
             
-            // Pagination controls
             if (totalPages <= 1) {
                 pagination.innerHTML = `<span style="color: rgba(255,255,255,0.5); font-size: 13px;">${products.length} produto(s)</span>`;
                 return;
@@ -2009,7 +1663,6 @@
             pagination.innerHTML = pagHtml;
         }
 
-        // Export products list
         function exportProducts() {
             const products = JSON.parse(localStorage.getItem('products') || '[]');
             if (products.length === 0) {
@@ -2028,7 +1681,6 @@
             URL.revokeObjectURL(url);
         }
 
-        // Import products list
         function importProducts(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2074,31 +1726,18 @@
             event.target.value = '';
         }
 
-        // Add product with estoque
         function addProduct() {
             const productName = document.getElementById('newProductName').value.trim();
             const estoque = document.getElementById('newProductEstoque').value;
             
-            if (!productName) {
-                alert('Digite o nome do produto!');
-                return;
-            }
-            
-            if (!estoque) {
-                alert('Selecione o estoque!');
-                return;
-            }
+            if (!productName) { alert('Digite o nome do produto!'); return; }
+            if (!estoque) { alert('Selecione o estoque!'); return; }
             
             const products = JSON.parse(localStorage.getItem('products'));
-            
-            // Check if product with same name and estoque exists
             const exists = products.some(p => p.name === productName && p.estoque === estoque);
             
             if (!exists) {
-                products.push({
-                    name: productName,
-                    estoque: estoque
-                });
+                products.push({ name: productName, estoque: estoque });
                 localStorage.setItem('products', JSON.stringify(products));
                 document.getElementById('newProductName').value = '';
                 document.getElementById('newProductEstoque').value = '';
@@ -2110,7 +1749,6 @@
             }
         }
 
-        // Remove product
         function removeProduct(index) {
             if (confirm('Deseja remover este produto?')) {
                 const products = JSON.parse(localStorage.getItem('products'));
@@ -2121,15 +1759,12 @@
             }
         }
 
-        // Filter products by estoque
         function filterProductsByEstoque() {
-            // Clear search when estoque changes
             document.getElementById('productSearch').value = '';
             selectedProduct = null;
             document.getElementById('searchDropdown').classList.add('hidden');
         }
 
-        // Search products with filter
         function searchProducts() {
             const searchTerm = document.getElementById('productSearch').value.toLowerCase();
             const selectedEstoque = document.getElementById('orderEstoque').value;
@@ -2142,8 +1777,6 @@
             }
             
             const products = JSON.parse(localStorage.getItem('products'));
-            
-            // Filter by estoque first, then by search term
             const filteredProducts = products.filter(p => 
                 p.estoque === selectedEstoque && 
                 p.name.toLowerCase().includes(searchTerm)
@@ -2160,44 +1793,32 @@
                 const item = document.createElement('div');
                 item.className = 'search-dropdown-item';
                 item.textContent = product.name;
-                item.onclick = function() {
-                    selectProduct(product);
-                };
+                item.onclick = function() { selectProduct(product); };
                 dropdown.appendChild(item);
             });
             
             dropdown.classList.remove('hidden');
         }
 
-        // Select product from dropdown
         function selectProduct(product) {
             selectedProduct = product;
             document.getElementById('productSearch').value = product.name;
             document.getElementById('searchDropdown').classList.add('hidden');
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.search-container')) {
                 document.getElementById('searchDropdown').classList.add('hidden');
             }
         });
 
-        // Add item to current order
         function addItem() {
             const quantity = document.getElementById('itemQuantity').value;
             const estoque = document.getElementById('orderEstoque').value;
             const others = document.getElementById('itemOthers').value;
             
-            if (!quantity || !selectedProduct) {
-                alert('Preencha quantidade e selecione um produto!');
-                return;
-            }
-            
-            if (!estoque) {
-                alert('Selecione o estoque!');
-                return;
-            }
+            if (!quantity || !selectedProduct) { alert('Preencha quantidade e selecione um produto!'); return; }
+            if (!estoque) { alert('Selecione o estoque!'); return; }
             
             currentOrderItems.push({
                 quantity: parseInt(quantity),
@@ -2211,12 +1832,14 @@
             document.getElementById('itemOthers').value = '';
             selectedProduct = null;
             document.getElementById('searchDropdown').classList.add('hidden');
+
+            // Hide the saved order section when a new item is added
+            document.getElementById('lastSavedOrderSection').classList.add('hidden');
             
             displayCurrentOrder();
             autoSaveOrder();
         }
 
-        // Display current order
         function displayCurrentOrder() {
             const container = document.getElementById('currentOrderItems');
             
@@ -2240,42 +1863,37 @@
             });
         }
 
-        // Remove item from current order
         function removeItem(index) {
             currentOrderItems.splice(index, 1);
             displayCurrentOrder();
             autoSaveOrder();
         }
 
-        // Clear current order
         function clearCurrentOrder() {
             if (currentOrderItems.length > 0 && confirm('Deseja limpar todos os itens?')) {
                 currentOrderItems = [];
                 displayCurrentOrder();
                 clearAutoSave();
+                document.getElementById('lastSavedOrderSection').classList.add('hidden');
             }
         }
 
-        // Limit orders per estoque (max 10 per estoque)
         function limitOrdersPerEstoque(orders) {
             const estoques = ['Estoque Produtos', 'Estoque Nicola', 'Estoque Capa'];
             let limitedOrders = [];
             
             estoques.forEach(estoque => {
                 const estoqueOrders = orders.filter(o => o.estoque === estoque);
-                // Keep only the last 10 per estoque
                 const keep = estoqueOrders.slice(-10);
                 limitedOrders = limitedOrders.concat(keep);
             });
             
-            // Also keep orders without estoque
             const noEstoque = orders.filter(o => !o.estoque);
             limitedOrders = limitedOrders.concat(noEstoque.slice(-10));
             
             return limitedOrders;
         }
 
-        // Save order with auto-limit
         function saveOrder() {
             if (currentOrderItems.length === 0) {
                 alert('Adicione pelo menos um item ao pedido!');
@@ -2283,17 +1901,15 @@
             }
             
             const estoque = document.getElementById('orderEstoque').value;
-            if (!estoque) {
-                alert('Selecione o estoque!');
-                return;
-            }
+            if (!estoque) { alert('Selecione o estoque!'); return; }
             
             let orders = JSON.parse(localStorage.getItem('orders'));
             const storeName = localStorage.getItem('storeName');
             const now = new Date();
+            const orderId = Date.now();
             
             const order = {
-                id: Date.now(),
+                id: orderId,
                 storeName: storeName,
                 estoque: estoque,
                 date: now.toLocaleString('pt-BR'),
@@ -2302,22 +1918,32 @@
             };
             
             orders.push(order);
-            
-            // Auto-limit: keep max 10 per estoque
             orders = limitOrdersPerEstoque(orders);
-            
             localStorage.setItem('orders', JSON.stringify(orders));
             
+            // Save the last saved order ID for copying
+            lastSavedOrderId = orderId;
+
             currentOrderItems = [];
             document.getElementById('orderEstoque').value = '';
             displayCurrentOrder();
-
             clearAutoSave();
+
+            // Show the copy button section
+            document.getElementById('lastSavedOrderSection').classList.remove('hidden');
             
-            alert('Pedido salvo com sucesso!');
+            alert('Pedido salvo com sucesso! Use o botão "Copiar Pedido Salvo" para copiar.');
         }
 
-        // Copy order as text
+        // Copy the last saved order
+        function copyLastSavedOrder() {
+            if (!lastSavedOrderId) {
+                alert('Nenhum pedido recente para copiar!');
+                return;
+            }
+            copyOrderText(lastSavedOrderId);
+        }
+
         function copyOrderText(orderId) {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const order = orders.find(o => o.id === orderId);
@@ -2331,10 +1957,28 @@
             
             navigator.clipboard.writeText(text).then(() => {
                 alert('Pedido copiado!');
+            }).catch(() => {
+                // Fallback for browsers/contexts without clipboard API
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Pedido copiado!');
+                } catch (err) {
+                    alert('Não foi possível copiar automaticamente. Texto:\n\n' + text);
+                }
+                document.body.removeChild(textarea);
             });
         }
 
-        // Load orders to check - max 10 per estoque
+        // Copy original order from check detail view
+        function copyOriginalOrderFromCheck() {
+            if (!selectedCheckOrderId) return;
+            copyOrderText(selectedCheckOrderId);
+        }
+
         let selectedCheckOrderId = null;
         
         function loadOrdersToCheck() {
@@ -2342,16 +1986,13 @@
             const selectedEstoque = document.getElementById('checkEstoqueFilter').value;
             
             let filteredOrders = orders;
-            
             if (selectedEstoque) {
                 filteredOrders = orders.filter(o => o.estoque === selectedEstoque);
             }
             
-            // Get last 10 from filtered orders
             const recentOrders = filteredOrders.slice(-10).reverse();
             const container = document.getElementById('ordersListToSelect');
             
-            // Hide detail view
             document.getElementById('checkOrderDetail').classList.add('hidden');
             document.getElementById('ordersListToSelect').parentElement.classList.remove('hidden');
             selectedCheckOrderId = null;
@@ -2365,7 +2006,6 @@
             recentOrders.forEach(order => {
                 const statusClass = order.status === 'Pendente' ? 'status-pending' : 'status-checked';
                 const estoqueTag = order.estoque ? `<span style="background: rgba(30, 144, 255, 0.2); color: #1e90ff; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${order.estoque}</span>` : '';
-                
                 const itemCount = order.items.reduce((sum, i) => sum + i.quantity, 0);
                 
                 const div = document.createElement('div');
@@ -2386,7 +2026,6 @@
             });
         }
 
-        // Open a specific order for checking
         function openCheckOrder(orderId) {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const order = orders.find(o => o.id === orderId);
@@ -2394,7 +2033,6 @@
             
             selectedCheckOrderId = orderId;
             
-            // Hide list, show detail
             document.getElementById('ordersListToSelect').parentElement.classList.add('hidden');
             document.getElementById('checkOrderDetail').classList.remove('hidden');
             
@@ -2403,11 +2041,9 @@
             
             const isChecked = order.status === 'Conferido';
             
-            // Show/hide buttons
             document.getElementById('btnSaveCheck').classList.toggle('hidden', isChecked);
             document.getElementById('checkCopySection').classList.toggle('hidden', !isChecked);
             
-            // Render items
             const container = document.getElementById('checkOrderItems');
             container.innerHTML = '';
             
@@ -2446,7 +2082,6 @@
             });
         }
 
-        // Close check detail, go back to list
         function closeCheckDetail() {
             selectedCheckOrderId = null;
             document.getElementById('checkOrderDetail').classList.add('hidden');
@@ -2454,45 +2089,29 @@
             loadOrdersToCheck();
         }
 
-        // Set check status
         function setCheckStatus(orderId, itemIndex, status) {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const order = orders.find(o => o.id === orderId);
             
-            if (!order.checkData) {
-                order.checkData = [];
-            }
-            
-            if (!order.checkData[itemIndex]) {
-                order.checkData[itemIndex] = {};
-            }
+            if (!order.checkData) order.checkData = [];
+            if (!order.checkData[itemIndex]) order.checkData[itemIndex] = {};
             
             order.checkData[itemIndex].status = status;
-            
             localStorage.setItem('orders', JSON.stringify(orders));
-            
-            // Re-render the detail view
             openCheckOrder(orderId);
         }
 
-        // Set received quantity
         function setReceivedQuantity(orderId, itemIndex, quantity) {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const order = orders.find(o => o.id === orderId);
             
-            if (!order.checkData) {
-                order.checkData = [];
-            }
-            
-            if (!order.checkData[itemIndex]) {
-                order.checkData[itemIndex] = {};
-            }
+            if (!order.checkData) order.checkData = [];
+            if (!order.checkData[itemIndex]) order.checkData[itemIndex] = {};
             
             order.checkData[itemIndex].receivedQuantity = parseInt(quantity);
             localStorage.setItem('orders', JSON.stringify(orders));
         }
 
-        // Save check
         function saveCheck() {
             const orderId = selectedCheckOrderId;
             if (!orderId) return;
@@ -2505,7 +2124,6 @@
                 return;
             }
             
-            // Check if all items have status
             let allChecked = true;
             for (let i = 0; i < order.items.length; i++) {
                 if (!order.checkData[i] || !order.checkData[i].status) {
@@ -2522,12 +2140,10 @@
             order.status = 'Conferido';
             localStorage.setItem('orders', JSON.stringify(orders));
             
-            // Re-render to show results and copy button
             openCheckOrder(orderId);
             alert('Conferência salva!');
         }
 
-        // Copy check as text
         function copyCheckText() {
             const orderId = selectedCheckOrderId;
             if (!orderId) return;
@@ -2557,7 +2173,6 @@
             });
         }
 
-        // Update statistics - last 10 orders with pagination (max 20 products)
         let showingProductsWithoutOrders = false;
         let statsCurrentPage = 1;
         const statsPerPage = 20;
@@ -2567,10 +2182,11 @@
             
             const orders = JSON.parse(localStorage.getItem('orders'));
             const recentOrders = orders.slice(-10);
-            const products = JSON.parse(localStorage.getItem('products'));
             const container = document.getElementById('statsChart');
             const paginationContainer = document.getElementById('statsPagination');
             const selectedEstoque = document.getElementById('statsEstoque') ? document.getElementById('statsEstoque').value : '';
+            
+            if (!container) return;
             
             if (recentOrders.length === 0) {
                 container.innerHTML = '<div class="empty-state">Sem dados suficientes para estatísticas</div>';
@@ -2578,7 +2194,6 @@
                 return;
             }
             
-            // Filter orders by estoque if selected
             const filteredOrders = selectedEstoque 
                 ? recentOrders.filter(o => o.estoque === selectedEstoque) 
                 : recentOrders;
@@ -2590,19 +2205,14 @@
                 return;
             }
             
-            // Count products that were ordered
             const productCounts = {};
-            
             filteredOrders.forEach(order => {
                 order.items.forEach(item => {
-                    if (!productCounts[item.product]) {
-                        productCounts[item.product] = 0;
-                    }
+                    if (!productCounts[item.product]) productCounts[item.product] = 0;
                     productCounts[item.product] += item.quantity;
                 });
             });
             
-            // Calculate total
             const total = Object.values(productCounts).reduce((sum, count) => sum + count, 0);
             
             if (total === 0) {
@@ -2612,19 +2222,15 @@
                 return;
             }
             
-            // Sort products by count
             const sortedProducts = Object.entries(productCounts).sort((a, b) => b[1] - a[1]);
             
-            // Pagination
             const totalPages = Math.ceil(sortedProducts.length / statsPerPage);
             if (statsCurrentPage > totalPages) statsCurrentPage = totalPages;
             const start = (statsCurrentPage - 1) * statsPerPage;
             const end = start + statsPerPage;
             const pageProducts = sortedProducts.slice(start, end);
             
-            // Create list in 2 columns
             let html = '<div class="stats-list-container">';
-            
             pageProducts.forEach(([product, count]) => {
                 const percentage = ((count / total) * 100).toFixed(1);
                 html += `
@@ -2634,11 +2240,9 @@
                     </div>
                 `;
             });
-            
             html += '</div>';
             container.innerHTML = html;
             
-            // Pagination controls
             if (totalPages > 1) {
                 paginationContainer.classList.remove('hidden');
                 let pagHtml = '';
@@ -2650,27 +2254,24 @@
                 paginationContainer.classList.add('hidden');
             }
 
-            // Update products without orders section
             updateProductsWithoutOrders(productCounts, selectedEstoque);
         }
 
-        // Show/hide products without orders
         function updateProductsWithoutOrders(productCounts, selectedEstoque) {
             const products = JSON.parse(localStorage.getItem('products'));
-            // Filter products by estoque if selected
             const filteredProducts = selectedEstoque 
                 ? products.filter(p => p.estoque === selectedEstoque) 
                 : products;
             const productsWithoutOrders = filteredProducts.filter(p => !productCounts[p.name]);
             
             const container = document.getElementById('productsWithoutOrders');
+            if (!container) return;
             
             if (productsWithoutOrders.length === 0) {
                 container.innerHTML = '<div class="empty-state">Todos os produtos cadastrados tiveram pedidos!</div>';
             } else {
                 let html = '<h3 style="color: #ff8c00; margin-bottom: 15px;">📦 Produtos sem Pedidos</h3>';
                 html += '<div class="product-list">';
-                
                 productsWithoutOrders.forEach(product => {
                     html += `
                         <div class="product-item">
@@ -2681,7 +2282,6 @@
                         </div>
                     `;
                 });
-                
                 html += '</div>';
                 container.innerHTML = html;
             }
@@ -2702,7 +2302,6 @@
             }
         }
 
-        // Export stats report for selected estoque
         function exportStatsReport() {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const recentOrders = orders.slice(-10);
@@ -2710,12 +2309,10 @@
             const selectedEstoque = document.getElementById('statsEstoque').value;
             const storeName = localStorage.getItem('storeName');
             
-            // Filter orders by estoque
             const filteredOrders = selectedEstoque 
                 ? recentOrders.filter(o => o.estoque === selectedEstoque) 
                 : recentOrders;
             
-            // Count products
             const productCounts = {};
             filteredOrders.forEach(order => {
                 order.items.forEach(item => {
@@ -2726,13 +2323,11 @@
             
             const total = Object.values(productCounts).reduce((sum, c) => sum + c, 0);
             
-            // Filter products by estoque
             const filteredProducts = selectedEstoque 
                 ? products.filter(p => p.estoque === selectedEstoque) 
                 : products;
             const productsWithoutOrders = filteredProducts.filter(p => !productCounts[p.name]);
             
-            // Build text
             let text = `RELATÓRIO DE ESTOQUE - ${selectedEstoque || 'Todos os Estoques'}\n`;
             text += `Loja: ${storeName}\n`;
             text += `Últimos 10 Pedidos\n`;
@@ -2751,9 +2346,7 @@
             
             text += `\nPRODUTOS SEM PEDIDOS:\n`;
             if (productsWithoutOrders.length > 0) {
-                productsWithoutOrders.forEach(p => {
-                    text += `- ${p.name}\n`;
-                });
+                productsWithoutOrders.forEach(p => { text += `- ${p.name}\n`; });
             } else {
                 text += `- Todos os produtos tiveram pedidos\n`;
             }
@@ -2763,16 +2356,13 @@
             });
         }
 
-        // Populate month and year selects
         function populateDateSelects() {
             const monthSelect = document.getElementById('reportMonth');
             const yearSelect = document.getElementById('reportYear');
+            if (!monthSelect || !yearSelect) return;
             
-            // Populate months
-            const months = [
-                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-            ];
+            const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
             
             monthSelect.innerHTML = '<option value="">Selecione o mês</option>';
             months.forEach((month, index) => {
@@ -2782,7 +2372,6 @@
                 monthSelect.appendChild(option);
             });
             
-            // Populate years
             const orders = JSON.parse(localStorage.getItem('orders'));
             const years = new Set();
             
@@ -2791,10 +2380,7 @@
                 years.add(orderDate.getFullYear());
             });
             
-            // Add current year if no orders yet
-            if (years.size === 0) {
-                years.add(new Date().getFullYear());
-            }
+            if (years.size === 0) years.add(new Date().getFullYear());
             
             yearSelect.innerHTML = '<option value="">Selecione o ano</option>';
             Array.from(years).sort((a, b) => b - a).forEach(year => {
@@ -2805,27 +2391,21 @@
             });
         }
 
-        // Generate monthly report
         function generateMonthlyReport() {
             const month = parseInt(document.getElementById('reportMonth').value);
             const year = parseInt(document.getElementById('reportYear').value);
             const container = document.getElementById('monthlyReportContent');
             
-            if (!month || !year) {
-                alert('Selecione mês e ano!');
-                return;
-            }
+            if (!month || !year) { alert('Selecione mês e ano!'); return; }
             
             const orders = JSON.parse(localStorage.getItem('orders'));
             const storeName = localStorage.getItem('storeName');
             
-            // Filter orders by month and year
             const monthlyOrders = orders.filter(order => {
-                const dateStr = order.date.split(', ')[0]; // Get date part
+                const dateStr = order.date.split(', ')[0];
                 const dateParts = dateStr.split('/');
                 const orderMonth = parseInt(dateParts[1]);
                 const orderYear = parseInt(dateParts[2]);
-                
                 return orderMonth === month && orderYear === year;
             });
             
@@ -2834,7 +2414,6 @@
                 return;
             }
             
-            // Calculate statistics
             const totalOrders = monthlyOrders.length;
             const productCounts = {};
             const estoqueCounts = {};
@@ -2843,61 +2422,35 @@
             let pendingOrders = 0;
             
             monthlyOrders.forEach(order => {
-                if (order.status === 'Conferido') {
-                    conferredOrders++;
-                } else {
-                    pendingOrders++;
-                }
+                if (order.status === 'Conferido') conferredOrders++;
+                else pendingOrders++;
                 
-                // Count by estoque
                 const est = order.estoque || 'Sem estoque';
                 if (!estoqueCounts[est]) estoqueCounts[est] = 0;
                 estoqueCounts[est]++;
                 
                 order.items.forEach(item => {
                     totalItems += item.quantity;
-                    
-                    if (!productCounts[item.product]) {
-                        productCounts[item.product] = 0;
-                    }
+                    if (!productCounts[item.product]) productCounts[item.product] = 0;
                     productCounts[item.product] += item.quantity;
                 });
             });
             
-            // Get month name
-            const monthNames = [
-                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-            ];
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
             const monthName = monthNames[month - 1];
             
-            // Generate HTML
             let html = `
                 <div class="report-summary">
                     <h3 style="color: #ff8c00; margin-bottom: 15px;">Relatório de ${monthName}/${year} - ${storeName}</h3>
-                    
                     <div class="report-stats">
-                        <div class="stat-box">
-                            <div class="stat-value">${totalOrders}</div>
-                            <div class="stat-label">Total de Pedidos</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value">${totalItems}</div>
-                            <div class="stat-label">Total de Itens</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value">${conferredOrders}</div>
-                            <div class="stat-label">Conferidos</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-value">${pendingOrders}</div>
-                            <div class="stat-label">Pendentes</div>
-                        </div>
+                        <div class="stat-box"><div class="stat-value">${totalOrders}</div><div class="stat-label">Total de Pedidos</div></div>
+                        <div class="stat-box"><div class="stat-value">${totalItems}</div><div class="stat-label">Total de Itens</div></div>
+                        <div class="stat-box"><div class="stat-value">${conferredOrders}</div><div class="stat-label">Conferidos</div></div>
+                        <div class="stat-box"><div class="stat-value">${pendingOrders}</div><div class="stat-label">Pendentes</div></div>
                     </div>
-                    
             `;
             
-            // Estoque breakdown
             const estoqueEntries = Object.entries(estoqueCounts).sort((a, b) => b[1] - a[1]);
             html += `
                     <div style="margin-top: 20px;">
@@ -2906,18 +2459,12 @@
             `;
             
             estoqueEntries.forEach(([estoque, count]) => {
-                html += `
-                    <div class="stat-box">
-                        <div class="stat-value">${count}</div>
-                        <div class="stat-label">${estoque}</div>
-                    </div>
-                `;
+                html += `<div class="stat-box"><div class="stat-value">${count}</div><div class="stat-label">${estoque}</div></div>`;
             });
             
             html += `
                         </div>
                     </div>
-                    
                     <button class="btn-export" onclick="exportMonthlyReport(${month}, ${year})">📥 Exportar Relatório</button>
                 </div>
             `;
@@ -2925,29 +2472,22 @@
             container.innerHTML = html;
         }
 
-        // Export monthly report
         function exportMonthlyReport(month, year) {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const storeName = localStorage.getItem('storeName');
             
-            // Filter orders
             const monthlyOrders = orders.filter(order => {
                 const dateStr = order.date.split(', ')[0];
                 const dateParts = dateStr.split('/');
                 const orderMonth = parseInt(dateParts[1]);
                 const orderYear = parseInt(dateParts[2]);
-                
                 return orderMonth === month && orderYear === year;
             });
             
-            // Get month name
-            const monthNames = [
-                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-            ];
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
             const monthName = monthNames[month - 1];
             
-            // Statistics
             const totalOrders = monthlyOrders.length;
             const productCounts = {};
             let totalItems = 0;
@@ -2955,34 +2495,26 @@
             let pendingOrders = 0;
             
             monthlyOrders.forEach(order => {
-                if (order.status === 'Conferido') {
-                    conferredOrders++;
-                } else {
-                    pendingOrders++;
-                }
+                if (order.status === 'Conferido') conferredOrders++;
+                else pendingOrders++;
                 
                 order.items.forEach(item => {
                     totalItems += item.quantity;
-                    if (!productCounts[item.product]) {
-                        productCounts[item.product] = 0;
-                    }
+                    if (!productCounts[item.product]) productCounts[item.product] = 0;
                     productCounts[item.product] += item.quantity;
                 });
             });
             
-            // Generate text report
             let text = `RELATÓRIO MENSAL - ${monthName.toUpperCase()}/${year}\n`;
             text += `Loja: ${storeName}\n`;
             text += `Data de Geração: ${new Date().toLocaleString('pt-BR')}\n`;
             text += `${'='.repeat(40)}\n\n`;
-            
             text += `RESUMO:\n`;
             text += `- Total de Pedidos: ${totalOrders}\n`;
             text += `- Total de Itens: ${totalItems}\n`;
             text += `- Pedidos Conferidos: ${conferredOrders}\n`;
             text += `- Pedidos Pendentes: ${pendingOrders}\n\n`;
             
-            // Estoque breakdown
             text += `PEDIDOS POR ESTOQUE:\n`;
             const estoqueCountsExport = {};
             monthlyOrders.forEach(order => {
@@ -2995,7 +2527,6 @@
             });
             text += `\n`;
             
-            // Products - max 10
             text += `PRODUTOS MAIS PEDIDOS:\n`;
             const sortedProducts = Object.entries(productCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
             const totalProducts = Object.values(productCounts).reduce((sum, count) => sum + count, 0);
@@ -3005,27 +2536,19 @@
                 text += `- ${product} (${percentage}%)\n`;
             });
             
-            // Copy to clipboard
             navigator.clipboard.writeText(text).then(() => {
                 alert('Relatório copiado para a área de transferência!');
             });
         }
 
-        // ========================================
-        // ADMIN: Gerenciar Pedidos Pendentes
-        // ========================================
-        
         let editingOrderId = null;
         let editingItems = [];
-
-        // Load admin orders list - compact list format (last 10 per estoque)
         let selectedAdminOrderId = null;
 
         function loadAdminOrders() {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const container = document.getElementById('adminOrdersList');
             
-            // Hide detail, show list
             document.getElementById('adminOrderDetail').classList.add('hidden');
             document.getElementById('adminOrdersList').parentElement.classList.remove('hidden');
             selectedAdminOrderId = null;
@@ -3061,7 +2584,6 @@
             });
         }
 
-        // Open order detail in management
         function openAdminOrderDetail(orderId) {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const order = orders.find(o => o.id === orderId);
@@ -3069,7 +2591,6 @@
             
             selectedAdminOrderId = orderId;
             
-            // Hide list, show detail
             document.getElementById('adminOrdersList').parentElement.classList.add('hidden');
             document.getElementById('adminOrderDetail').classList.remove('hidden');
             
@@ -3077,7 +2598,6 @@
             const statusClass = order.status === 'Pendente' ? 'status-pending' : 'status-checked';
             document.getElementById('adminOrderDetailTitle').innerHTML = `📋 Pedido ${order.date}${estoqueText} <span class="status-badge ${statusClass}">${order.status}</span>`;
             
-            // Show/hide edit button
             document.getElementById('btnEditFromDetail').classList.toggle('hidden', order.status === 'Conferido');
             
             const container = document.getElementById('adminOrderDetailItems');
@@ -3113,7 +2633,6 @@
             }
         }
 
-        // Delete order
         function deleteOrder(orderId) {
             if (!confirm('Tem certeza que deseja apagar este pedido?')) return;
             
@@ -3127,7 +2646,6 @@
             alert('Pedido apagado!');
         }
 
-        // Open edit modal
         function openEditOrder(orderId) {
             const orders = JSON.parse(localStorage.getItem('orders'));
             const order = orders.find(o => o.id === orderId);
@@ -3140,17 +2658,14 @@
             editingOrderId = orderId;
             editingItems = order.items.map(item => ({...item}));
             
-            // Set estoque
             document.getElementById('editOrderEstoque').value = order.estoque || '';
             
             renderEditItems();
             document.getElementById('editOrderModal').classList.remove('hidden');
         }
 
-        // Render items in edit modal
         function renderEditItems() {
             const container = document.getElementById('editOrderItems');
-            const products = JSON.parse(localStorage.getItem('products'));
             
             if (editingItems.length === 0) {
                 container.innerHTML = '<div class="empty-state" style="padding: 15px;">Nenhum item no pedido</div>';
@@ -3161,7 +2676,6 @@
             editingItems.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'edit-item-row';
-                
                 div.innerHTML = `
                     <input type="number" class="input-field" value="${item.quantity}" min="1" onchange="updateEditItem(${index}, 'quantity', this.value)">
                     <input type="text" class="input-field" value="${item.product}" onchange="updateEditItem(${index}, 'product', this.value)">
@@ -3172,7 +2686,6 @@
             });
         }
 
-        // Update edit item
         function updateEditItem(index, field, value) {
             if (field === 'quantity') {
                 editingItems[index].quantity = parseInt(value);
@@ -3181,22 +2694,17 @@
             }
         }
 
-        // Remove item from edit
         function removeEditItem(index) {
             editingItems.splice(index, 1);
             renderEditItems();
         }
 
-        // Add item to edit
         function addItemToEdit() {
             const qty = document.getElementById('editNewQty').value;
             const product = document.getElementById('editProductSearch').value;
             const others = document.getElementById('editNewOthers').value;
             
-            if (!qty || !product) {
-                alert('Preencha quantidade e produto!');
-                return;
-            }
+            if (!qty || !product) { alert('Preencha quantidade e produto!'); return; }
             
             editingItems.push({
                 quantity: parseInt(qty),
@@ -3211,7 +2719,6 @@
             renderEditItems();
         }
 
-        // Save edited order
         function saveEditOrder() {
             if (editingItems.length === 0) {
                 alert('O pedido precisa ter pelo menos um item!');
@@ -3235,31 +2742,22 @@
             alert('Pedido atualizado!');
         }
 
-        // Close edit modal
         function closeEditModal() {
             document.getElementById('editOrderModal').classList.add('hidden');
             editingOrderId = null;
             editingItems = [];
         }
 
-        // ========================================
-        // PEDIDO SEXTA FEIRA
-        // ========================================
-
         function loadFridayOrder() {
             renderFridayClientList();
             renderFridayOutOfStockList();
         }
 
-        // Add client product
         function addFridayClientProduct() {
             const input = document.getElementById('fridayClientProduct');
             const product = input.value.trim();
             
-            if (!product) {
-                alert('Digite o nome do produto!');
-                return;
-            }
+            if (!product) { alert('Digite o nome do produto!'); return; }
             
             const clientProducts = JSON.parse(localStorage.getItem('fridayClientProducts') || '[]');
             clientProducts.push(product);
@@ -3269,7 +2767,6 @@
             renderFridayClientList();
         }
 
-        // Remove client product
         function removeFridayClientProduct(index) {
             const clientProducts = JSON.parse(localStorage.getItem('fridayClientProducts') || '[]');
             clientProducts.splice(index, 1);
@@ -3277,7 +2774,6 @@
             renderFridayClientList();
         }
 
-        // Render client products list
         function renderFridayClientList() {
             const container = document.getElementById('fridayClientList');
             const clientProducts = JSON.parse(localStorage.getItem('fridayClientProducts') || '[]');
@@ -3299,7 +2795,6 @@
             container.innerHTML = html;
         }
 
-        // Get out-of-stock products from checked orders (items marked as "Não veio")
         function getOutOfStockProducts() {
             const orders = JSON.parse(localStorage.getItem('orders') || '[]');
             const outOfStock = [];
@@ -3308,7 +2803,6 @@
                 if (order.status === 'Conferido' && order.checkData) {
                     order.items.forEach((item, index) => {
                         if (order.checkData[index] && order.checkData[index].status === 'Não veio') {
-                            // Avoid duplicates
                             if (!outOfStock.includes(item.product)) {
                                 outOfStock.push(item.product);
                             }
@@ -3320,7 +2814,6 @@
             return outOfStock;
         }
 
-        // Render out-of-stock list
         function renderFridayOutOfStockList() {
             const container = document.getElementById('fridayOutOfStockList');
             const outOfStock = getOutOfStockProducts();
@@ -3341,28 +2834,22 @@
             container.innerHTML = html;
         }
 
-        // Copy friday report
         function copyFridayReport() {
             const storeName = localStorage.getItem('storeName');
             const clientProducts = JSON.parse(localStorage.getItem('fridayClientProducts') || '[]');
             const outOfStock = getOutOfStockProducts();
             
             let text = `Pedido Sexta Feira Loja ${storeName}\n`;
-            
             text += `Encomendas de Clientes:\n`;
             if (clientProducts.length > 0) {
-                clientProducts.forEach(p => {
-                    text += `${p}\n`;
-                });
+                clientProducts.forEach(p => { text += `${p}\n`; });
             } else {
                 text += `Nenhuma encomenda\n`;
             }
             
             text += `\nProdutos Solicitados e não tinha em estoque:\n`;
             if (outOfStock.length > 0) {
-                outOfStock.forEach(p => {
-                    text += `${p}\n`;
-                });
+                outOfStock.forEach(p => { text += `${p}\n`; });
             } else {
                 text += `Nenhum produto em falta\n`;
             }
@@ -3372,17 +2859,12 @@
             });
         }
 
-        // Clear friday client products
         function clearFridayClientProducts() {
             if (!confirm('Deseja limpar todas as encomendas de clientes?')) return;
             localStorage.setItem('fridayClientProducts', JSON.stringify([]));
             renderFridayClientList();
         }
 
-        // ========================================
-        // EXPORT / IMPORT DATA
-        // ========================================
-        
         function exportAllData() {
             const data = {
                 adminPassword: localStorage.getItem('adminPassword'),
@@ -3423,7 +2905,6 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     
-                    // Validate
                     if (!data.storeName || !data.products || !data.orders) {
                         alert('Arquivo inválido! Verifique o formato do arquivo.');
                         return;
@@ -3433,7 +2914,6 @@
                         return;
                     }
                     
-                    // Import
                     if (data.adminPassword) localStorage.setItem('adminPassword', data.adminPassword);
                     localStorage.setItem('storeName', data.storeName);
                     localStorage.setItem('products', JSON.stringify(data.products));
@@ -3441,7 +2921,6 @@
                     if (data.checks) localStorage.setItem('checks', JSON.stringify(data.checks));
                     if (data.fridayClientProducts) localStorage.setItem('fridayClientProducts', JSON.stringify(data.fridayClientProducts));
                     
-                    // Reload everything
                     loadStoreName();
                     loadProducts();
                     loadOrdersToCheck();
@@ -3464,26 +2943,17 @@
             event.target.value = '';
         }
 
-        // Initialize app
         initializeStorage();
-        
-        // Auto-load as standard user
         loadStoreName();
         loadOrdersToCheck();
         restoreOrderDraft();
 
-        // Detect when user is leaving/closing page
         window.addEventListener('beforeunload', function(e) {
-            if (currentOrderItems.length > 0) {
-                autoSaveOrder();
-            }
+            if (currentOrderItems.length > 0) autoSaveOrder();
         });
 
-        // Detect visibility change (tab switching)
         document.addEventListener('visibilitychange', function() {
-            if (document.hidden && currentOrderItems.length > 0) {
-                autoSaveOrder();
-            }
+            if (document.hidden && currentOrderItems.length > 0) autoSaveOrder();
         });
     </script>
 </body>
