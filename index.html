@@ -416,6 +416,9 @@
                             <button class="btn-primary" onclick="addFridayClientProduct()" style="margin-right:0;">Adicionar</button>
                         </div>
                         <div id="fridayClientList" style="margin-top:15px;"></div>
+                        <div style="margin-top:10px;">
+                            <button class="btn-danger btn-small" onclick="clearFridayClientProducts()">Limpar Encomendas</button>
+                        </div>
                     </div>
                     <div style="border-top:1px solid #e5e7eb;padding-top:20px;margin-top:10px;">
                         <h3 style="color:#059669;margin-bottom:12px;font-size:16px;">Pedido Sexta Feira</h3>
@@ -429,6 +432,9 @@
                             <button class="btn-primary" onclick="addFridayProduct()" style="margin-right:0;">Adicionar</button>
                         </div>
                         <div id="fridayProductList" style="margin-top:15px;"></div>
+                        <div style="margin-top:10px;">
+                            <button class="btn-danger btn-small" onclick="clearFridayOrderProducts()">Limpar Pedido Sexta</button>
+                        </div>
                     </div>
                     <div style="border-top:1px solid #e5e7eb;padding-top:20px;margin-top:10px;">
                         <h3 style="color:#dc2626;margin-bottom:12px;font-size:16px;">Produtos Solicitados e Nao Tinha em Estoque</h3>
@@ -2209,6 +2215,42 @@
         if (!confirm('Deseja limpar todos os produtos e encomendas?')) return;
         await fsClearFridayProducts();
         renderFridayClientList();
+        renderFridayProductList();
+    }
+    
+    async function clearFridayClientProducts() {
+        const clientProducts = cacheFridayProducts.filter(function(p) { return p.type === 'client'; });
+        if (clientProducts.length === 0) {
+            alert('Nenhuma encomenda para limpar!');
+            return;
+        }
+        if (!confirm('Deseja limpar todas as encomendas de clientes?')) return;
+        
+        const cols = userCollections();
+        const batch = db.batch();
+        clientProducts.forEach(function(p) {
+            batch.delete(cols.fridayClientProducts.doc(p.id));
+        });
+        await batch.commit();
+        cacheFridayProducts = cacheFridayProducts.filter(function(p) { return p.type !== 'client'; });
+        renderFridayClientList();
+    }
+    
+    async function clearFridayOrderProducts() {
+        const fridayProducts = cacheFridayProducts.filter(function(p) { return p.type === 'friday'; });
+        if (fridayProducts.length === 0) {
+            alert('Nenhum produto do pedido sexta para limpar!');
+            return;
+        }
+        if (!confirm('Deseja limpar todos os produtos do pedido sexta?')) return;
+        
+        const cols = userCollections();
+        const batch = db.batch();
+        fridayProducts.forEach(function(p) {
+            batch.delete(cols.fridayClientProducts.doc(p.id));
+        });
+        await batch.commit();
+        cacheFridayProducts = cacheFridayProducts.filter(function(p) { return p.type !== 'friday'; });
         renderFridayProductList();
     }
 
