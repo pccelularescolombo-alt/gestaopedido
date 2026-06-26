@@ -1361,7 +1361,7 @@
             if (pelItems.length > 0) {
                 text += 'Película:\n';
                 pelItems.forEach(function(item) {
-                    text += (item.quantityCX || item.quantity || 0) + ' ' + item.product + (item.others ? ' ' + item.others : '') + '\n';
+                    text += (item.quantityCX || item.quantity || 0) + ' CX: ' + item.product + (item.others ? ' ' + item.others : '') + '\n';
                 });
             }
             if (prodItems.length > 0) {
@@ -1703,7 +1703,8 @@
                 let st = cd ? cd.status : 'Nao conferido';
                 if (cd && cd.status === 'Faltando' && cd.receivedQuantity !== undefined) st += ' (Recebido: ' + cd.receivedQuantity + ')';
                 const qty = item.nicolaType === 'pel' ? (item.quantityCX || item.quantity || 0) : item.quantity;
-                text += qty + ' ' + item.product + (item.others ? ' ' + item.others : '') + ' [' + st + ']\n';
+                const cxLabel = item.nicolaType === 'pel' ? ' CX: ' : ' ';
+                text += qty + cxLabel + item.product + (item.others ? ' ' + item.others : '') + ' [' + st + ']\n';
             }
             
             if (pelItems.length > 0) {
