@@ -1353,29 +1353,37 @@
         const order = cacheOrders.find(function(o) { return o.id === orderId; });
         if (!order) return;
         let text = 'Pedido ' + order.storeName + ' - ' + (order.estoque || 'Sem estoque') + '\nData: ' + order.date + '\n\n';
-        order.items.forEach(function(item) { 
-            // Format based on stock type
-            let itemText = '';
-            if (item.estoque === 'Estoque Capa' && (item.quantityM !== undefined || item.quantityF !== undefined)) {
-                // Capa: show M/F split
-                const qtyM = item.quantityM || 0;
-                const qtyF = item.quantityF || 0;
-                itemText = item.product + ': ' + qtyM + 'M ' + qtyF + 'F';
-            } else if (item.estoque === 'Estoque Nicola') {
-                // Nicola: show type-specific format
-                if (item.nicolaType === 'pel') {
-                    // Película: [Quantidade] CX: [Produto]
-                    itemText = 'Película: ' + (item.quantityCX || 0) + ' CX: ' + item.product;
-                } else {
-                    // Produto: [Quantidade] [Produto]
-                    itemText = 'Produto: ' + item.quantity + ' ' + item.product;
-                }
-            } else {
-                // Regular: show single quantity
-                itemText = item.quantity + ' ' + item.product;
+        
+        if (order.estoque === 'Estoque Nicola') {
+            // Group by nicolaType
+            const pelItems = order.items.filter(function(i) { return i.nicolaType === 'pel'; });
+            const prodItems = order.items.filter(function(i) { return i.nicolaType !== 'pel'; });
+            if (pelItems.length > 0) {
+                text += 'Película:\n';
+                pelItems.forEach(function(item) {
+                    text += (item.quantityCX || item.quantity || 0) + ' ' + item.product + (item.others ? ' ' + item.others : '') + '\n';
+                });
             }
-            text += itemText + (item.others ? ' ' + item.others : '') + '\n'; 
-        });
+            if (prodItems.length > 0) {
+                if (pelItems.length > 0) text += '\n';
+                text += 'Produto:\n';
+                prodItems.forEach(function(item) {
+                    text += item.quantity + ' ' + item.product + (item.others ? ' ' + item.others : '') + '\n';
+                });
+            }
+        } else {
+            order.items.forEach(function(item) { 
+                let itemText = '';
+                if (item.estoque === 'Estoque Capa' && (item.quantityM !== undefined || item.quantityF !== undefined)) {
+                    const qtyM = item.quantityM || 0;
+                    const qtyF = item.quantityF || 0;
+                    itemText = item.product + ': ' + qtyM + 'M ' + qtyF + 'F';
+                } else {
+                    itemText = item.quantity + ' ' + item.product;
+                }
+                text += itemText + (item.others ? ' ' + item.others : '') + '\n'; 
+            });
+        }
         navigator.clipboard.writeText(text).then(function() { alert('Pedido copiado!'); }).catch(function() {
             const ta = document.createElement('textarea'); ta.value = text;
             document.body.appendChild(ta); ta.select();
@@ -1678,34 +1686,53 @@
         const order = cacheOrders.find(function(o) { return o.id === orderId; });
         if (!order || !order.checkData) { alert('Confira o pedido antes de copiar!'); return; }
         let text = 'Conferido Pedido ' + order.storeName + ' - ' + (order.estoque || 'Sem estoque') + '\nData: ' + order.date + '\n\n';
-        order.items.forEach(function(item, index) {
-            const cd = order.checkData[index];
-            let st = cd ? cd.status : 'Nao conferido';
-            if (cd && cd.status === 'Faltando' && cd.receivedQuantity !== undefined) st += ' (Recebido: ' + cd.receivedQuantity + ')';
+        
+        if (order.estoque === 'Estoque Nicola') {
+            // Group by nicolaType, preserving original index for checkData
+            const pelItems = [];
+            const prodItems = [];
+            order.items.forEach(function(item, index) {
+                const entry = { item: item, index: index };
+                if (item.nicolaType === 'pel') pelItems.push(entry);
+                else prodItems.push(entry);
+            });
             
-            // Format based on stock type
-            let itemText = '';
-            if (item.estoque === 'Estoque Capa' && (item.quantityM !== undefined || item.quantityF !== undefined)) {
-                // Capa: show M/F split
-                const qtyM = item.quantityM || 0;
-                const qtyF = item.quantityF || 0;
-                itemText = item.product + ': ' + qtyM + 'M ' + qtyF + 'F';
-            } else if (item.estoque === 'Estoque Nicola') {
-                // Nicola: show type-specific format
-                if (item.nicolaType === 'pel') {
-                    // Película: [Quantidade] CX: [Produto]
-                    itemText = 'Película: ' + (item.quantityCX || 0) + ' CX: ' + item.product;
-                } else {
-                    // Produto: [Quantidade] [Produto]
-                    itemText = 'Produto: ' + item.quantity + ' ' + item.product;
-                }
-            } else {
-                // Regular: show single quantity
-                itemText = item.quantity + ' ' + item.product;
+            function appendCheckLine(entry) {
+                const item = entry.item;
+                const cd = order.checkData[entry.index];
+                let st = cd ? cd.status : 'Nao conferido';
+                if (cd && cd.status === 'Faltando' && cd.receivedQuantity !== undefined) st += ' (Recebido: ' + cd.receivedQuantity + ')';
+                const qty = item.nicolaType === 'pel' ? (item.quantityCX || item.quantity || 0) : item.quantity;
+                text += qty + ' ' + item.product + (item.others ? ' ' + item.others : '') + ' [' + st + ']\n';
             }
             
-            text += itemText + (item.others ? ' ' + item.others : '') + ' [' + st + ']\n';
-        });
+            if (pelItems.length > 0) {
+                text += 'Película:\n';
+                pelItems.forEach(appendCheckLine);
+            }
+            if (prodItems.length > 0) {
+                if (pelItems.length > 0) text += '\n';
+                text += 'Produto:\n';
+                prodItems.forEach(appendCheckLine);
+            }
+        } else {
+            order.items.forEach(function(item, index) {
+                const cd = order.checkData[index];
+                let st = cd ? cd.status : 'Nao conferido';
+                if (cd && cd.status === 'Faltando' && cd.receivedQuantity !== undefined) st += ' (Recebido: ' + cd.receivedQuantity + ')';
+                
+                let itemText = '';
+                if (item.estoque === 'Estoque Capa' && (item.quantityM !== undefined || item.quantityF !== undefined)) {
+                    const qtyM = item.quantityM || 0;
+                    const qtyF = item.quantityF || 0;
+                    itemText = item.product + ': ' + qtyM + 'M ' + qtyF + 'F';
+                } else {
+                    itemText = item.quantity + ' ' + item.product;
+                }
+                
+                text += itemText + (item.others ? ' ' + item.others : '') + ' [' + st + ']\n';
+            });
+        }
         // Add extra products if any
         if (order.extraProducts && order.extraProducts.length > 0) {
             text += '\nPRODUTOS EXTRAS:\n';
