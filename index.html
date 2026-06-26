@@ -323,12 +323,18 @@
                             <option value="Estoque Nicola">Estoque Nicola</option>
                             <option value="Estoque Capa">Estoque Capa</option>
                         </select>
+                        <select id="orderNicolaType" class="input-field hidden" onchange="onNicolaTypeChange()">
+                            <option value="">Selecione o tipo</option>
+                            <option value="pel">Película</option>
+                            <option value="prod">Produto</option>
+                        </select>
                         <div class="search-container">
                             <input type="text" id="productSearch" class="search-input" placeholder="Produto" autocomplete="off" oninput="searchProducts()" onfocus="searchProducts()">
                             <span class="search-icon">&#128269;</span>
                             <div id="searchDropdown" class="search-dropdown hidden"></div>
                         </div>
                         <input type="number" id="itemQuantity" class="input-field" placeholder="Quantidade" min="1">
+                        <input type="number" id="itemQuantityCX" class="input-field hidden" placeholder="CX" min="1">
                         <input type="number" id="itemQuantityM" class="input-field hidden" placeholder="Qtd Masculina" min="0">
                         <input type="number" id="itemQuantityF" class="input-field hidden" placeholder="Qtd Feminina" min="0">
                         <input type="text" id="itemOthers" class="input-field" placeholder="Observacoes">
@@ -440,11 +446,16 @@
                     <h2>Gerenciar Produtos</h2>
                     <div class="input-group">
                         <input type="text" id="newProductName" class="input-field" placeholder="Nome do Produto">
-                        <select id="newProductEstoque" class="input-field">
+                        <select id="newProductEstoque" class="input-field" onchange="toggleNicolaType()">
                             <option value="">Selecione o estoque</option>
                             <option value="Estoque Produtos">Estoque Produtos</option>
                             <option value="Estoque Nicola">Estoque Nicola</option>
                             <option value="Estoque Capa">Estoque Capa</option>
+                        </select>
+                        <select id="newProductNicolaType" class="input-field hidden">
+                            <option value="">Selecione o tipo</option>
+                            <option value="pel">Película</option>
+                            <option value="prod">Produto</option>
                         </select>
                         <button class="btn-primary" onclick="addProduct()">Adicionar Produto</button>
                     </div>
@@ -776,10 +787,14 @@
         await cols.config.doc(key).set({ value });
     }
 
-    async function fsAddProduct(name, estoque) {
+    async function fsAddProduct(name, estoque, nicolaType) {
         const cols = userCollections();
-        const ref = await cols.products.add({ name, estoque });
-        cacheProducts.push({ id: ref.id, name, estoque }); return ref.id;
+        const productData = { name, estoque };
+        if (nicolaType) productData.nicolaType = nicolaType;
+        const ref = await cols.products.add(productData);
+        const newProduct = { id: ref.id, name, estoque };
+        if (nicolaType) newProduct.nicolaType = nicolaType;
+        cacheProducts.push(newProduct); return ref.id;
     }
     async function fsDeleteProduct(docId) {
         const cols = userCollections();
@@ -973,9 +988,16 @@
         const pageItems = filtered.slice(start, start + productsPerPage);
         let html = '';
         pageItems.forEach(p => {
+            let typeLabel = '';
+            if (p.estoque === 'Estoque Nicola' && p.nicolaType) {
+                const typeText = p.nicolaType === 'pel' ? 'Película' : 'Produto';
+                const typeColor = p.nicolaType === 'pel' ? '#7c3aed' : '#059669';
+                typeLabel = '<span style="color:' + typeColor + ';font-size:11px;padding:2px 8px;background:' + (p.nicolaType === 'pel' ? '#ede9fe' : '#d1fae5') + ';border-radius:6px;margin-left:8px;font-weight:600;">' + typeText + '</span>';
+            }
             html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f9fafb;border-radius:8px;margin-bottom:6px;border-left:3px solid #2563eb;">' +
                 '<div><span style="color:#374151;font-weight:600;">' + p.name + '</span>' +
-                '<span style="color:#2563eb;font-size:11px;padding:2px 8px;background:#eff6ff;border-radius:6px;margin-left:10px;">' + p.estoque + '</span></div>' +
+                '<span style="color:#2563eb;font-size:11px;padding:2px 8px;background:#eff6ff;border-radius:6px;margin-left:10px;">' + p.estoque + '</span>' +
+                typeLabel + '</div>' +
                 '<div style="display:flex;gap:8px;">' +
                 '<button class="btn-edit btn-small" onclick="editProduct(\'' + p.id + '\')">Editar</button>' +
                 '<button class="btn-danger btn-small" onclick="removeProduct(\'' + p.id + '\')">Remover</button></div></div>';
@@ -987,15 +1009,30 @@
         ph += '<button class="btn-small" style="padding:8px 14px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:8px;color:#2563eb;cursor:pointer;" onclick="loadProducts(' + (productsCurrentPage+1) + ')"' + (productsCurrentPage===totalPages?' disabled style="opacity:0.3;cursor:default;"':'') + '>Proxima</button>';
         pag.innerHTML = ph;
     }
+    function toggleNicolaType() {
+        const estoque = document.getElementById('newProductEstoque').value;
+        const typeSelect = document.getElementById('newProductNicolaType');
+        if (estoque === 'Estoque Nicola') {
+            typeSelect.classList.remove('hidden');
+            typeSelect.value = '';
+        } else {
+            typeSelect.classList.add('hidden');
+            typeSelect.value = '';
+        }
+    }
     async function addProduct() {
         const name = document.getElementById('newProductName').value.trim();
         const estoque = document.getElementById('newProductEstoque').value;
+        const nicolaType = document.getElementById('newProductNicolaType').value;
         if (!name) { alert('Digite o nome do produto!'); return; }
         if (!estoque) { alert('Selecione o estoque!'); return; }
+        if (estoque === 'Estoque Nicola' && !nicolaType) { alert('Selecione o tipo (Película ou Produto)!'); return; }
         if (cacheProducts.some(p => p.name === name && p.estoque === estoque)) { alert('Produto ja existe neste estoque!'); return; }
-        await fsAddProduct(name, estoque);
+        await fsAddProduct(name, estoque, nicolaType || null);
         document.getElementById('newProductName').value = '';
         document.getElementById('newProductEstoque').value = '';
+        document.getElementById('newProductNicolaType').value = '';
+        document.getElementById('newProductNicolaType').classList.add('hidden');
         loadProducts(); updateStats(); alert('Produto adicionado!');
     }
     async function removeProduct(docId) {
@@ -1081,30 +1118,74 @@
         const qtyField = document.getElementById('itemQuantity');
         const qtyMField = document.getElementById('itemQuantityM');
         const qtyFField = document.getElementById('itemQuantityF');
+        const qtyCXField = document.getElementById('itemQuantityCX');
+        const nicolaTypeSelect = document.getElementById('orderNicolaType');
+        
+        // Hide all special fields first
+        qtyField.classList.add('hidden');
+        qtyMField.classList.add('hidden');
+        qtyFField.classList.add('hidden');
+        qtyCXField.classList.add('hidden');
+        nicolaTypeSelect.classList.add('hidden');
+        nicolaTypeSelect.value = '';
         
         if (estoque === 'Estoque Capa') {
             // Hide single quantity, show M/F fields
-            qtyField.classList.add('hidden');
             qtyMField.classList.remove('hidden');
             qtyFField.classList.remove('hidden');
+        } else if (estoque === 'Estoque Nicola') {
+            // Show type selector first; quantity fields appear after type is selected
+            nicolaTypeSelect.classList.remove('hidden');
         } else {
-            // Show single quantity, hide M/F fields
+            // Show single quantity for Estoque Produtos or empty
             qtyField.classList.remove('hidden');
-            qtyMField.classList.add('hidden');
-            qtyFField.classList.add('hidden');
         }
         
         // Clear all quantity fields
         qtyField.value = '';
         qtyMField.value = '';
         qtyFField.value = '';
+        qtyCXField.value = '';
+    }
+    function onNicolaTypeChange() {
+        const nicolaType = document.getElementById('orderNicolaType').value;
+        const qtyField = document.getElementById('itemQuantity');
+        const qtyCXField = document.getElementById('itemQuantityCX');
+        
+        // Reset fields
+        qtyField.classList.add('hidden');
+        qtyCXField.classList.add('hidden');
+        qtyField.value = '';
+        qtyCXField.value = '';
+        document.getElementById('productSearch').value = '';
+        selectedProduct = null;
+        document.getElementById('searchDropdown').classList.add('hidden');
+        
+        if (nicolaType === 'pel') {
+            // Película: show CX field
+            qtyCXField.classList.remove('hidden');
+            qtyCXField.placeholder = 'CX';
+        } else if (nicolaType === 'prod') {
+            // Produto: show quantity field
+            qtyField.classList.remove('hidden');
+            qtyField.placeholder = 'Quantidade';
+        }
     }
     function searchProducts() {
         const term = document.getElementById('productSearch').value.toLowerCase();
         const sel = document.getElementById('orderEstoque').value;
         const dd = document.getElementById('searchDropdown');
         if (!sel) { dd.innerHTML = '<div class="no-results">Selecione um estoque primeiro</div>'; dd.classList.remove('hidden'); return; }
-        const filtered = cacheProducts.filter(p => p.estoque === sel && p.name.toLowerCase().includes(term));
+        let filtered = cacheProducts.filter(p => p.estoque === sel && p.name.toLowerCase().includes(term));
+        // Filter by Nicola type when in Nicola stock
+        if (sel === 'Estoque Nicola') {
+            const nicolaType = document.getElementById('orderNicolaType').value;
+            if (nicolaType) {
+                filtered = filtered.filter(p => p.nicolaType === nicolaType);
+            } else {
+                dd.innerHTML = '<div class="no-results">Selecione o tipo (Película ou Produto) primeiro</div>'; dd.classList.remove('hidden'); return;
+            }
+        }
         // Sort alphabetically (case-insensitive)
         filtered.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
         if (filtered.length === 0) { dd.innerHTML = '<div class="no-results">Nenhum produto encontrado</div>'; dd.classList.remove('hidden'); return; }
@@ -1153,6 +1234,37 @@
             
             document.getElementById('itemQuantityM').value = '';
             document.getElementById('itemQuantityF').value = '';
+        } else if (estoque === 'Estoque Nicola') {
+            // Handle Nicola type (pel or prod)
+            const nicolaType = document.getElementById('orderNicolaType').value;
+            
+            if (!nicolaType) {
+                alert('Selecione o tipo (Película ou Produto)!');
+                return;
+            }
+            
+            itemData.nicolaType = nicolaType;
+            
+            // For pelicula, handle CX field
+            if (nicolaType === 'pel') {
+                const cx = parseInt(document.getElementById('itemQuantityCX').value);
+                if (!cx || cx < 1) {
+                    alert('Informe a quantidade CX!');
+                    return;
+                }
+                itemData.quantityCX = cx;
+                itemData.quantity = cx; // For stats/summary calculations
+                document.getElementById('itemQuantityCX').value = '';
+            } else {
+                // For produto, handle quantity field
+                const qty = parseInt(document.getElementById('itemQuantity').value);
+                if (!qty || qty < 1) {
+                    alert('Informe a quantidade!');
+                    return;
+                }
+                itemData.quantity = qty;
+                document.getElementById('itemQuantity').value = '';
+            }
         } else {
             // Handle single quantity
             const qty = parseInt(document.getElementById('itemQuantity').value);
@@ -1188,6 +1300,15 @@
                 const qtyM = item.quantityM || 0;
                 const qtyF = item.quantityF || 0;
                 qtyDisplay = item.product + ': ' + qtyM + 'M ' + qtyF + 'F';
+            } else if (item.estoque === 'Estoque Nicola') {
+                // Nicola: show type-specific format
+                if (item.nicolaType === 'pel') {
+                    // Película: [Quantidade] CX: [Produto]
+                    qtyDisplay = 'Película: ' + (item.quantityCX || 0) + ' CX: ' + item.product;
+                } else {
+                    // Produto: [Quantidade] [Produto]
+                    qtyDisplay = 'Produto: ' + item.quantity + ' ' + item.product;
+                }
             } else {
                 // Regular: show single quantity
                 qtyDisplay = item.quantity + 'x ' + item.product;
@@ -1216,6 +1337,11 @@
         lastSavedOrderId = newId;
         currentOrderItems = [];
         document.getElementById('orderEstoque').value = '';
+        document.getElementById('orderNicolaType').value = '';
+        document.getElementById('orderNicolaType').classList.add('hidden');
+        document.getElementById('itemQuantity').classList.add('hidden');
+        document.getElementById('itemQuantityCX').classList.add('hidden');
+        filterProductsByEstoque();
         displayCurrentOrder(); clearAutoSave();
         document.getElementById('lastSavedOrderSection').classList.remove('hidden');
         alert('Pedido salvo com sucesso!');
@@ -1235,6 +1361,15 @@
                 const qtyM = item.quantityM || 0;
                 const qtyF = item.quantityF || 0;
                 itemText = item.product + ': ' + qtyM + 'M ' + qtyF + 'F';
+            } else if (item.estoque === 'Estoque Nicola') {
+                // Nicola: show type-specific format
+                if (item.nicolaType === 'pel') {
+                    // Película: [Quantidade] CX: [Produto]
+                    itemText = 'Película: ' + (item.quantityCX || 0) + ' CX: ' + item.product;
+                } else {
+                    // Produto: [Quantidade] [Produto]
+                    itemText = 'Produto: ' + item.quantity + ' ' + item.product;
+                }
             } else {
                 // Regular: show single quantity
                 itemText = item.quantity + ' ' + item.product;
@@ -1316,6 +1451,15 @@
                 const qtyM = item.quantityM || 0;
                 const qtyF = item.quantityF || 0;
                 qtyDisplay = item.product + ': ' + qtyM + 'M ' + qtyF + 'F';
+            } else if (item.estoque === 'Estoque Nicola') {
+                // Nicola: show type-specific format
+                if (item.nicolaType === 'pel') {
+                    // Película: [Quantidade] CX: [Produto]
+                    qtyDisplay = 'Película: ' + (item.quantityCX || 0) + ' CX: ' + item.product;
+                } else {
+                    // Produto: [Quantidade] [Produto]
+                    qtyDisplay = 'Produto: ' + item.quantity + ' ' + item.product;
+                }
             } else {
                 qtyDisplay = item.quantity + 'x ' + item.product;
             }
@@ -1546,6 +1690,15 @@
                 const qtyM = item.quantityM || 0;
                 const qtyF = item.quantityF || 0;
                 itemText = item.product + ': ' + qtyM + 'M ' + qtyF + 'F';
+            } else if (item.estoque === 'Estoque Nicola') {
+                // Nicola: show type-specific format
+                if (item.nicolaType === 'pel') {
+                    // Película: [Quantidade] CX: [Produto]
+                    itemText = 'Película: ' + (item.quantityCX || 0) + ' CX: ' + item.product;
+                } else {
+                    // Produto: [Quantidade] [Produto]
+                    itemText = 'Produto: ' + item.quantity + ' ' + item.product;
+                }
             } else {
                 // Regular: show single quantity
                 itemText = item.quantity + ' ' + item.product;
@@ -1740,6 +1893,15 @@
                 const qtyM = item.quantityM || 0;
                 const qtyF = item.quantityF || 0;
                 qtyDisplay = item.product + ': ' + qtyM + 'M ' + qtyF + 'F';
+            } else if (item.estoque === 'Estoque Nicola') {
+                // Nicola: show type-specific format
+                if (item.nicolaType === 'pel') {
+                    // Película: [Quantidade] CX: [Produto]
+                    qtyDisplay = 'Película: ' + (item.quantityCX || 0) + ' CX: ' + item.product;
+                } else {
+                    // Produto: [Quantidade] [Produto]
+                    qtyDisplay = 'Produto: ' + item.quantity + ' ' + item.product;
+                }
             } else {
                 // Regular: show single quantity
                 qtyDisplay = item.quantity + 'x ' + item.product;
@@ -2112,6 +2274,7 @@
         }
     });
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
