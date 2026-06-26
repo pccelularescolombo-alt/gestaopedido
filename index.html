@@ -74,7 +74,9 @@
         .check-options { display: flex; gap: 8px; margin-top: 10px; }
         .check-option { padding: 8px 16px; border: 1.5px solid #d1d5db; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 500; }
         .check-option:hover { background: #f3f4f6; border-color: #9ca3af; }
-        .check-option.selected { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
+        .check-option.selected-correcto { border-color: #059669; background: #d1fae5; color: #065f46; font-weight: 700; }
+        .check-option.selected-faltando { border-color: #d97706; background: #fef3c7; color: #92400e; font-weight: 700; }
+        .check-option.selected-naoveio { border-color: #dc2626; background: #fee2e2; color: #991b1b; font-weight: 700; }
         .stats-list-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
         .stats-list-item { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
         .stats-product-name { color: #374151; font-weight: 600; font-size: 14px; flex: 1; }
@@ -187,6 +189,7 @@
             .order-item-info { width: 100%; }
             .check-options { flex-direction: column; width: 100%; }
             .check-option { width: 100%; text-align: center; }
+            .check-option.selected-correcto, .check-option.selected-faltando, .check-option.selected-naoveio { width: 100%; text-align: center; }
             .order-header { flex-direction: column; gap: 8px; }
             .copy-btn { width: 100%; }
             .report-stats { grid-template-columns: repeat(2, 1fr); }
@@ -358,6 +361,9 @@
                 <div id="checkOrderDetail" class="hidden">
                     <div class="card">
                         <h2 id="checkOrderTitle" style="margin-bottom:15px;"></h2>
+                        <div style="margin-bottom:15px;">
+                            <input type="text" id="checkSearchFilter" class="input-field" placeholder="Filtrar produtos..." oninput="filterCheckItems()" style="width:100%;max-width:400px;">
+                        </div>
                         <div id="checkOrderItems"></div>
                         <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
                             <button class="btn-success" id="btnSaveCheck" onclick="saveCheck()">Salvar Conferencia</button>
@@ -1205,6 +1211,8 @@
         const order = cacheOrders.find(function(o) { return o.id === orderId; });
         if (!order) return;
         selectedCheckOrderId = orderId;
+        // Restore localStorage check data if exists and order is not yet "Conferido"
+        restoreCheckFromLocalStorage(orderId, order);
         document.getElementById('ordersListToSelect').parentElement.classList.add('hidden');
         document.getElementById('checkOrderDetail').classList.remove('hidden');
         const et = order.estoque ? ' - ' + order.estoque : '';
@@ -1212,24 +1220,32 @@
         const isChecked = order.status === 'Conferido';
         document.getElementById('btnSaveCheck').classList.toggle('hidden', isChecked);
         document.getElementById('checkCopySection').classList.toggle('hidden', !isChecked);
+        // Clear search filter when opening a new order
+        const searchInput = document.getElementById('checkSearchFilter');
+        if (searchInput) searchInput.value = '';
+        renderCheckOrderItems(order, isChecked);
+    }
+    function renderCheckOrderItems(order, isChecked) {
+        const filterTerm = (document.getElementById('checkSearchFilter').value || '').toLowerCase();
         const container = document.getElementById('checkOrderItems');
         container.innerHTML = '';
         order.items.forEach(function(item, itemIndex) {
+            // Apply search filter
+            if (filterTerm && !item.product.toLowerCase().includes(filterTerm)) return;
             const cd = order.checkData && order.checkData[itemIndex];
             const cs = cd ? cd.status : '';
             const rq = cd ? cd.receivedQuantity : '';
             const div = document.createElement('div'); div.className = 'order-item';
+            div.setAttribute('data-item-index', itemIndex);
             div.style.flexDirection = 'column'; div.style.alignItems = 'stretch';
             
             // Format quantity display based on stock type
             let qtyDisplay = '';
             if (item.estoque === 'Estoque Capa' && (item.quantityM !== undefined || item.quantityF !== undefined)) {
-                // Capa: show M/F split
                 const qtyM = item.quantityM || 0;
                 const qtyF = item.quantityF || 0;
                 qtyDisplay = item.product + ': ' + qtyM + 'M ' + qtyF + 'F';
             } else {
-                // Regular: show single quantity
                 qtyDisplay = item.quantity + 'x ' + item.product;
             }
             
@@ -1240,16 +1256,26 @@
                 const label = cs === 'Correto' ? 'Correto' : cs === 'Faltando' ? 'Faltando (Recebido: ' + (rq || 0) + ')' : 'Nao veio';
                 innerHtml += '<div style="margin-top:8px;padding:8px;background:#f9fafb;border-radius:6px;"><span style="color:' + color + ';font-weight:600;">' + label + '</span></div>';
             } else {
+                const clsCorrecto = cs === 'Correto' ? ' selected-correcto' : '';
+                const clsFaltando = cs === 'Faltando' ? ' selected-faltando' : '';
+                const clsNaoveio = cs === 'Nao veio' ? ' selected-naoveio' : '';
                 innerHtml += '<div class="check-options" style="margin-top:10px;">' +
-                    '<div class="check-option ' + (cs === 'Correto' ? 'selected' : '') + '" onclick="setCheckStatus(\'' + orderId + '\',' + itemIndex + ',\'Correto\')">Correto</div>' +
-                    '<div class="check-option ' + (cs === 'Faltando' ? 'selected' : '') + '" onclick="setCheckStatus(\'' + orderId + '\',' + itemIndex + ',\'Faltando\')">Faltando</div>' +
-                    '<div class="check-option ' + (cs === 'Nao veio' ? 'selected' : '') + '" onclick="setCheckStatus(\'' + orderId + '\',' + itemIndex + ',\'Nao veio\')">Nao veio</div></div>';
-                innerHtml += '<div id="faltando-input-' + orderId + '-' + itemIndex + '" class="' + (cs === 'Faltando' ? '' : 'hidden') + '" style="margin-top:10px;">' +
-                    '<input type="number" class="input-field" placeholder="Quantidade recebida" value="' + rq + '" onchange="setReceivedQuantity(\'' + orderId + '\',' + itemIndex + ',this.value)" min="0" max="' + (item.quantity - 1) + '"></div>';
+                    '<div class="check-option' + clsCorrecto + '" data-action="Correto" data-item-index="' + itemIndex + '" onclick="setCheckStatus(\'' + selectedCheckOrderId + '\',' + itemIndex + ',\'Correto\')">Correto</div>' +
+                    '<div class="check-option' + clsFaltando + '" data-action="Faltando" data-item-index="' + itemIndex + '" onclick="setCheckStatus(\'' + selectedCheckOrderId + '\',' + itemIndex + ',\'Faltando\')">Faltando</div>' +
+                    '<div class="check-option' + clsNaoveio + '" data-action="Nao veio" data-item-index="' + itemIndex + '" onclick="setCheckStatus(\'' + selectedCheckOrderId + '\',' + itemIndex + ',\'Nao veio\')">Nao veio</div></div>';
+                innerHtml += '<div id="faltando-input-' + selectedCheckOrderId + '-' + itemIndex + '" class="' + (cs === 'Faltando' ? '' : 'hidden') + '" style="margin-top:10px;">' +
+                    '<input type="number" class="input-field" placeholder="Quantidade recebida" value="' + rq + '" onchange="setReceivedQuantity(\'' + selectedCheckOrderId + '\',' + itemIndex + ',this.value)" min="0" max="' + (item.quantity - 1) + '"></div>';
             }
             div.innerHTML = innerHtml;
             container.appendChild(div);
         });
+    }
+    function filterCheckItems() {
+        if (!selectedCheckOrderId) return;
+        const order = cacheOrders.find(function(o) { return o.id === selectedCheckOrderId; });
+        if (!order) return;
+        const isChecked = order.status === 'Conferido';
+        renderCheckOrderItems(order, isChecked);
     }
     function closeCheckDetail() {
         selectedCheckOrderId = null;
@@ -1263,8 +1289,72 @@
         if (!order.checkData) order.checkData = [];
         if (!order.checkData[itemIndex]) order.checkData[itemIndex] = {};
         order.checkData[itemIndex].status = status;
-        await fsUpdateOrder(orderId, { checkData: order.checkData });
-        openCheckOrder(orderId);
+        // Save to localStorage for offline resilience
+        saveCheckToLocalStorage(orderId, order.checkData);
+        // Save to Firebase (non-blocking to avoid UI freeze)
+        fsUpdateOrder(orderId, { checkData: order.checkData }).catch(function(err) {
+            console.warn('Erro ao salvar no Firebase, dados salvos localmente:', err);
+        });
+        // Update DOM in-place instead of full re-render
+        updateCheckItemDOM(orderId, itemIndex, status, order);
+    }
+    function updateCheckItemDOM(orderId, itemIndex, status, order) {
+        // Find the item container div by data-item-index
+        const container = document.getElementById('checkOrderItems');
+        const itemDivs = container.querySelectorAll('.order-item[data-item-index="' + itemIndex + '"]');
+        if (itemDivs.length === 0) return;
+        const itemDiv = itemDivs[0];
+        // Update check-option classes
+        const options = itemDiv.querySelectorAll('.check-option');
+        options.forEach(function(opt) {
+            opt.classList.remove('selected-correcto', 'selected-faltando', 'selected-naoveio');
+            const action = opt.getAttribute('data-action');
+            if (action === 'Correto' && status === 'Correto') opt.classList.add('selected-correcto');
+            else if (action === 'Faltando' && status === 'Faltando') opt.classList.add('selected-faltando');
+            else if (action === 'Nao veio' && status === 'Nao veio') opt.classList.add('selected-naoveio');
+        });
+        // Show/hide "Faltando" quantity input
+        const faltandoInput = document.getElementById('faltando-input-' + orderId + '-' + itemIndex);
+        if (faltandoInput) {
+            if (status === 'Faltando') faltandoInput.classList.remove('hidden');
+            else faltandoInput.classList.add('hidden');
+        }
+    }
+    // ===== LOCALSTORAGE CHECK PERSISTENCE =====
+    function saveCheckToLocalStorage(orderId, checkData) {
+        const key = 'checkDraft_' + currentUid + '_' + orderId;
+        localStorage.setItem(key, JSON.stringify({ checkData: checkData, timestamp: Date.now() }));
+    }
+    function restoreCheckFromLocalStorage(orderId, order) {
+        if (order.status === 'Conferido') return; // Already finalized, don't restore
+        const key = 'checkDraft_' + currentUid + '_' + orderId;
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        try {
+            const draft = JSON.parse(raw);
+            if (draft.checkData && Array.isArray(draft.checkData)) {
+                // Merge: localStorage data takes precedence for items not yet in Firebase checkData
+                if (!order.checkData) order.checkData = [];
+                draft.checkData.forEach(function(cd, i) {
+                    if (cd && cd.status) {
+                        if (!order.checkData[i]) order.checkData[i] = {};
+                        // Only restore if Firebase doesn't have a newer value
+                        if (!order.checkData[i].status) {
+                            order.checkData[i].status = cd.status;
+                        }
+                        if (cd.receivedQuantity !== undefined && order.checkData[i].receivedQuantity === undefined) {
+                            order.checkData[i].receivedQuantity = cd.receivedQuantity;
+                        }
+                    }
+                });
+                // Sync back to Firebase
+                fsUpdateOrder(orderId, { checkData: order.checkData }).catch(function() {});
+            }
+        } catch(e) { console.warn('Erro ao restaurar check draft:', e); }
+    }
+    function clearCheckLocalStorage(orderId) {
+        const key = 'checkDraft_' + currentUid + '_' + orderId;
+        localStorage.removeItem(key);
     }
     async function setReceivedQuantity(orderId, itemIndex, quantity) {
         const order = cacheOrders.find(function(o) { return o.id === orderId; });
@@ -1272,7 +1362,10 @@
         if (!order.checkData) order.checkData = [];
         if (!order.checkData[itemIndex]) order.checkData[itemIndex] = {};
         order.checkData[itemIndex].receivedQuantity = parseInt(quantity);
-        await fsUpdateOrder(orderId, { checkData: order.checkData });
+        saveCheckToLocalStorage(orderId, order.checkData);
+        fsUpdateOrder(orderId, { checkData: order.checkData }).catch(function(err) {
+            console.warn('Erro ao salvar no Firebase:', err);
+        });
     }
     async function saveCheck() {
         const orderId = selectedCheckOrderId; if (!orderId) return;
@@ -1282,6 +1375,7 @@
         for (let i = 0; i < order.items.length; i++) { if (!order.checkData[i] || !order.checkData[i].status) { allChecked = false; break; } }
         if (!allChecked) { alert('Confira todos os itens antes de salvar!'); return; }
         await fsUpdateOrder(orderId, { status: 'Conferido' });
+        clearCheckLocalStorage(orderId);
         openCheckOrder(orderId); alert('Conferencia salva!');
     }
     function copyCheckText() {
@@ -1679,11 +1773,28 @@
     // ===== EVENT LISTENERS =====
     window.addEventListener('beforeunload', function() {
         if (currentOrderItems.length > 0) autoSaveOrder();
+        // Save check progress if in check mode
+        if (selectedCheckOrderId) {
+            const order = cacheOrders.find(function(o) { return o.id === selectedCheckOrderId; });
+            if (order && order.checkData && order.status !== 'Conferido') {
+                saveCheckToLocalStorage(selectedCheckOrderId, order.checkData);
+            }
+        }
     });
     document.addEventListener('visibilitychange', function() {
-        if (document.hidden && currentOrderItems.length > 0) autoSaveOrder();
+        if (document.hidden) {
+            if (currentOrderItems.length > 0) autoSaveOrder();
+            // Save check progress if in check mode
+            if (selectedCheckOrderId) {
+                const order = cacheOrders.find(function(o) { return o.id === selectedCheckOrderId; });
+                if (order && order.checkData && order.status !== 'Conferido') {
+                    saveCheckToLocalStorage(selectedCheckOrderId, order.checkData);
+                }
+            }
+        }
     });
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
