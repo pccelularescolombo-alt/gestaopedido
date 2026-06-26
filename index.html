@@ -399,11 +399,30 @@
                     <div style="margin-bottom:20px;">
                         <h3 style="color:#2563eb;margin-bottom:12px;font-size:16px;">Encomendas de Clientes</h3>
                         <div class="order-form-row">
-                            <input type="text" id="fridayClientProduct" class="input-field" placeholder="Nome do produto encomendado" style="flex:2;">
+                            <input type="text" id="fridayClientName" class="input-field" placeholder="Nome do cliente" style="flex:2;">
+                            <input type="text" id="fridayClientPhone" class="input-field" placeholder="Telefone" style="flex:1;">
+                            <div class="search-container" style="flex:2;">
+                                <input type="text" id="fridayClientProduct" class="search-input" placeholder="Produto (busque ou digite livremente)" autocomplete="off" oninput="searchFridayClientProducts()" onfocus="searchFridayClientProducts()" onblur="setTimeout(function(){document.getElementById('fridayClientSearchDropdown').classList.add('hidden')},200)">
+                                <span class="search-icon">&#128269;</span>
+                                <div id="fridayClientSearchDropdown" class="search-dropdown hidden"></div>
+                            </div>
                             <input type="number" id="fridayClientQuantity" class="input-field" placeholder="Quantidade" min="1" style="flex:1;">
                             <button class="btn-primary" onclick="addFridayClientProduct()" style="margin-right:0;">Adicionar</button>
                         </div>
                         <div id="fridayClientList" style="margin-top:15px;"></div>
+                    </div>
+                    <div style="border-top:1px solid #e5e7eb;padding-top:20px;margin-top:10px;">
+                        <h3 style="color:#059669;margin-bottom:12px;font-size:16px;">Pedido Sexta Feira</h3>
+                        <div class="order-form-row">
+                            <div class="search-container" style="flex:2;">
+                                <input type="text" id="fridayProductName" class="search-input" placeholder="Produto (busque ou digite livremente)" autocomplete="off" oninput="searchFridayProducts()" onfocus="searchFridayProducts()" onblur="setTimeout(function(){document.getElementById('fridayProductSearchDropdown').classList.add('hidden')},200)">
+                                <span class="search-icon">&#128269;</span>
+                                <div id="fridayProductSearchDropdown" class="search-dropdown hidden"></div>
+                            </div>
+                            <input type="number" id="fridayProductQuantity" class="input-field" placeholder="Quantidade" min="1" style="flex:1;">
+                            <button class="btn-primary" onclick="addFridayProduct()" style="margin-right:0;">Adicionar</button>
+                        </div>
+                        <div id="fridayProductList" style="margin-top:15px;"></div>
                     </div>
                     <div style="border-top:1px solid #e5e7eb;padding-top:20px;margin-top:10px;">
                         <h3 style="color:#dc2626;margin-bottom:12px;font-size:16px;">Produtos Solicitados e Nao Tinha em Estoque</h3>
@@ -412,7 +431,7 @@
                     </div>
                     <div style="border-top:1px solid #e5e7eb;padding-top:20px;margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
                         <button class="btn-warning" onclick="copyFridayReport()">Copiar Relatorio</button>
-                        <button class="btn-danger" onclick="clearFridayClientProducts()" style="padding:12px 24px;">Limpar Encomendas</button>
+                        <button class="btn-danger" onclick="clearFridayProducts()" style="padding:12px 24px;">Limpar Tudo</button>
                     </div>
                 </div>
             </div>
@@ -437,13 +456,18 @@
                         </label>
                     </div>
                     <div id="importProductsStatus" style="margin-bottom:10px;"></div>
-                    <div style="margin-bottom:15px;">
-                        <select id="productsEstoqueFilter" class="input-field" onchange="loadProducts(1)" style="max-width:300px;">
+                    <div style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                        <select id="productsEstoqueFilter" class="input-field" onchange="productsCurrentPage=1;loadProducts(1)" style="flex:1;min-width:150px;max-width:300px;">
                             <option value="">Selecione um estoque</option>
                             <option value="Estoque Produtos">Estoque Produtos</option>
                             <option value="Estoque Nicola">Estoque Nicola</option>
                             <option value="Estoque Capa">Estoque Capa</option>
                         </select>
+                        <div class="search-container" style="flex:1;min-width:150px;max-width:300px;">
+                            <input type="text" id="productsSearchFilter" class="search-input" placeholder="Pesquisar produto..." oninput="productsCurrentPage=1;loadProducts(1)" autocomplete="off">
+                            <span class="search-icon">&#128269;</span>
+                        </div>
+                        <button class="btn-danger" onclick="clearProductsSearchFilter()" style="padding:8px 14px;white-space:nowrap;">Limpar Filtro</button>
                     </div>
                     <div id="productsList"></div>
                     <div id="productsPagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-top:15px;"></div>
@@ -729,7 +753,11 @@
             ]);
             cacheProducts = pSnap.docs.map(d => ({ id: d.id, ...d.data() }));
             cacheOrders = oSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-            cacheFridayProducts = fSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            cacheFridayProducts = fSnap.docs.map(d => {
+                const data = { id: d.id, ...d.data() };
+                if (!data.type) data.type = 'friday'; // Backward compatibility for old records
+                return data;
+            });
             cSnap.docs.forEach(d => { cacheConfig[d.id] = d.data().value; });
             // Also load storeName from user profile
             const userDoc = await db.collection('users').doc(currentUid).get();
@@ -783,10 +811,13 @@
         await cols.orders.doc(docId).delete();
         cacheOrders = cacheOrders.filter(o => o.id !== docId);
     }
-    async function fsAddFridayProduct(name, quantity) {
+    async function fsAddFridayProduct(name, quantity, clientName, clientPhone, type) {
         const cols = userCollections();
-        const ref = await cols.fridayClientProducts.add({ name, quantity: quantity || 1 });
-        cacheFridayProducts.push({ id: ref.id, name, quantity: quantity || 1 }); return ref.id;
+        const data = { name, quantity: quantity || 1, type: type || 'friday' };
+        if (clientName) data.clientName = clientName;
+        if (clientPhone) data.clientPhone = clientPhone;
+        const ref = await cols.fridayClientProducts.add(data);
+        cacheFridayProducts.push({ id: ref.id, ...data }); return ref.id;
     }
     async function fsDeleteFridayProduct(docId) {
         const cols = userCollections();
@@ -916,14 +947,26 @@
     function clearAutoSave() { localStorage.setItem('currentOrderDraft', JSON.stringify({ items: [], estoque: '' })); }
 
     // ===== PRODUCTS =====
+    function clearProductsSearchFilter() {
+        document.getElementById('productsSearchFilter').value = '';
+        productsCurrentPage = 1;
+        loadProducts(1);
+    }
     function loadProducts(page) {
         if (page) productsCurrentPage = page;
         const sel = document.getElementById('productsEstoqueFilter').value;
+        const searchEl = document.getElementById('productsSearchFilter');
+        const searchTerm = searchEl ? searchEl.value.trim().toLowerCase() : '';
         const list = document.getElementById('productsList');
         const pag = document.getElementById('productsPagination');
         if (!sel) { list.innerHTML = '<div class="empty-state">Selecione um estoque para visualizar os produtos</div>'; pag.innerHTML = ''; return; }
-        const filtered = cacheProducts.filter(p => p.estoque === sel);
-        if (filtered.length === 0) { list.innerHTML = '<div class="empty-state">Nenhum produto cadastrado neste estoque</div>'; pag.innerHTML = ''; return; }
+        let filtered = cacheProducts.filter(p => p.estoque === sel);
+        if (searchTerm) {
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(searchTerm));
+        }
+        // Sort alphabetically (case-insensitive)
+        filtered.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
+        if (filtered.length === 0) { list.innerHTML = '<div class="empty-state">Nenhum produto encontrado' + (searchTerm ? ' para "' + searchTerm + '"' : '') + '</div>'; pag.innerHTML = ''; return; }
         const totalPages = Math.ceil(filtered.length / productsPerPage);
         if (productsCurrentPage > totalPages) productsCurrentPage = totalPages;
         const start = (productsCurrentPage - 1) * productsPerPage;
@@ -1062,6 +1105,8 @@
         const dd = document.getElementById('searchDropdown');
         if (!sel) { dd.innerHTML = '<div class="no-results">Selecione um estoque primeiro</div>'; dd.classList.remove('hidden'); return; }
         const filtered = cacheProducts.filter(p => p.estoque === sel && p.name.toLowerCase().includes(term));
+        // Sort alphabetically (case-insensitive)
+        filtered.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
         if (filtered.length === 0) { dd.innerHTML = '<div class="no-results">Nenhum produto encontrado</div>'; dd.classList.remove('hidden'); return; }
         dd.innerHTML = '';
         filtered.forEach(p => {
@@ -1393,6 +1438,8 @@
         const filtered = cacheProducts.filter(function(p) {
             return (!estoque || p.estoque === estoque) && p.name.toLowerCase().includes(term);
         });
+        // Sort alphabetically (case-insensitive)
+        filtered.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
         if (filtered.length === 0) {
             dd.innerHTML = '<div class="no-results">Nenhum produto encontrado</div>';
             dd.classList.remove('hidden');
@@ -1771,31 +1818,143 @@
     }
 
     // ===== FRIDAY ORDER =====
-    function loadFridayOrder() { renderFridayClientList(); renderFridayOutOfStockList(); }
+    function loadFridayOrder() { renderFridayClientList(); renderFridayProductList(); renderFridayOutOfStockList(); }
+    
+    // Search function for Friday Client Products
+    function searchFridayClientProducts() {
+        const term = document.getElementById('fridayClientProduct').value.toLowerCase();
+        const dd = document.getElementById('fridayClientSearchDropdown');
+        if (!term) { dd.classList.add('hidden'); return; }
+        
+        // Search in all products
+        const filtered = cacheProducts.filter(function(p) {
+            return p.name.toLowerCase().includes(term);
+        });
+        
+        // Sort alphabetically
+        filtered.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
+        
+        if (filtered.length === 0) {
+            dd.classList.add('hidden');
+            return;
+        }
+        
+        dd.innerHTML = '';
+        filtered.slice(0, 10).forEach(function(p) {
+            const item = document.createElement('div');
+            item.className = 'search-dropdown-item';
+            item.textContent = p.name + ' (' + p.estoque + ')';
+            item.onmousedown = function(e) {
+                e.preventDefault(); // Prevent blur
+                document.getElementById('fridayClientProduct').value = p.name;
+                dd.classList.add('hidden');
+            };
+            dd.appendChild(item);
+        });
+        dd.classList.remove('hidden');
+    }
+    
+    // Search function for Friday Products
+    function searchFridayProducts() {
+        const term = document.getElementById('fridayProductName').value.toLowerCase();
+        const dd = document.getElementById('fridayProductSearchDropdown');
+        if (!term) { dd.classList.add('hidden'); return; }
+        
+        // Search in all products
+        const filtered = cacheProducts.filter(function(p) {
+            return p.name.toLowerCase().includes(term);
+        });
+        
+        // Sort alphabetically
+        filtered.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
+        
+        if (filtered.length === 0) {
+            dd.classList.add('hidden');
+            return;
+        }
+        
+        dd.innerHTML = '';
+        filtered.slice(0, 10).forEach(function(p) {
+            const item = document.createElement('div');
+            item.className = 'search-dropdown-item';
+            item.textContent = p.name + ' (' + p.estoque + ')';
+            item.onmousedown = function(e) {
+                e.preventDefault(); // Prevent blur
+                document.getElementById('fridayProductName').value = p.name;
+                dd.classList.add('hidden');
+            };
+            dd.appendChild(item);
+        });
+        dd.classList.remove('hidden');
+    }
+    
     async function addFridayClientProduct() {
-        const input = document.getElementById('fridayClientProduct');
+        const clientName = document.getElementById('fridayClientName').value.trim();
+        const clientPhone = document.getElementById('fridayClientPhone').value.trim();
+        const productInput = document.getElementById('fridayClientProduct');
         const qtyInput = document.getElementById('fridayClientQuantity');
-        const name = input.value.trim();
+        const productName = productInput.value.trim();
         const quantity = parseInt(qtyInput.value) || 1;
-        if (!name) { alert('Digite o nome do produto!'); return; }
+        if (!clientName) { alert('Digite o nome do cliente!'); return; }
+        if (!productName) { alert('Digite o nome do produto!'); return; }
         if (quantity < 1) { alert('Quantidade invalida!'); return; }
-        await fsAddFridayProduct(name, quantity);
-        input.value = '';
+        await fsAddFridayProduct(productName, quantity, clientName, clientPhone, 'client');
+        document.getElementById('fridayClientName').value = '';
+        document.getElementById('fridayClientPhone').value = '';
+        productInput.value = '';
         qtyInput.value = '';
         renderFridayClientList();
     }
-    async function removeFridayClientProduct(docId) {
-        await fsDeleteFridayProduct(docId); renderFridayClientList();
+    async function addFridayProduct() {
+        const productInput = document.getElementById('fridayProductName');
+        const qtyInput = document.getElementById('fridayProductQuantity');
+        const productName = productInput.value.trim();
+        const quantity = parseInt(qtyInput.value) || 1;
+        if (!productName) { alert('Digite o nome do produto!'); return; }
+        if (quantity < 1) { alert('Quantidade invalida!'); return; }
+        await fsAddFridayProduct(productName, quantity, null, null, 'friday');
+        productInput.value = '';
+        qtyInput.value = '';
+        renderFridayProductList();
+    }
+    async function removeFridayProduct(docId) {
+        await fsDeleteFridayProduct(docId);
+        renderFridayClientList();
+        renderFridayProductList();
     }
     function renderFridayClientList() {
         const container = document.getElementById('fridayClientList');
-        if (cacheFridayProducts.length === 0) { container.innerHTML = '<div class="empty-state" style="padding:20px;">Nenhuma encomenda adicionada</div>'; return; }
+        const clientProducts = cacheFridayProducts.filter(function(p) { return p.type === 'client'; });
+        if (clientProducts.length === 0) { container.innerHTML = '<div class="empty-state" style="padding:20px;">Nenhuma encomenda adicionada</div>'; return; }
+        // Sort alphabetically by client name
+        clientProducts.sort(function(a, b) {
+            const nameA = (a.clientName || '').toLowerCase();
+            const nameB = (b.clientName || '').toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
         let html = '';
-        cacheFridayProducts.forEach(function(p) {
+        clientProducts.forEach(function(p) {
             const qty = p.quantity || 1;
+            const phone = p.clientPhone ? ' | Tel: ' + p.clientPhone : '';
             html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 15px;background:#f9fafb;border-radius:8px;margin-bottom:6px;border-left:3px solid #2563eb;">' +
+                '<div><span style="color:#1f2937;font-weight:600;">' + (p.clientName || 'Sem nome') + phone + '</span><br>' +
+                '<span style="color:#6b7280;font-size:13px;">' + qty + 'x ' + p.name + '</span></div>' +
+                '<button class="btn-danger btn-small" onclick="removeFridayProduct(\'' + p.id + '\')">X</button></div>';
+        });
+        container.innerHTML = html;
+    }
+    function renderFridayProductList() {
+        const container = document.getElementById('fridayProductList');
+        const fridayProducts = cacheFridayProducts.filter(function(p) { return p.type === 'friday'; });
+        if (fridayProducts.length === 0) { container.innerHTML = '<div class="empty-state" style="padding:20px;">Nenhum produto adicionado</div>'; return; }
+        // Sort alphabetically by product name
+        fridayProducts.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
+        let html = '';
+        fridayProducts.forEach(function(p) {
+            const qty = p.quantity || 1;
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 15px;background:#f9fafb;border-radius:8px;margin-bottom:6px;border-left:3px solid #059669;">' +
                 '<span style="color:#1f2937;"><strong>' + qty + 'x</strong> ' + p.name + '</span>' +
-                '<button class="btn-danger btn-small" onclick="removeFridayClientProduct(\'' + p.id + '\')">X</button></div>';
+                '<button class="btn-danger btn-small" onclick="removeFridayProduct(\'' + p.id + '\')">X</button></div>';
         });
         container.innerHTML = html;
     }
@@ -1808,6 +1967,8 @@
                 });
             }
         });
+        // Sort alphabetically
+        out.sort(function(a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
         return out;
     }
     function renderFridayOutOfStockList() {
@@ -1820,17 +1981,45 @@
     }
     function copyFridayReport() {
         const storeName = getConfig('storeName') || 'Loja';
-        const cp = cacheFridayProducts.map(function(p) { return (p.quantity || 1) + 'x ' + p.name; });
+        const clientProducts = cacheFridayProducts.filter(function(p) { return p.type === 'client'; });
+        const fridayProducts = cacheFridayProducts.filter(function(p) { return p.type === 'friday'; });
         const oos = getOutOfStockProducts();
-        let text = 'Pedido Sexta Feira Loja ' + storeName + '\nEncomendas de Clientes:\n';
-        text += cp.length > 0 ? cp.map(function(p) { return p + '\n'; }).join('') : 'Nenhuma encomenda\n';
-        text += '\nProdutos Solicitados e nao tinha em estoque:\n';
+        
+        // Sort alphabetically
+        clientProducts.sort(function(a, b) { return (a.clientName || '').toLowerCase().localeCompare((b.clientName || '').toLowerCase()); });
+        fridayProducts.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
+        
+        let text = 'Pedido Sexta Feira Loja ' + storeName + '\n\nEncomendas de Clientes:\n';
+        if (clientProducts.length > 0) {
+            clientProducts.forEach(function(p) {
+                const qty = p.quantity || 1;
+                const phone = p.clientPhone ? ' [' + p.clientPhone + ']' : '';
+                text += p.clientName + phone + ' - ' + qty + 'x ' + p.name + '\n';
+            });
+        } else {
+            text += 'Nenhuma encomenda\n';
+        }
+        
+        text += '\nPedido Sexta Feira:\n';
+        if (fridayProducts.length > 0) {
+            fridayProducts.forEach(function(p) {
+                const qty = p.quantity || 1;
+                text += qty + 'x ' + p.name + '\n';
+            });
+        } else {
+            text += 'Nenhum produto\n';
+        }
+        
+        text += '\nProdutos Solicitados e Nao Tinha em Estoque:\n';
         text += oos.length > 0 ? oos.map(function(p) { return p + '\n'; }).join('') : 'Nenhum produto em falta\n';
+        
         navigator.clipboard.writeText(text).then(function() { alert('Relatorio copiado!'); });
     }
-    async function clearFridayClientProducts() {
-        if (!confirm('Deseja limpar todas as encomendas?')) return;
-        await fsClearFridayProducts(); renderFridayClientList();
+    async function clearFridayProducts() {
+        if (!confirm('Deseja limpar todos os produtos e encomendas?')) return;
+        await fsClearFridayProducts();
+        renderFridayClientList();
+        renderFridayProductList();
     }
 
     // ===== EXPORT / IMPORT ALL =====
@@ -1840,8 +2029,13 @@
             storeName: getConfig('storeName'),
             products: cacheProducts.map(function(p) { return { name: p.name, estoque: p.estoque }; }),
             orders: cacheOrders.map(function(o) { return { storeName: o.storeName, estoque: o.estoque, date: o.date, items: o.items, status: o.status, checkData: o.checkData }; }),
-            fridayClientProducts: cacheFridayProducts.map(function(p) { return { name: p.name, quantity: p.quantity || 1 }; }),
-            exportDate: new Date().toLocaleString('pt-BR'), version: '3.0'
+            fridayClientProducts: cacheFridayProducts.map(function(p) { 
+                const item = { name: p.name, quantity: p.quantity || 1, type: p.type || 'friday' };
+                if (p.clientName) item.clientName = p.clientName;
+                if (p.clientPhone) item.clientPhone = p.clientPhone;
+                return item;
+            }),
+            exportDate: new Date().toLocaleString('pt-BR'), version: '4.0'
         };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -1876,11 +2070,11 @@
                 if (data.fridayClientProducts) {
                     await fsClearFridayProducts();
                     for (const item of data.fridayClientProducts) {
-                        // Handle both old format (string) and new format (object with quantity)
+                        // Handle both old format (string) and new format (object)
                         if (typeof item === 'string') {
-                            await fsAddFridayProduct(item, 1);
+                            await fsAddFridayProduct(item, 1, null, null, 'friday');
                         } else {
-                            await fsAddFridayProduct(item.name, item.quantity || 1);
+                            await fsAddFridayProduct(item.name, item.quantity || 1, item.clientName, item.clientPhone, item.type || 'friday');
                         }
                     }
                 }
@@ -1918,6 +2112,7 @@
         }
     });
     </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
