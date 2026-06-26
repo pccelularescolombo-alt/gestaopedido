@@ -365,6 +365,23 @@
                             <input type="text" id="checkSearchFilter" class="input-field" placeholder="Filtrar produtos..." oninput="filterCheckItems()" style="width:100%;max-width:400px;">
                         </div>
                         <div id="checkOrderItems"></div>
+                        <div id="checkExtraProductsSection" style="margin-top:20px;padding-top:15px;border-top:1px solid #e5e7eb;">
+                            <h3 style="color:#d97706;margin-bottom:12px;font-size:16px;">Produtos Extras (Veio a Mais ou Nao Estava no Pedido)</h3>
+                            <div class="order-form-row" style="margin-bottom:15px;">
+                                <div class="search-container" style="flex:2;">
+                                    <input type="text" id="checkExtraProductSearch" class="search-input" placeholder="Buscar produto..." autocomplete="off" oninput="searchCheckExtraProducts()" onfocus="searchCheckExtraProducts()">
+                                    <span class="search-icon">&#128269;</span>
+                                    <div id="checkExtraSearchDropdown" class="search-dropdown hidden"></div>
+                                </div>
+                                <input type="number" id="checkExtraQuantity" class="input-field" placeholder="Quantidade" min="1" style="flex:1;">
+                                <select id="checkExtraType" class="input-field" style="flex:1;">
+                                    <option value="Veio a mais">Veio a mais</option>
+                                    <option value="Nao estava no pedido">Nao estava no pedido</option>
+                                </select>
+                                <button class="btn-primary" onclick="addCheckExtraProduct()">Adicionar</button>
+                            </div>
+                            <div id="checkExtraProductsList"></div>
+                        </div>
                         <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
                             <button class="btn-success" id="btnSaveCheck" onclick="saveCheck()">Salvar Conferencia</button>
                             <button class="btn-warning" id="btnCopyOriginalOrder" onclick="copyOriginalOrderFromCheck()">Copiar Pedido</button>
@@ -383,6 +400,7 @@
                         <h3 style="color:#2563eb;margin-bottom:12px;font-size:16px;">Encomendas de Clientes</h3>
                         <div class="order-form-row">
                             <input type="text" id="fridayClientProduct" class="input-field" placeholder="Nome do produto encomendado" style="flex:2;">
+                            <input type="number" id="fridayClientQuantity" class="input-field" placeholder="Quantidade" min="1" style="flex:1;">
                             <button class="btn-primary" onclick="addFridayClientProduct()" style="margin-right:0;">Adicionar</button>
                         </div>
                         <div id="fridayClientList" style="margin-top:15px;"></div>
@@ -765,10 +783,10 @@
         await cols.orders.doc(docId).delete();
         cacheOrders = cacheOrders.filter(o => o.id !== docId);
     }
-    async function fsAddFridayProduct(name) {
+    async function fsAddFridayProduct(name, quantity) {
         const cols = userCollections();
-        const ref = await cols.fridayClientProducts.add({ name });
-        cacheFridayProducts.push({ id: ref.id, name }); return ref.id;
+        const ref = await cols.fridayClientProducts.add({ name, quantity: quantity || 1 });
+        cacheFridayProducts.push({ id: ref.id, name, quantity: quantity || 1 }); return ref.id;
     }
     async function fsDeleteFridayProduct(docId) {
         const cols = userCollections();
@@ -1059,7 +1077,11 @@
         document.getElementById('searchDropdown').classList.add('hidden');
     }
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.search-container')) document.getElementById('searchDropdown').classList.add('hidden');
+        if (!e.target.closest('.search-container')) {
+            document.getElementById('searchDropdown').classList.add('hidden');
+            const checkExtraDropdown = document.getElementById('checkExtraSearchDropdown');
+            if (checkExtraDropdown) checkExtraDropdown.classList.add('hidden');
+        }
     });
     function addItem() {
         const estoque = document.getElementById('orderEstoque').value;
@@ -1224,6 +1246,10 @@
         const searchInput = document.getElementById('checkSearchFilter');
         if (searchInput) searchInput.value = '';
         renderCheckOrderItems(order, isChecked);
+        // Show/hide extra products section
+        const extraSection = document.getElementById('checkExtraProductsSection');
+        if (extraSection) extraSection.classList.toggle('hidden', isChecked);
+        renderCheckExtraProducts(order);
     }
     function renderCheckOrderItems(order, isChecked) {
         const filterTerm = (document.getElementById('checkSearchFilter').value || '').toLowerCase();
@@ -1356,6 +1382,84 @@
         const key = 'checkDraft_' + currentUid + '_' + orderId;
         localStorage.removeItem(key);
     }
+    // ===== CHECK EXTRA PRODUCTS =====
+    let selectedCheckExtraProduct = null;
+    function searchCheckExtraProducts() {
+        const term = document.getElementById('checkExtraProductSearch').value.toLowerCase();
+        const order = cacheOrders.find(function(o) { return o.id === selectedCheckOrderId; });
+        if (!order) return;
+        const dd = document.getElementById('checkExtraSearchDropdown');
+        const estoque = order.estoque || '';
+        const filtered = cacheProducts.filter(function(p) {
+            return (!estoque || p.estoque === estoque) && p.name.toLowerCase().includes(term);
+        });
+        if (filtered.length === 0) {
+            dd.innerHTML = '<div class="no-results">Nenhum produto encontrado</div>';
+            dd.classList.remove('hidden');
+            return;
+        }
+        dd.innerHTML = '';
+        filtered.slice(0, 20).forEach(function(p) {
+            const item = document.createElement('div');
+            item.className = 'search-dropdown-item';
+            item.textContent = p.name + ' (' + p.estoque + ')';
+            item.onclick = function() { selectCheckExtraProduct(p); };
+            dd.appendChild(item);
+        });
+        dd.classList.remove('hidden');
+    }
+    function selectCheckExtraProduct(product) {
+        selectedCheckExtraProduct = product;
+        document.getElementById('checkExtraProductSearch').value = product.name;
+        document.getElementById('checkExtraSearchDropdown').classList.add('hidden');
+    }
+    async function addCheckExtraProduct() {
+        if (!selectedCheckOrderId) return;
+        const order = cacheOrders.find(function(o) { return o.id === selectedCheckOrderId; });
+        if (!order) return;
+        const productName = document.getElementById('checkExtraProductSearch').value.trim();
+        const quantity = parseInt(document.getElementById('checkExtraQuantity').value);
+        const type = document.getElementById('checkExtraType').value;
+        if (!productName) { alert('Digite ou selecione um produto!'); return; }
+        if (!quantity || quantity < 1) { alert('Informe a quantidade!'); return; }
+        if (!order.extraProducts) order.extraProducts = [];
+        order.extraProducts.push({
+            product: productName,
+            quantity: quantity,
+            type: type,
+            estoque: selectedCheckExtraProduct ? selectedCheckExtraProduct.estoque : order.estoque
+        });
+        await fsUpdateOrder(selectedCheckOrderId, { extraProducts: order.extraProducts });
+        document.getElementById('checkExtraProductSearch').value = '';
+        document.getElementById('checkExtraQuantity').value = '';
+        selectedCheckExtraProduct = null;
+        renderCheckExtraProducts(order);
+    }
+    async function removeCheckExtraProduct(index) {
+        if (!selectedCheckOrderId) return;
+        const order = cacheOrders.find(function(o) { return o.id === selectedCheckOrderId; });
+        if (!order || !order.extraProducts) return;
+        order.extraProducts.splice(index, 1);
+        await fsUpdateOrder(selectedCheckOrderId, { extraProducts: order.extraProducts });
+        renderCheckExtraProducts(order);
+    }
+    function renderCheckExtraProducts(order) {
+        const container = document.getElementById('checkExtraProductsList');
+        if (!order.extraProducts || order.extraProducts.length === 0) {
+            container.innerHTML = '<div style="color:#9ca3af;font-size:13px;padding:10px;">Nenhum produto extra adicionado</div>';
+            return;
+        }
+        let html = '';
+        order.extraProducts.forEach(function(ep, i) {
+            const color = ep.type === 'Veio a mais' ? '#059669' : '#d97706';
+            const bgColor = ep.type === 'Veio a mais' ? '#d1fae5' : '#fef3c7';
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 15px;background:' + bgColor + ';border-radius:8px;margin-bottom:6px;border-left:3px solid ' + color + ';">' +
+                '<div><strong>' + ep.quantity + 'x ' + ep.product + '</strong>' +
+                '<span style="margin-left:10px;color:' + color + ';font-size:12px;font-weight:600;">' + ep.type + '</span></div>' +
+                '<button class="btn-danger btn-small" onclick="removeCheckExtraProduct(' + i + ')">Remover</button></div>';
+        });
+        container.innerHTML = html;
+    }
     async function setReceivedQuantity(orderId, itemIndex, quantity) {
         const order = cacheOrders.find(function(o) { return o.id === orderId; });
         if (!order) return;
@@ -1402,6 +1506,13 @@
             
             text += itemText + (item.others ? ' ' + item.others : '') + ' [' + st + ']\n';
         });
+        // Add extra products if any
+        if (order.extraProducts && order.extraProducts.length > 0) {
+            text += '\nPRODUTOS EXTRAS:\n';
+            order.extraProducts.forEach(function(ep) {
+                text += '- ' + ep.quantity + 'x ' + ep.product + ' [' + ep.type + ']\n';
+            });
+        }
         navigator.clipboard.writeText(text).then(function() { alert('Conferencia copiada!'); });
     }
 
@@ -1663,10 +1774,15 @@
     function loadFridayOrder() { renderFridayClientList(); renderFridayOutOfStockList(); }
     async function addFridayClientProduct() {
         const input = document.getElementById('fridayClientProduct');
+        const qtyInput = document.getElementById('fridayClientQuantity');
         const name = input.value.trim();
+        const quantity = parseInt(qtyInput.value) || 1;
         if (!name) { alert('Digite o nome do produto!'); return; }
-        await fsAddFridayProduct(name);
-        input.value = ''; renderFridayClientList();
+        if (quantity < 1) { alert('Quantidade invalida!'); return; }
+        await fsAddFridayProduct(name, quantity);
+        input.value = '';
+        qtyInput.value = '';
+        renderFridayClientList();
     }
     async function removeFridayClientProduct(docId) {
         await fsDeleteFridayProduct(docId); renderFridayClientList();
@@ -1676,8 +1792,9 @@
         if (cacheFridayProducts.length === 0) { container.innerHTML = '<div class="empty-state" style="padding:20px;">Nenhuma encomenda adicionada</div>'; return; }
         let html = '';
         cacheFridayProducts.forEach(function(p) {
+            const qty = p.quantity || 1;
             html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 15px;background:#f9fafb;border-radius:8px;margin-bottom:6px;border-left:3px solid #2563eb;">' +
-                '<span style="color:#1f2937;">' + p.name + '</span>' +
+                '<span style="color:#1f2937;"><strong>' + qty + 'x</strong> ' + p.name + '</span>' +
                 '<button class="btn-danger btn-small" onclick="removeFridayClientProduct(\'' + p.id + '\')">X</button></div>';
         });
         container.innerHTML = html;
@@ -1703,7 +1820,7 @@
     }
     function copyFridayReport() {
         const storeName = getConfig('storeName') || 'Loja';
-        const cp = cacheFridayProducts.map(function(p) { return p.name; });
+        const cp = cacheFridayProducts.map(function(p) { return (p.quantity || 1) + 'x ' + p.name; });
         const oos = getOutOfStockProducts();
         let text = 'Pedido Sexta Feira Loja ' + storeName + '\nEncomendas de Clientes:\n';
         text += cp.length > 0 ? cp.map(function(p) { return p + '\n'; }).join('') : 'Nenhuma encomenda\n';
@@ -1723,7 +1840,7 @@
             storeName: getConfig('storeName'),
             products: cacheProducts.map(function(p) { return { name: p.name, estoque: p.estoque }; }),
             orders: cacheOrders.map(function(o) { return { storeName: o.storeName, estoque: o.estoque, date: o.date, items: o.items, status: o.status, checkData: o.checkData }; }),
-            fridayClientProducts: cacheFridayProducts.map(function(p) { return p.name; }),
+            fridayClientProducts: cacheFridayProducts.map(function(p) { return { name: p.name, quantity: p.quantity || 1 }; }),
             exportDate: new Date().toLocaleString('pt-BR'), version: '3.0'
         };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1758,7 +1875,14 @@
                 // Friday products
                 if (data.fridayClientProducts) {
                     await fsClearFridayProducts();
-                    for (const name of data.fridayClientProducts) await fsAddFridayProduct(name);
+                    for (const item of data.fridayClientProducts) {
+                        // Handle both old format (string) and new format (object with quantity)
+                        if (typeof item === 'string') {
+                            await fsAddFridayProduct(item, 1);
+                        } else {
+                            await fsAddFridayProduct(item.name, item.quantity || 1);
+                        }
+                    }
                 }
                 loadStoreName(); loadProducts(); loadOrdersToCheck();
                 if (currentUser === 'admin') { updateStats(); populateDateSelects(); loadAdminOrders(); }
