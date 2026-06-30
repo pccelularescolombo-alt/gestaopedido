@@ -8,7 +8,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #1f2937; min-height: 100vh; overflow-x: hidden; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
         .login-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; }
         .login-box { background: #ffffff; border-radius: 16px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 30px rgba(0,0,0,0.06); border: 1px solid #e5e7eb; animation: slideIn 0.4s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
@@ -32,7 +32,7 @@
         .btn-export:hover { background: #047857; transform: translateY(-1px); }
         .btn-small { padding: 6px 12px; font-size: 12px; }
         .header { background: #ffffff; padding: 16px 0; border-bottom: 1px solid #e5e7eb; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1600px; margin: 0 auto; padding: 0 20px; }
         .header h1 { color: #1f2937; font-size: 20px; font-weight: 700; }
         .user-info { display: flex; align-items: center; gap: 16px; }
         .user-type { color: #6b7280; font-weight: 600; font-size: 13px; padding: 8px 16px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
@@ -49,7 +49,7 @@
         .card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: box-shadow 0.2s; }
         .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .card h2 { color: #1f2937; margin-bottom: 20px; font-size: 18px; font-weight: 700; }
-        .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 15px; }
         .input-field { padding: 10px 14px; background: #ffffff; border: 1.5px solid #d1d5db; border-radius: 8px; color: #1f2937; font-size: 14px; transition: all 0.2s; font-family: inherit; }
         .input-field:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
         .search-container { position: relative; }
@@ -77,8 +77,8 @@
         .check-option.selected-correcto { border-color: #059669; background: #d1fae5; color: #065f46; font-weight: 700; }
         .check-option.selected-faltando { border-color: #d97706; background: #fef3c7; color: #92400e; font-weight: 700; }
         .check-option.selected-naoveio { border-color: #dc2626; background: #fee2e2; color: #991b1b; font-weight: 700; }
-        .stats-list-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
-        .stats-list-item { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .stats-list-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
+        .stats-list-item { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; }
         .stats-product-name { color: #374151; font-weight: 600; font-size: 14px; flex: 1; }
         .stats-percentage { color: #2563eb; font-weight: 700; font-size: 16px; margin-left: 15px; }
         .recent-orders { margin-top: 30px; }
@@ -88,21 +88,21 @@
         .order-date { color: #2563eb; font-weight: 600; }
         .copy-btn { padding: 6px 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; color: #2563eb; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.2s; }
         .copy-btn:hover { background: #dbeafe; }
-        .product-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 15px; }
-        .product-item { background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 8px; transition: box-shadow 0.2s; }
+        .product-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 15px; }
+        .product-item { background: #f9fafb; padding: 18px; border-radius: 8px; border: 1px solid #e5e7eb; display: flex; flex-direction: column; gap: 10px; transition: box-shadow 0.2s; }
         .product-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .product-name { color: #374151; font-weight: 600; }
         .product-estoque { color: #2563eb; font-size: 12px; padding: 3px 8px; background: #eff6ff; border-radius: 6px; display: inline-block; }
-        .report-summary { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
-        .report-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 15px; }
-        .stat-box { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; text-align: center; }
-        .stat-value { font-size: 28px; font-weight: 700; color: #2563eb; margin-bottom: 4px; }
+        .report-summary { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+        .report-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-top: 15px; }
+        .stat-box { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 18px; text-align: center; }
+        .stat-value { font-size: 30px; font-weight: 700; color: #2563eb; margin-bottom: 6px; }
         .stat-label { font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: 500; }
         .report-list { margin-top: 20px; }
-        .report-item { background: #f9fafb; border-left: 3px solid #2563eb; padding: 15px; margin-bottom: 8px; border-radius: 4px; }
+        .report-item { background: #f9fafb; border-left: 3px solid #2563eb; padding: 16px 18px; margin-bottom: 8px; border-radius: 4px; }
         .report-item-header { display: flex; justify-content: space-between; margin-bottom: 8px; color: #374151; font-weight: 600; }
         .report-item-content { color: #6b7280; font-size: 14px; }
-        .admin-order-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 15px; margin-bottom: 12px; transition: box-shadow 0.2s; }
+        .admin-order-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 18px; margin-bottom: 12px; transition: box-shadow 0.2s; }
         .admin-order-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .admin-order-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb; }
         .admin-order-actions { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -117,8 +117,8 @@
         .autosave-indicator { position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background: #d1fae5; border: 1px solid #6ee7b7; border-radius: 8px; color: #065f46; font-size: 12px; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 1000; }
         .autosave-indicator.show { opacity: 1; }
         .hidden { display: none !important; }
-        .order-form-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .order-form-row > .input-field, .order-form-row > .search-container, .order-form-row > select { flex: 1; min-width: 140px; height: 44px; }
+        .order-form-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .order-form-row > .input-field, .order-form-row > .search-container, .order-form-row > select { flex: 1; min-width: 150px; height: 44px; }
         .order-form-row > .search-container .search-input { height: 44px; }
         .order-form-row .btn-primary { margin-right: 0; white-space: nowrap; flex-shrink: 0; height: 44px; }
         .toggle-products-btn { padding: 10px 20px; background: #f9fafb; border: 1.5px solid #d1d5db; border-radius: 8px; color: #374151; cursor: pointer; font-weight: 600; transition: all 0.2s; margin-top: 15px; width: 100%; font-family: inherit; }
@@ -202,6 +202,8 @@
         }
         @media screen and (max-width: 480px) { body { font-size: 14px; } .container { padding: 5px; } }
         @media screen and (min-width: 1200px) { .container { padding: 30px; } .card { padding: 28px; } .input-group { grid-template-columns: repeat(3, 1fr); } .product-list { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); } .report-stats { grid-template-columns: repeat(4, 1fr); } }
+        @media screen and (min-width: 1600px) { .container { padding: 40px; } .card { padding: 36px; } .input-group { grid-template-columns: repeat(4, 1fr); } .product-list { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); } .stats-list-container { grid-template-columns: repeat(3, 1fr); } .report-stats { grid-template-columns: repeat(5, 1fr); } .order-form-row { gap: 14px; } .admin-order-card { padding: 22px; } }
+        @media screen and (min-width: 1900px) { .container { padding: 50px; } .card { padding: 40px; } .stats-list-container { grid-template-columns: repeat(4, 1fr); } .report-stats { grid-template-columns: repeat(6, 1fr); } .product-list { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); } }
         @media (hover: none) and (pointer: coarse) { .btn, .btn-primary, .btn-success, .btn-danger, .btn-warning, .copy-btn, .check-option { min-height: 44px; min-width: 44px; } .tab { min-height: 48px; } }
     </style>
 </head>
@@ -440,6 +442,9 @@
                         <h3 style="color:#dc2626;margin-bottom:12px;font-size:16px;">Produtos Solicitados e Nao Tinha em Estoque</h3>
                         <p style="color:#9ca3af;font-size:13px;margin-bottom:15px;">Carregado automaticamente dos pedidos conferidos com itens marcados como "Nao veio"</p>
                         <div id="fridayOutOfStockList"></div>
+                        <div style="margin-top:10px;">
+                            <button class="btn-danger btn-small" onclick="clearOutOfStockProducts()">Limpar Produtos em Falta</button>
+                        </div>
                     </div>
                     <div style="border-top:1px solid #e5e7eb;padding-top:20px;margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
                         <button class="btn-warning" onclick="copyFridayReport()">Copiar Relatorio</button>
@@ -534,6 +539,20 @@
                         <button class="btn-primary" onclick="generateMonthlyReport()">Gerar Relatorio</button>
                     </div>
                     <div id="monthlyReportContent" style="margin-top:20px;"></div>
+                </div>
+                <div class="card">
+                    <h2>Produtos sem Pedido por Estoque</h2>
+                    <p style="color:#6b7280;font-size:14px;margin-bottom:15px;">Selecione um estoque para visualizar os produtos que nao tiveram nenhum pedido.</p>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:15px;">
+                        <select id="reportEstoqueSelector" class="input-field" style="flex:1;min-width:200px;">
+                            <option value="">Selecione o estoque</option>
+                            <option value="Estoque Produtos">Estoque Produtos</option>
+                            <option value="Estoque Nicola">Estoque Nicola</option>
+                            <option value="Estoque Capa">Estoque Capa</option>
+                        </select>
+                        <button class="btn-primary" onclick="generateNoOrdersReport()">Gerar Relatorio</button>
+                    </div>
+                    <div id="noOrdersReportContent" style="margin-top:15px;"></div>
                 </div>
             </div>
             <div id="content-settings" class="tab-content">
@@ -1884,6 +1903,107 @@
         navigator.clipboard.writeText(text).then(function() { alert('Relatorio copiado!'); });
     }
 
+    function generateNoOrdersReport() {
+        const estoque = document.getElementById('reportEstoqueSelector').value;
+        const container = document.getElementById('noOrdersReportContent');
+        if (!estoque) {
+            alert('Selecione um estoque!');
+            return;
+        }
+
+        // Get all products for the selected estoque
+        const productsInEstoque = cacheProducts.filter(function(p) { return p.estoque === estoque; });
+        if (productsInEstoque.length === 0) {
+            container.innerHTML = '<div class="empty-state">Nenhum produto cadastrado neste estoque.</div>';
+            return;
+        }
+
+        // Get all products that have been ordered (across all orders)
+        const orderedProducts = {};
+        cacheOrders.forEach(function(o) {
+            o.items.forEach(function(item) {
+                if (!orderedProducts[item.product]) orderedProducts[item.product] = 0;
+                orderedProducts[item.product] += item.quantity;
+            });
+        });
+
+        // Find products without any orders
+        const productsWithoutOrders = productsInEstoque.filter(function(p) {
+            return !orderedProducts[p.name];
+        });
+
+        // Sort alphabetically
+        productsWithoutOrders.sort(function(a, b) {
+            return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+        });
+
+        const totalProducts = productsInEstoque.length;
+        const withoutOrders = productsWithoutOrders.length;
+        const withOrders = totalProducts - withoutOrders;
+
+        let html = '<div class="report-summary">';
+        html += '<h3 style="color:#1f2937;margin-bottom:15px;">Produtos sem Pedido - ' + estoque + '</h3>';
+        html += '<div class="report-stats">';
+        html += '<div class="stat-box"><div class="stat-value">' + totalProducts + '</div><div class="stat-label">Total Produtos</div></div>';
+        html += '<div class="stat-box"><div class="stat-value">' + withOrders + '</div><div class="stat-label">Com Pedidos</div></div>';
+        html += '<div class="stat-box"><div class="stat-value" style="color:#dc2626;">' + withoutOrders + '</div><div class="stat-label">Sem Pedidos</div></div>';
+        html += '</div>';
+        html += '<button class="btn-export" onclick="copyNoOrdersReport(\'' + estoque + '\')" style="margin-top:15px;">Copiar Relatorio</button>';
+        html += '</div>';
+
+        if (productsWithoutOrders.length > 0) {
+            html += '<div class="report-list" style="margin-top:20px;">';
+            html += '<h4 style="color:#dc2626;margin-bottom:12px;">Produtos sem Nenhum Pedido:</h4>';
+            productsWithoutOrders.forEach(function(p) {
+                html += '<div class="report-item" style="border-left-color:#dc2626;">';
+                html += '<div class="report-item-header"><span>' + p.name + '</span></div>';
+                html += '</div>';
+            });
+            html += '</div>';
+        } else {
+            html += '<div style="margin-top:20px;padding:20px;background:#d1fae5;border-radius:8px;text-align:center;color:#065f46;font-weight:600;">Todos os produtos deste estoque tiveram pedidos!</div>';
+        }
+
+        container.innerHTML = html;
+    }
+
+    function copyNoOrdersReport(estoque) {
+        const productsInEstoque = cacheProducts.filter(function(p) { return p.estoque === estoque; });
+        const orderedProducts = {};
+        cacheOrders.forEach(function(o) {
+            o.items.forEach(function(item) {
+                if (!orderedProducts[item.product]) orderedProducts[item.product] = 0;
+                orderedProducts[item.product] += item.quantity;
+            });
+        });
+        const productsWithoutOrders = productsInEstoque.filter(function(p) {
+            return !orderedProducts[p.name];
+        });
+        productsWithoutOrders.sort(function(a, b) {
+            return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+        });
+
+        const storeName = getConfig('storeName') || 'Loja';
+        let text = 'RELATORIO DE PRODUTOS SEM PEDIDO\n';
+        text += 'Loja: ' + storeName + '\n';
+        text += 'Estoque: ' + estoque + '\n';
+        text += 'Data: ' + new Date().toLocaleString('pt-BR') + '\n';
+        text += '='.repeat(40) + '\n\n';
+        text += 'Total de produtos no estoque: ' + productsInEstoque.length + '\n';
+        text += 'Produtos sem pedidos: ' + productsWithoutOrders.length + '\n\n';
+
+        if (productsWithoutOrders.length > 0) {
+            text += 'PRODUTOS SEM NENHUM PEDIDO:\n';
+            productsWithoutOrders.forEach(function(p) {
+                text += '- ' + p.name + '\n';
+            });
+        } else {
+            text += 'Todos os produtos deste estoque tiveram pedidos.\n';
+        }
+
+        navigator.clipboard.writeText(text).then(function() { alert('Relatorio copiado!'); });
+    }
+
     // ===== ADMIN ORDER MANAGEMENT =====
     function loadAdminOrders() {
         const container = document.getElementById('adminOrdersList');
@@ -2254,6 +2374,42 @@
         renderFridayProductList();
     }
 
+    async function clearOutOfStockProducts() {
+        const oos = getOutOfStockProducts();
+        if (oos.length === 0) {
+            alert('Nenhum produto em falta para limpar!');
+            return;
+        }
+        if (!confirm('Deseja limpar todos os produtos marcados como "Nao veio"? Isso ira alterar o status desses itens nos pedidos conferidos.')) return;
+
+        const cols = userCollections();
+        const batch = db.batch();
+        let changed = false;
+        cacheOrders.forEach(function(o) {
+            if (o.status === 'Conferido' && o.checkData) {
+                let orderChanged = false;
+                o.items.forEach(function(item, i) {
+                    if (o.checkData[i] && o.checkData[i].status === 'Nao veio') {
+                        o.checkData[i].status = 'Correto';
+                        o.checkData[i].receivedQuantity = 0;
+                        orderChanged = true;
+                        changed = true;
+                    }
+                });
+                if (orderChanged) {
+                    batch.update(cols.orders.doc(o.id), { checkData: o.checkData });
+                }
+            }
+        });
+        if (changed) {
+            await batch.commit();
+            renderFridayOutOfStockList();
+            alert('Produtos em falta limpos com sucesso!');
+        } else {
+            alert('Nenhum produto em falta encontrado.');
+        }
+    }
+
     // ===== EXPORT / IMPORT ALL =====
     function exportAllData() {
         const data = {
@@ -2348,5 +2504,6 @@
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
