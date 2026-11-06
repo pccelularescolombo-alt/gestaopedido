@@ -1233,32 +1233,138 @@ function renderFridayProductList() {
     });
     container.innerHTML = html;
 }
+const ESTOQUE_ORDER = ['Estoque Produtos', 'Estoque Nicola', 'Estoque Capa'];
+let oosView = [];
+
+// Agrupa por estoque os itens conferidos como "Nao veio" que ainda nao foram removidos da lista
+function getOutOfStockGroups() {
+    const map = {};
+    cacheOrders.forEach(function(o) {
+        if (o.status !== 'Conferido' || !o.checkData) return;
+        o.items.forEach(function(item, i) {
+            const cd = o.checkData[i];
+            if (!cd || cd.status !== 'Nao veio' || cd.dismissed) return;
+            const est = item.estoque || o.estoque || 'Sem estoque';
+            if (!map[est]) map[est] = {};
+            if (!map[est][item.product]) map[est][item.product] = [];
+            map[est][item.product].push({ orderId: o.id, itemIndex: i });
+        });
+    });
+    const keys = Object.keys(map).sort(function(a, b) {
+        const ia = ESTOQUE_ORDER.indexOf(a), ib = ESTOQUE_ORDER.indexOf(b);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
+    return keys.map(function(est) {
+        const names = Object.keys(map[est]).sort(function(a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
+        return { estoque: est, products: names.map(function(n) { return { name: n, refs: map[est][n] }; }) };
+    });
+}
+// Mantem a funcao antiga (lista simples de nomes) para uso em outros pontos
 function getOutOfStockProducts() {
     const out = [];
-    cacheOrders.forEach(function(o) {
-        if (o.status === 'Conferido' && o.checkData) {
-            o.items.forEach(function(item, i) {
-                if (o.checkData[i] && o.checkData[i].status === 'Nao veio' && !out.includes(item.product)) out.push(item.product);
-            });
-        }
+    getOutOfStockGroups().forEach(function(g) { g.products.forEach(function(p) { if (!out.includes(p.name)) out.push(p.name); }); });
+    return out.sort(function(a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
+}
+// Marca como removido (nao altera o historico da conferencia)
+async function dismissOutOfStockRefs(refs) {
+    const byOrder = {};
+    refs.forEach(function(r) { (byOrder[r.orderId] = byOrder[r.orderId] || []).push(r.itemIndex); });
+    const batch = db.batch();
+    Object.keys(byOrder).forEach(function(id) {
+        const o = cacheOrders.find(function(x) { return x.id === id; });
+        if (!o) return;
+        byOrder[id].forEach(function(i) { o.checkData[i].dismissed = true; });
+        batch.update(colOrders.doc(id), { checkData: o.checkData });
     });
-    out.sort(function(a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
-    return out;
+    await batch.commit();
+}
+function outOfStockGroupText(g) {
+    let t = g.estoque + ':\n';
+    g.products.forEach(function(p) { t += '- ' + p.name + '\n'; });
+    return t;
+}
+function copyText(text, okMsg) {
+    navigator.clipboard.writeText(text).then(function() { alert(okMsg); }).catch(function() {
+        const ta = document.createElement('textarea'); ta.value = text;
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); alert(okMsg); } catch (e) { alert('Texto:\n\n' + text); }
+        document.body.removeChild(ta);
+    });
 }
 function renderFridayOutOfStockList() {
     const container = document.getElementById('fridayOutOfStockList');
-    const oos = getOutOfStockProducts();
-    if (oos.length === 0) { container.innerHTML = '<div class="empty-state" style="padding:20px;">Nenhum produto marcado como "Nao veio"</div>'; return; }
+    oosView = getOutOfStockGroups();
+    const actions = document.getElementById('fridayOutOfStockActions');
+    if (oosView.length === 0) {
+        container.innerHTML = '<div class="empty-state" style="padding:20px;">Nenhum produto marcado como "Nao veio"</div>';
+        if (actions) actions.classList.add('hidden');
+        return;
+    }
+    if (actions) actions.classList.remove('hidden');
     let html = '';
-    oos.forEach(function(p) { html += '<div style="display:flex;align-items:center;padding:10px 15px;background:#fef2f2;border-radius:8px;margin-bottom:6px;border-left:3px solid #fca5a5;"><span style="color:#dc2626;font-weight:600;">' + p + '</span></div>'; });
+    oosView.forEach(function(g, gi) {
+        html += '<div style="border:1px solid #fecaca;border-radius:10px;padding:14px;margin-bottom:14px;background:#fff;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">' +
+            '<strong style="color:#991b1b;">' + g.estoque + ' <span style="color:#6b7280;font-weight:500;font-size:13px;">(' + g.products.length + ')</span></strong>' +
+            '<div style="display:flex;gap:8px;">' +
+            '<button class="btn-edit btn-small" onclick="copyOutOfStockGroup(' + gi + ')">Copiar</button>' +
+            '<button class="btn-danger btn-small" onclick="clearOutOfStockGroup(' + gi + ')">Apagar lista</button></div></div>';
+        g.products.forEach(function(p, pi) {
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#fef2f2;border-radius:8px;margin-bottom:6px;border-left:3px solid #fca5a5;">' +
+                '<span style="color:#dc2626;font-weight:600;"></span>' +
+                '<button class="btn-danger btn-small" title="Remover da lista" onclick="removeOutOfStockProduct(' + gi + ',' + pi + ')">X</button></div>';
+        });
+        html += '</div>';
+    });
     container.innerHTML = html;
+    // nomes inseridos como texto (evita problemas com aspas/HTML)
+    const spans = container.querySelectorAll('span[style*="#dc2626"]');
+    let k = 0;
+    oosView.forEach(function(g) { g.products.forEach(function(p) { spans[k++].textContent = p.name; }); });
+}
+function copyOutOfStockGroup(gi) {
+    const g = oosView[gi]; if (!g) return;
+    const storeName = getConfig('storeName') || 'Loja';
+    copyText('Produtos Solicitados e Nao Tinha em Estoque - ' + storeName + '\n\n' + outOfStockGroupText(g), 'Lista copiada!');
+}
+async function clearOutOfStockGroup(gi) {
+    const g = oosView[gi]; if (!g) return;
+    if (!confirm('Apagar a lista de "' + g.estoque + '"?')) return;
+    const refs = [];
+    g.products.forEach(function(p) { refs.push.apply(refs, p.refs); });
+    await dismissOutOfStockRefs(refs);
+    renderFridayOutOfStockList();
+}
+async function removeOutOfStockProduct(gi, pi) {
+    const g = oosView[gi]; if (!g || !g.products[pi]) return;
+    await dismissOutOfStockRefs(g.products[pi].refs);
+    renderFridayOutOfStockList();
+}
+function outOfStockFullText() {
+    const storeName = getConfig('storeName') || 'Loja';
+    let text = 'Produtos Solicitados e Nao Tinha em Estoque - ' + storeName + '\n\n';
+    if (oosView.length === 0) return text + 'Nenhum produto em falta\n';
+    text += oosView.map(outOfStockGroupText).join('\n');
+    return text;
+}
+function copyOutOfStockAll() {
+    oosView = getOutOfStockGroups();
+    if (oosView.length === 0) { alert('Nenhum produto em falta para copiar!'); return; }
+    copyText(outOfStockFullText(), 'Relatorio completo copiado!');
+}
+async function clearOutOfStockProducts() {
+    oosView = getOutOfStockGroups();
+    if (oosView.length === 0) { alert('Nenhum produto em falta para limpar!'); return; }
+    if (!confirm('Apagar a lista de TODOS os estoques?')) return;
+    const refs = [];
+    oosView.forEach(function(g) { g.products.forEach(function(p) { refs.push.apply(refs, p.refs); }); });
+    await dismissOutOfStockRefs(refs);
+    renderFridayOutOfStockList();
 }
 function copyFridayReport() {
     const storeName = getConfig('storeName') || 'Loja';
     const clientProducts = cacheFridayProducts.filter(function(p) { return p.type === 'client'; });
     const fridayProducts = cacheFridayProducts.filter(function(p) { return p.type === 'friday'; });
-    const oos = getOutOfStockProducts();
-
     clientProducts.sort(function(a, b) { return (a.clientName || '').toLowerCase().localeCompare((b.clientName || '').toLowerCase()); });
     fridayProducts.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
 
@@ -1276,7 +1382,8 @@ function copyFridayReport() {
     } else { text += 'Nenhum produto\n'; }
 
     text += '\nProdutos Solicitados e Nao Tinha em Estoque:\n';
-    text += oos.length > 0 ? oos.map(function(p) { return p + '\n'; }).join('') : 'Nenhum produto em falta\n';
+    const oosGroups = getOutOfStockGroups();
+    text += oosGroups.length > 0 ? oosGroups.map(outOfStockGroupText).join('\n') : 'Nenhum produto em falta\n';
 
     navigator.clipboard.writeText(text).then(function() { alert('Relatorio copiado!'); });
 }
@@ -1303,36 +1410,6 @@ async function clearFridayOrderProducts() {
     await clearFridayByType('friday', 'Nenhum produto do pedido sexta para limpar!', 'Deseja limpar todos os produtos do pedido sexta?');
     renderFridayProductList();
 }
-async function clearOutOfStockProducts() {
-    const oos = getOutOfStockProducts();
-    if (oos.length === 0) { alert('Nenhum produto em falta para limpar!'); return; }
-    if (!confirm('Deseja limpar todos os produtos marcados como "Nao veio"? Isso ira alterar o status desses itens nos pedidos conferidos.')) return;
-
-    const batch = db.batch();
-    let changed = false;
-    cacheOrders.forEach(function(o) {
-        if (o.status === 'Conferido' && o.checkData) {
-            let orderChanged = false;
-            o.items.forEach(function(item, i) {
-                if (o.checkData[i] && o.checkData[i].status === 'Nao veio') {
-                    o.checkData[i].status = 'Correto';
-                    o.checkData[i].receivedQuantity = 0;
-                    orderChanged = true;
-                    changed = true;
-                }
-            });
-            if (orderChanged) batch.update(colOrders.doc(o.id), { checkData: o.checkData });
-        }
-    });
-    if (changed) {
-        await batch.commit();
-        renderFridayOutOfStockList();
-        alert('Produtos em falta limpos com sucesso!');
-    } else {
-        alert('Nenhum produto em falta encontrado.');
-    }
-}
-
 // ===== EXPORT / IMPORT ALL =====
 function exportAllData() {
     const data = {

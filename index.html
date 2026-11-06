@@ -184,8 +184,9 @@
                         <h3 style="color:#dc2626;margin-bottom:12px;font-size:16px;">Produtos Solicitados e Nao Tinha em Estoque</h3>
                         <p style="color:#9ca3af;font-size:13px;margin-bottom:15px;">Carregado automaticamente dos pedidos conferidos com itens marcados como "Nao veio"</p>
                         <div id="fridayOutOfStockList"></div>
-                        <div style="margin-top:10px;">
-                            <button class="btn-danger btn-small" onclick="clearOutOfStockProducts()">Limpar Produtos em Falta</button>
+                        <div id="fridayOutOfStockActions" class="hidden" style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+                            <button class="btn-warning" onclick="copyOutOfStockAll()">Copiar Relatorio Completo</button>
+                            <button class="btn-danger" onclick="clearOutOfStockProducts()" style="padding:10px 20px;">Apagar Todos os Estoques</button>
                         </div>
                     </div>
                     <div style="border-top:1px solid #e5e7eb;padding-top:20px;margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
