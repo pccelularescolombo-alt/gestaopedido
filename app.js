@@ -123,6 +123,27 @@ const statsPerPage = 20;
     populateDateSelects();
 })();
 
+// ===== HELPERS DE QUANTIDADE =====
+// Capa: so mostra Masculina/Feminina/Mista quando preenchidas (> 0)
+function capaParts(item) {
+    const parts = [];
+    if (item.quantityM > 0) parts.push(item.quantityM + 'M');
+    if (item.quantityF > 0) parts.push(item.quantityF + 'F');
+    if (item.quantityMix > 0) parts.push(item.quantityMix + 'Mista');
+    return parts.join(' ');
+}
+function isCapaItem(item) {
+    return item.estoque === 'Estoque Capa' && (item.quantityM !== undefined || item.quantityF !== undefined || item.quantityMix !== undefined);
+}
+// Retorna 'Nome' ou 'Nome: 2M 1F' conforme o que foi preenchido
+function plainItemText(item) {
+    if (isCapaItem(item)) {
+        const p = capaParts(item);
+        return p ? item.product + ': ' + p : item.product;
+    }
+    return item.quantity > 0 ? item.quantity + ' ' + item.product : item.product;
+}
+
 // ===== UI HELPERS =====
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
@@ -323,12 +344,14 @@ function filterProductsByEstoque() {
     const qtyField = document.getElementById('itemQuantity');
     const qtyMField = document.getElementById('itemQuantityM');
     const qtyFField = document.getElementById('itemQuantityF');
+    const qtyMixField = document.getElementById('itemQuantityMix');
     const qtyCXField = document.getElementById('itemQuantityCX');
     const nicolaTypeSelect = document.getElementById('orderNicolaType');
 
     qtyField.classList.add('hidden');
     qtyMField.classList.add('hidden');
     qtyFField.classList.add('hidden');
+    qtyMixField.classList.add('hidden');
     qtyCXField.classList.add('hidden');
     nicolaTypeSelect.classList.add('hidden');
     nicolaTypeSelect.value = '';
@@ -336,6 +359,7 @@ function filterProductsByEstoque() {
     if (estoque === 'Estoque Capa') {
         qtyMField.classList.remove('hidden');
         qtyFField.classList.remove('hidden');
+        qtyMixField.classList.remove('hidden');
     } else if (estoque === 'Estoque Nicola') {
         nicolaTypeSelect.classList.remove('hidden');
     } else {
@@ -345,6 +369,7 @@ function filterProductsByEstoque() {
     qtyField.value = '';
     qtyMField.value = '';
     qtyFField.value = '';
+    qtyMixField.value = '';
     qtyCXField.value = '';
 }
 function onNicolaTypeChange() {
@@ -416,31 +441,31 @@ function addItem() {
     if (estoque === 'Estoque Capa') {
         const qtyM = parseInt(document.getElementById('itemQuantityM').value) || 0;
         const qtyF = parseInt(document.getElementById('itemQuantityF').value) || 0;
-        if (qtyM === 0 && qtyF === 0) { alert('Informe pelo menos uma quantidade (Masculina ou Feminina)!'); return; }
-        itemData.quantityM = qtyM;
-        itemData.quantityF = qtyF;
-        itemData.quantity = qtyM + qtyF;
+        const qtyMix = parseInt(document.getElementById('itemQuantityMix').value) || 0;
+        // so grava o que foi preenchido
+        if (qtyM > 0) itemData.quantityM = qtyM;
+        if (qtyF > 0) itemData.quantityF = qtyF;
+        if (qtyMix > 0) itemData.quantityMix = qtyMix;
+        itemData.quantity = qtyM + qtyF + qtyMix;
         document.getElementById('itemQuantityM').value = '';
         document.getElementById('itemQuantityF').value = '';
+        document.getElementById('itemQuantityMix').value = '';
     } else if (estoque === 'Estoque Nicola') {
         const nicolaType = document.getElementById('orderNicolaType').value;
         if (!nicolaType) { alert('Selecione o tipo (Película ou Produto)!'); return; }
         itemData.nicolaType = nicolaType;
         if (nicolaType === 'pel') {
-            const cx = parseInt(document.getElementById('itemQuantityCX').value);
-            if (!cx || cx < 1) { alert('Informe a quantidade CX!'); return; }
-            itemData.quantityCX = cx;
+            const cx = parseInt(document.getElementById('itemQuantityCX').value) || 0;
+            if (cx > 0) itemData.quantityCX = cx;
             itemData.quantity = cx;
             document.getElementById('itemQuantityCX').value = '';
         } else {
-            const qty = parseInt(document.getElementById('itemQuantity').value);
-            if (!qty || qty < 1) { alert('Informe a quantidade!'); return; }
+            const qty = parseInt(document.getElementById('itemQuantity').value) || 0;
             itemData.quantity = qty;
             document.getElementById('itemQuantity').value = '';
         }
     } else {
-        const qty = parseInt(document.getElementById('itemQuantity').value);
-        if (!qty || qty < 1) { alert('Informe a quantidade!'); return; }
+        const qty = parseInt(document.getElementById('itemQuantity').value) || 0;
         itemData.quantity = qty;
         document.getElementById('itemQuantity').value = '';
     }
@@ -454,13 +479,12 @@ function addItem() {
     displayCurrentOrder(); autoSaveOrder();
 }
 function formatItemDisplay(item) {
-    if (item.estoque === 'Estoque Capa' && (item.quantityM !== undefined || item.quantityF !== undefined)) {
-        return item.product + ': ' + (item.quantityM || 0) + 'M ' + (item.quantityF || 0) + 'F';
-    } else if (item.estoque === 'Estoque Nicola') {
-        if (item.nicolaType === 'pel') return 'Película: ' + (item.quantityCX || 0) + ' CX: ' + item.product;
-        return 'Produto: ' + item.quantity + ' ' + item.product;
+    if (isCapaItem(item)) return plainItemText(item);
+    if (item.estoque === 'Estoque Nicola') {
+        if (item.nicolaType === 'pel') return (item.quantityCX > 0) ? 'Película: ' + item.quantityCX + ' CX: ' + item.product : 'Película: ' + item.product;
+        return item.quantity > 0 ? 'Produto: ' + item.quantity + ' ' + item.product : 'Produto: ' + item.product;
     }
-    return item.quantity + 'x ' + item.product;
+    return item.quantity > 0 ? item.quantity + 'x ' + item.product : item.product;
 }
 function displayCurrentOrder() {
     const c = document.getElementById('currentOrderItems');
@@ -510,25 +534,20 @@ function copyOrderText(orderId) {
         if (pelItems.length > 0) {
             text += 'Película:\n';
             pelItems.forEach(function(item) {
-                text += (item.quantityCX || item.quantity || 0) + ' CX: ' + item.product + (item.others ? ' ' + item.others : '') + '\n';
+                const cxq = item.quantityCX || item.quantity || 0;
+                text += (cxq > 0 ? cxq + ' CX: ' : '') + item.product + (item.others ? ' ' + item.others : '') + '\n';
             });
         }
         if (prodItems.length > 0) {
             if (pelItems.length > 0) text += '\n';
             text += 'Produto:\n';
             prodItems.forEach(function(item) {
-                text += item.quantity + ' ' + item.product + (item.others ? ' ' + item.others : '') + '\n';
+                text += (item.quantity > 0 ? item.quantity + ' ' : '') + item.product + (item.others ? ' ' + item.others : '') + '\n';
             });
         }
     } else {
         order.items.forEach(function(item) {
-            let itemText = '';
-            if (item.estoque === 'Estoque Capa' && (item.quantityM !== undefined || item.quantityF !== undefined)) {
-                itemText = item.product + ': ' + (item.quantityM || 0) + 'M ' + (item.quantityF || 0) + 'F';
-            } else {
-                itemText = item.quantity + ' ' + item.product;
-            }
-            text += itemText + (item.others ? ' ' + item.others : '') + '\n';
+            text += plainItemText(item) + (item.others ? ' ' + item.others : '') + '\n';
         });
     }
     navigator.clipboard.writeText(text).then(function() { alert('Pedido copiado!'); }).catch(function() {
@@ -611,7 +630,7 @@ function renderCheckOrderItems(order, isChecked) {
                 '<div class="check-option' + clsFaltando + '" data-action="Faltando" data-item-index="' + itemIndex + '" onclick="setCheckStatus(\'' + selectedCheckOrderId + '\',' + itemIndex + ',\'Faltando\')">Faltando</div>' +
                 '<div class="check-option' + clsNaoveio + '" data-action="Nao veio" data-item-index="' + itemIndex + '" onclick="setCheckStatus(\'' + selectedCheckOrderId + '\',' + itemIndex + ',\'Nao veio\')">Nao veio</div></div>';
             innerHtml += '<div id="faltando-input-' + selectedCheckOrderId + '-' + itemIndex + '" class="' + (cs === 'Faltando' ? '' : 'hidden') + '" style="margin-top:10px;">' +
-                '<input type="number" class="input-field" placeholder="Quantidade recebida" value="' + rq + '" onchange="setReceivedQuantity(\'' + selectedCheckOrderId + '\',' + itemIndex + ',this.value)" min="0" max="' + (item.quantity - 1) + '"></div>';
+                '<input type="number" class="input-field" placeholder="Quantidade recebida" value="' + rq + '" onchange="setReceivedQuantity(\'' + selectedCheckOrderId + '\',' + itemIndex + ',this.value)" min="0" max="' + Math.max(item.quantity - 1, 0) + '"></div>';
         }
         div.innerHTML = innerHtml;
         container.appendChild(div);
@@ -805,8 +824,8 @@ function copyCheckText() {
             let st = cd ? cd.status : 'Nao conferido';
             if (cd && cd.status === 'Faltando' && cd.receivedQuantity !== undefined) st += ' (Recebido: ' + cd.receivedQuantity + ')';
             const qty = item.nicolaType === 'pel' ? (item.quantityCX || item.quantity || 0) : item.quantity;
-            const cxLabel = item.nicolaType === 'pel' ? ' CX: ' : ' ';
-            text += qty + cxLabel + item.product + (item.others ? ' ' + item.others : '') + ' [' + st + ']\n';
+            const qtyLabel = qty > 0 ? qty + (item.nicolaType === 'pel' ? ' CX: ' : ' ') : '';
+            text += qtyLabel + item.product + (item.others ? ' ' + item.others : '') + ' [' + st + ']\n';
         }
 
         if (pelItems.length > 0) { text += 'Película:\n'; pelItems.forEach(appendCheckLine); }
@@ -819,13 +838,7 @@ function copyCheckText() {
             const cd = order.checkData[index];
             let st = cd ? cd.status : 'Nao conferido';
             if (cd && cd.status === 'Faltando' && cd.receivedQuantity !== undefined) st += ' (Recebido: ' + cd.receivedQuantity + ')';
-            let itemText = '';
-            if (item.estoque === 'Estoque Capa' && (item.quantityM !== undefined || item.quantityF !== undefined)) {
-                itemText = item.product + ': ' + (item.quantityM || 0) + 'M ' + (item.quantityF || 0) + 'F';
-            } else {
-                itemText = item.quantity + ' ' + item.product;
-            }
-            text += itemText + (item.others ? ' ' + item.others : '') + ' [' + st + ']\n';
+            text += plainItemText(item) + (item.others ? ' ' + item.others : '') + ' [' + st + ']\n';
         });
     }
     if (order.extraProducts && order.extraProducts.length > 0) {
@@ -1102,7 +1115,7 @@ function renderEditItems() {
     container.innerHTML = '';
     editingItems.forEach(function(item, i) {
         const div = document.createElement('div'); div.className = 'edit-item-row';
-        div.innerHTML = '<input type="number" class="input-field" value="' + item.quantity + '" min="1" onchange="updateEditItem(' + i + ',\'quantity\',this.value)">' +
+        div.innerHTML = '<input type="number" class="input-field" value="' + (item.quantity || '') + '" min="0" placeholder="Qtd" onchange="updateEditItem(' + i + ',\'quantity\',this.value)">' +
             '<input type="text" class="input-field" value="' + item.product + '" onchange="updateEditItem(' + i + ',\'product\',this.value)">' +
             '<input type="text" class="input-field" value="' + (item.others || '') + '" placeholder="Obs" onchange="updateEditItem(' + i + ',\'others\',this.value)">' +
             '<button class="btn-danger btn-small" onclick="removeEditItem(' + i + ')">X</button>';
@@ -1111,7 +1124,7 @@ function renderEditItems() {
 }
 function updateEditItem(i, field, value) {
     if (field === 'quantity') {
-        const q = parseInt(value);
+        const q = parseInt(value) || 0;
         editingItems[i].quantity = q;
         if (editingItems[i].nicolaType === 'pel') editingItems[i].quantityCX = q;
     } else editingItems[i][field] = value;
@@ -1121,8 +1134,8 @@ function addItemToEdit() {
     const qty = document.getElementById('editNewQty').value;
     const product = document.getElementById('editProductSearch').value;
     const others = document.getElementById('editNewOthers').value;
-    if (!qty || !product) { alert('Preencha quantidade e produto!'); return; }
-    editingItems.push({ quantity: parseInt(qty), product: product, others: others });
+    if (!product) { alert('Preencha o produto!'); return; }
+    editingItems.push({ quantity: parseInt(qty) || 0, product: product, others: others });
     document.getElementById('editNewQty').value = '';
     document.getElementById('editProductSearch').value = '';
     document.getElementById('editNewOthers').value = '';
